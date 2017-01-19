@@ -247,12 +247,18 @@ void handlePauseMenu(Console c) {
 		quickSave += " (" + lastSavedFile + ")";
 		quickLoad += " (" + lastSavedFile + ")";
 		
-		c.labels.add(new ConsoleLink(c.centerJustified(quickSave), 2, quickSave, "1", (c, l) {}));
-		c.labels.add(new ConsoleLink(c.centerJustified(quickLoad), 3, quickLoad, "2", (c, l) {}));
+		c.labels.add(new ConsoleLink(c.centerJustified(quickSave), 2, quickSave, "1", (c, l) {
+			saveToDisk(world, lastSavedFile);
+			c.onRefresh = handleTileView;
+		}));
+		c.labels.add(new ConsoleLink(c.centerJustified(quickLoad), 3, quickLoad, "2", (c, l) {
+			world = loadFromDisk(lastSavedFile);
+			c.onRefresh = handleTileView;
+		}));
 	}
 	
 	c.labels.add(new ConsoleLabel(c.centerJustified(menuHeader), 0, menuHeader));
-
+	
 	c.labels.add(new ConsoleLink(c.centerJustified(save), 4, save, "3", (c, l) {
 		c.onRefresh = handleCreateNewSave;
 	}));
