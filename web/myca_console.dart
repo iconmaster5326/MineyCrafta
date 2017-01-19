@@ -86,6 +86,7 @@ class Console {
 	List<ConsoleLabel> labels = new List<ConsoleLabel>();
 	
 	final Element _consoleElement;
+	List<StreamSubscription> conns = new List<StreamSubscription>();
 	
 	Console(this.onRefresh) : _consoleElement = querySelector("#output") {
 		refresh();
@@ -129,6 +130,11 @@ class Console {
 		for (Element e in _consoleElement.children) {
 			e.remove();
 		}
+		
+		for (StreamSubscription conn in conns) {
+			conn.cancel();
+		}
+		conns.clear();
 		
 		// Find the new extents of the console
 		
@@ -233,30 +239,28 @@ class Console {
 					linkElem.style.color = _colorToString(label.fore);
 					linkElem.style.backgroundColor = _colorToString(label.back);
 					
-					linkElem.onMouseEnter.listen((e) {
+					conns.add(linkElem.onMouseEnter.listen((e) {
 						linkElem.style.color = _colorToString(invertColor(label.fore));
 						linkElem.style.backgroundColor = _colorToString(invertColor(label.back));
-					});
-					linkElem.onMouseLeave.listen((e) {
+					}));
+					conns.add(linkElem.onMouseLeave.listen((e) {
 						linkElem.style.color = _colorToString(label.fore);
 						linkElem.style.backgroundColor = _colorToString(label.back);
-					});
-					var conn;
-					conn = window.onKeyPress.listen((e) {
+					}));
+					conns.add(window.onKeyPress.listen((e) {
 						if (e.keyCode == link.key) {
-							conn.cancel();
 							if (link.onClick != null) {
 								link.onClick(this, link);
 								refresh();
 							}
 						}
-					});
-					linkElem.onClick.listen((e) {
+					}));
+					conns.add(linkElem.onClick.listen((e) {
 						if (link.onClick != null) {
 							link.onClick(this, link);
 							refresh();
 						}
-					});
+					}));
 					
 					_consoleElement.children[row].children.add(linkElem);
 				} else {

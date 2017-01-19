@@ -37,6 +37,9 @@ void handleTileView(Console c) {
 	/// gather possible actions for the action bar
 	List<ConsoleLink> actions = new List<ConsoleLink>();
 	
+	actions.add(new ConsoleLink(0, 0, "Inventory", null, (c, l) {}));
+	actions.add(new ConsoleLink(0, 0, "Look Around", null, (c, l) {}));
+	
 	for (Feature f in world.player.tile.features) {
 		f.addActions(actions);
 	}
