@@ -51,12 +51,16 @@ class FeatureTrees extends Feature {
 			ItemStack wood = new ItemStack(breed.wood, rng.nextInt(6)+1);
 			world.player.inventory.add(wood);
 			numTrees--;
-			dialogText = "You cut down some of the trees around you. Soon, you manage to gather:\n\n" + wood.name;
 			
+			String dialogText = "You cut down some of the trees around you. Soon, you manage to gather:\n\n" + wood.name;
 			if (numTrees <= 0) {
 				dialogText += "\n\nTHere are no more " + breed.name + " trees to cut down.";
 				tile.features.remove(this);
 			}
+			
+			c.onRefresh = handleNotifyDialog(dialogText, (c) {
+				c.onRefresh = handleTileView;
+			});
 		}));
 	}
 	

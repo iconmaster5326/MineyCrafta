@@ -2,9 +2,11 @@ import 'myca_core.dart';
 import 'myca_items.dart';
 import 'myca_entities.dart';
 import 'myca_console.dart';
+import 'myca_worldgen.dart';
 
 /// A tile represents a location the player can be located in.
 class Tile {
+	World world;
 	/// Every tile can have features added onto it, such as trees, buildings, torches, etc.
 	List<Feature> features = new List<Feature>();
 	List<Entity> entities = new List<Entity>();
@@ -17,13 +19,15 @@ class Tile {
 	int x; int y;
 	Biome biome;
 	
+	Tile(this.world);
+	
 	// draws the ASCII art box.
 	void drawPicture(Console c, int x, int y, int w, int h) {}
 }
 
 /// A WorldTile is a Tile on the world map. It has a coordinate, biome, etc.
 class WorldTile extends Tile {
-	WorldTile(int nx, int ny, Biome nbiome) {
+	WorldTile(World world, int nx, int ny, Biome nbiome) : super(world) {
 		x = nx; y = ny; biome = nbiome;
 	}
 	
@@ -32,20 +36,21 @@ class WorldTile extends Tile {
 		c.labels.add(new ConsoleLabel(x, y + h~/2 - 1, repeatString("-", w), biome.groundColor));
 		for (int row = y + h~/2; row < y + h; row++) {
 			c.labels.add(new ConsoleLabel(x, row, repeatString(".", w), biome.groundColor));
-			if (row == y + h*3~/4) {
-				c.labels.add(new ConsoleLabel(x + w~/2, row , "@"));
-			}
 		}
 		
 		for (Feature f in features) {
 			f.drawPicture(c, x, y, w, h);
 		}
+		
+		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
 	}
 }
 
 /// A FeatureTile is a Tile inside of a Feature.
 class FeatureTile extends Tile {
 	Feature feature;
+	
+	FeatureTile(World world) : super(world);
 	
 	int get x => feature.tile.x;
 	void set x(int value) {feature.tile.x = value;}

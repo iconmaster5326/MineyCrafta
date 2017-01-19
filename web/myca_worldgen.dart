@@ -10,13 +10,20 @@ class World {
 	int size;
 	Map<Point<int>, WorldTile> tiles = new Map<Point<int>, WorldTile>();
 	Player player;
+	Random worldRng;
+	int seed;
 	
-	World(this.player, [this.size = 16]) {
+	World(this.player, [this.size = 16, this.seed]) {
 		Biome b = new BiomeForest();
+		
+		if (seed == null) {
+			seed = rng.nextInt(100000000);
+		}
+		worldRng = new Random(seed);
 		
 		for (int x = 0; x < size; x++) {
 			for (int y = 0; y < size; y++) {
-				WorldTile t = new WorldTile(x, y, b);
+				WorldTile t = new WorldTile(this, x, y, b);
 				tiles[new Point(x,y)] = t;
 				b.generate(t);
 			}

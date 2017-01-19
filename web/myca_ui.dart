@@ -3,6 +3,7 @@ import 'myca_console.dart';
 import 'myca_world.dart';
 import 'myca_worldgen.dart';
 import 'myca_entities.dart';
+import 'myca_items.dart';
 
 World world;
 
@@ -30,8 +31,6 @@ void handleTitleScreen(Console c) {
 		c.onRefresh = handleTileView;
 	}));
 }
-
-String dialogText;
 
 void handleTileView(Console c) {
 	/// gather possible actions for the action bar
@@ -99,19 +98,9 @@ void handleTileView(Console c) {
 			c.labels.add(new ConsoleLabel(boxX, row,  "|"));
 			c.labels.add(new ConsoleLabel(boxX+boxW-1, row,  "|"));
 		}
-		
 	}
 	
-	if (dialogText != null) {
-		// display dialog
-		c.labels.addAll(new ConsoleLabel(boxX+1, boxY+1, fitToWidth(dialogText, boxW-2)).as2DLabel());
-		c.labels.add(new ConsoleLink(boxX+1, boxY+boxH-2, "ENTER) OK", 13, (c, l) {
-			dialogText = null;
-		}));
-	} else {
-		// display ACSII art
-		world.player.tile.drawPicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
-	}
+	world.player.tile.drawPicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
 }
 
 void handleInventoryView(Console c) {
@@ -134,4 +123,23 @@ void handleInventoryView(Console c) {
 	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
 		c.onRefresh = handleTileView;
 	}));
+}
+
+typedef void NotifyDialogCallback(Console c);
+ConsoleRefreshHandler handleNotifyDialog(String message, NotifyDialogCallback onAccept) {
+	return (c) {
+		c.labels.add(new ConsoleLabel(1, 1,  "+"+repeatString("-", c.width-4)+"+"));
+		c.labels.add(new ConsoleLabel(1, c.height-2,  "+"+repeatString("-", c.width-4)+"+"));
+		
+		for (int i = 2; i < c.height-2; i++) {
+			c.labels.add(new ConsoleLabel(1, i, "|"));
+			c.labels.add(new ConsoleLabel(c.width-2, i, "|"));
+		}
+		
+		c.labels.addAll(new ConsoleLabel(2, 2, fitToWidth(message, c.width-6)).as2DLabel());
+		
+		c.labels.add(new ConsoleLink(2, c.height - 3,  "ENTER) OK", 13, (c, l) {
+			onAccept(c);
+		}));
+	};
 }

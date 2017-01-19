@@ -15,7 +15,7 @@ class BiomeForest extends Biome {
 	
 	@override
 	void generate(WorldTile tile) {
-		new FeatureTrees(tile, treeBreeds["Oak"], 4);
-		new FeatureTrees(tile, treeBreeds["Birch"], 4);
+		new FeatureTrees(tile, treeBreeds["Oak"], tile.world.worldRng.nextInt(5)+4);
+		new FeatureTrees(tile, treeBreeds["Birch"], tile.world.worldRng.nextInt(5)+4);
 	}
 }
