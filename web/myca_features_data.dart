@@ -13,13 +13,15 @@ Trees
 
 class TreeBreed {
 	String name;
+	ConsoleColor trunkColor;
+	ConsoleColor leavesColor;
 	
-	TreeBreed(this.name);
+	TreeBreed(this.name, {this.trunkColor:  ConsoleColor.MAROON, this.leavesColor:  ConsoleColor.LIME});
 }
 
 Map<String, TreeBreed> treeBreeds = {
 	"Oak": new TreeBreed("Oak"),
-	"Birch": new TreeBreed("Birch"),
+	"Birch": new TreeBreed("Birch", trunkColor: ConsoleColor.SILVER),
 };
 
 class FeatureTypeTrees extends FeatureType {
@@ -30,9 +32,9 @@ class FeatureTypeTrees extends FeatureType {
 
 class FeatureTrees extends Feature {
 	TreeBreed breed;
-	int numTrees = rng.nextInt(8)+1;
+	int numTrees;
 	
-	FeatureTrees(Tile tile, this.breed) : super(tile) {
+	FeatureTrees(Tile tile, this.breed, this.numTrees) : super(tile) {
 		featureType = new FeatureTypeTrees();
 		name = breed.name + " Trees";
 	}
@@ -46,9 +48,11 @@ class FeatureTrees extends Feature {
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
-		Random treeRng = new Random(w * h);
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random treeRng = new Random(hashCode);
 		for (int tree = 0; tree < numTrees; tree++) {
-			int treeX = treeRng.nextInt(w) - w~/2;
+			int treeX = treeRng.nextInt(w-3) - (w-3)~/2;
 			int treeY = treeRng.nextInt(h~/2);
 			
 			for (int i = 0; i < 4; i++) {
@@ -57,10 +61,10 @@ class FeatureTrees extends Feature {
 				
 				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
 					switch (i) {
-						case 0: c.labels.add(new ConsoleLabel(realX, realY, "+-+")); break;
-						case 1: c.labels.add(new ConsoleLabel(realX, realY, "+-+")); break;
-						case 2: c.labels.add(new ConsoleLabel(realX + 1, realY, "|")); break;
-						case 3: c.labels.add(new ConsoleLabel(realX + 1, realY, "|")); break;
+						case 0: c.labels.add(new ConsoleLabel(realX, realY, "+-+", breed.leavesColor)); break;
+						case 1: c.labels.add(new ConsoleLabel(realX, realY, "+-+", breed.leavesColor)); break;
+						case 2: c.labels.add(new ConsoleLabel(realX + 1, realY, "|", breed.trunkColor)); break;
+						case 3: c.labels.add(new ConsoleLabel(realX + 1, realY, "|", breed.trunkColor)); break;
 					}
 				}
 			}

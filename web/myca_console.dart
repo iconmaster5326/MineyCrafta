@@ -54,6 +54,10 @@ class ConsoleLabel {
 		}
 		return ret;
 	}
+	
+	ConsoleLabel clone() {
+		return new ConsoleLabel(x, y, text, fore, back);
+	}
 }
 
 class ConsoleLink extends ConsoleLabel {
@@ -66,6 +70,11 @@ class ConsoleLink extends ConsoleLabel {
 		} else if (keyString is int) {
 			key = keyString;
 		}
+	}
+	
+	@override
+	ConsoleLabel clone() {
+		return new ConsoleLink(x, y, text, key, onClick, fore, back);
 	}
 }
 
@@ -159,39 +168,62 @@ class Console {
 		}
 		
 		for (int row in rowMap.keys) {
-			_consoleElement.children[row].text = "";
+			// alter the row map so that all labels are in increasing order, and do not overlap.
+			// rowMap[row].sort((a, b) => a.x.compareTo(b.x));
 			
-			rowMap[row].sort((a, b) => a.x.compareTo(b.x));
-			int x = 0;
+			List<ConsoleLabel> onTop = new List<ConsoleLabel>();
+			for (int i = 0; i <= width; i++) {
+				onTop.add(null);
+				for (ConsoleLabel label in rowMap[row]) {
+					if (label.x <= i && label.x + label.text.length > i) {
+						onTop[i] = label;
+					}
+				}
+			}
+			
+			rowMap[row].clear();
+			ConsoleLabel currLabel;
 			ConsoleLabel lastLabel;
-			for (ConsoleLabel label in rowMap[row]) {
-				int diff = label.x - x;
-				ConsoleLabel splitLabelPost;
-				if (diff < 0) {
-					// split up the previous label to resolve the z-fighting.
-					// Note that this destroys links that overlap.
-					int begin = (label.x - lastLabel.x).abs();
-						String pre = lastLabel.text.substring(0, begin);
-						if (label.x + label.text.length < lastLabel.x + lastLabel.text.length) {
-							String post = lastLabel.text.substring(begin + label.text.length);
-							splitLabelPost = new ConsoleLabel(label.x + label.text.length, label.y, post, lastLabel.fore, lastLabel.back);
+			for (int i = 0; i <= width; i++) {
+				ConsoleLabel label = onTop[i];
+				if (label == null) {
+					if (currLabel !=  null) {
+						rowMap[row].add(currLabel);
+					}
+					currLabel = null;
+					lastLabel = null;
+				} else {
+					if (currLabel != null && lastLabel == label) {
+						currLabel.text += new String.fromCharCode(label.text.codeUnitAt(i - label.x));
+					} else {
+						if (currLabel != null) {
+							rowMap[row].add(currLabel);
 						}
 						
-						_consoleElement.children[row].children.removeLast();
+						currLabel = label.clone();
+						currLabel.text = new String.fromCharCode(label.text.codeUnitAt(i - label.x));
+						currLabel.x = i;
 						
-						Element labelElem = new Element.div();
-						labelElem.classes.add("inline");
-						labelElem.text = pre;
-						labelElem.style.color = _colorToString(lastLabel.fore);
-						labelElem.style.backgroundColor = _colorToString(lastLabel.back);
-						_consoleElement.children[row].children.add(labelElem);
-				} else {
-					// Add the padding between the two labels, then add the label proper
-					Element padding = new Element.div();
-					padding.classes.add("inline");
-					padding.text = repeatString(_nbsp, diff);
-					_consoleElement.children[row].children.add(padding);
+						lastLabel = label;
+					}
 				}
+			}
+			if (currLabel !=  null) {
+				rowMap[row].add(currLabel);
+			}
+		}
+		
+		for (int row in rowMap.keys) {
+			_consoleElement.children[row].text = "";
+			
+			int x = 0;
+			for (ConsoleLabel label in rowMap[row]) {
+				int diff = label.x - x;
+				// Add the padding between the two labels, then add the label proper
+				Element padding = new Element.div();
+				padding.classes.add("inline");
+				padding.text = repeatString(_nbsp, diff);
+				_consoleElement.children[row].children.add(padding);
 				
 				if (label is ConsoleLink) {
 					ConsoleLink link = label as ConsoleLink;
@@ -236,24 +268,7 @@ class Console {
 					_consoleElement.children[row].children.add(labelElem);
 				}
 				
-				if (splitLabelPost != null) {
-					// add the end of the split label
-					
-					Element labelElem = new Element.div();
-					labelElem.classes.add("inline");
-					labelElem.text = splitLabelPost.text;
-					labelElem.style.color = _colorToString(splitLabelPost.fore);
-					labelElem.style.backgroundColor = _colorToString(splitLabelPost.back);
-					_consoleElement.children[row].children.add(labelElem);
-					
-					x = splitLabelPost.x + splitLabelPost.text.length;
-					lastLabel = splitLabelPost;
-				} else {
-					x = label.x + label.text.length;
-					lastLabel = label;
-				}
-				
-				
+				x = label.x + label.text.length;
 			}
 			
 			if (x < width) {
