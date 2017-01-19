@@ -1,6 +1,7 @@
 import 'myca_core.dart';
 import 'myca_items.dart';
 import 'myca_entities.dart';
+import 'myca_console.dart';
 
 /// A tile represents a location the player can be located in.
 class Tile {
@@ -39,6 +40,8 @@ class FeatureTile extends Tile {
 /// A biome is a world tile's biome, such as desert, forest, etc.
 class Biome {
 	String name;
+	
+	void generate(WorldTile tile) {}
 }
 
 /// This represents a class of features.
@@ -59,4 +62,10 @@ class Feature {
 	/// This is the tile the feature is INSIDE.
 	Tile tile;
 	FeatureType featureType;
+	
+	Feature(this.tile) {
+		tile.features.add(this);
+	}
+	
+	void addActions(List<ConsoleLink> actions) {}
 }

@@ -29,13 +29,18 @@ enum ConsoleColor {
 class ConsoleLabel {
 	int x;
 	int y;
-	String text;
+	String _text;
 	
 	ConsoleColor fore;
 	ConsoleColor back;
 	
-	ConsoleLabel(this.x, this.y, this.text, [this.fore = ConsoleColor.WHITE, this.back = ConsoleColor.BLACK]) {
-		text = text.replaceAll(" ", _nbsp);
+	ConsoleLabel(this.x, this.y, this._text, [this.fore = ConsoleColor.WHITE, this.back = ConsoleColor.BLACK]) {
+		_text = _text.replaceAll(" ", _nbsp);
+	}
+	
+	get text => _text;
+	set text(String value) {
+		_text = value.replaceAll(" ", _nbsp);
 	}
 	
 	List<ConsoleLabel> as2DLabel() {
@@ -115,11 +120,11 @@ class Console {
 		int windowHeight = window.innerHeight;
 		
 		_consoleElement.text = "X";
-		int charWidth = _consoleElement.contentEdge.width.toInt();
+		int charWidth = _consoleElement.contentEdge.width.toInt() + 1;
 		int charHeight = _consoleElement.contentEdge.height.toInt();
 		_consoleElement.text = "";
 		
-		width = (windowWidth ~/ charWidth) - (windowWidth ~/ 1000) - 1;
+		width = windowWidth ~/ charWidth;
 		height = windowHeight ~/ charHeight;
 		
 		// recreate the HTML structure
@@ -149,7 +154,7 @@ class Console {
 		for (int row in rowMap.keys) {
 			_consoleElement.children[row].text = "";
 			
-			rowMap[row].sort((a, b) => a.y.compareTo(b.y));
+			rowMap[row].sort((a, b) => a.x.compareTo(b.x));
 			int x = 0;
 			for (ConsoleLabel label in rowMap[row]) {
 				int diff = label.x - x;
@@ -161,7 +166,7 @@ class Console {
 				if (label is ConsoleLink) {
 					ConsoleLink link = label as ConsoleLink;
 					
-					AnchorElement linkElem = new AnchorElement(href: "javascript:void");
+					AnchorElement linkElem = new AnchorElement(href: "javascript:0");
 					linkElem.text = label.text;
 					linkElem.style.color = _colorToString(label.fore);
 					linkElem.style.backgroundColor = _colorToString(label.back);
@@ -177,8 +182,8 @@ class Console {
 					var conn;
 					conn = window.onKeyPress.listen((e) {
 						if (e.key == link.key && link.onClick != null) {
-							link.onClick(this, link);
 							conn.cancel();
+							link.onClick(this, link);
 							refresh();
 						}
 					});

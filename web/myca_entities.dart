@@ -9,7 +9,7 @@ class Entity {
 	Tile tile;
 	
 	void move(Tile newTile) {
-		if (tile) {
+		if (tile != null) {
 			tile.entities.removeAt(tile.entities.indexOf(this));
 		}
 		tile = newTile;
