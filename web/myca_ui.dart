@@ -156,11 +156,11 @@ void handleTileView(Console c) {
 	
 	world.player.tile.drawPicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
 	
-	c.labels.add(new ConsoleLink(0, c.height-1,  "SAVE", "s", (c, l) {
+	c.labels.add(new ConsoleLink(0, c.height-1, "SAVE", 0, (c, l) {
 		saveToDisk(world);
 	}));
 	
-	c.labels.add(new ConsoleLink(5, c.height-1,  "LOAD", "s", (c, l) {
+	c.labels.add(new ConsoleLink(5, c.height-1, "LOAD", 0, (c, l) {
 		world = loadFromDisk();
 	}));
 }
