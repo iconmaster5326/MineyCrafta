@@ -48,7 +48,7 @@ void handleTileView(Console c) {
 		link.text = getKeyForInt(i+1) + ") " + link.text;
 		link.x = 0;
 		link.y = i;
-		link.key = getKeyForInt(i+1);
+		link.key = getKeyForInt(i+1).codeUnitAt(0);
 		i++;
 		
 		if (link.text.length > actionsMaxLen) {actionsMaxLen = link.text.length;}
@@ -100,19 +100,16 @@ void handleTileView(Console c) {
 	if (dialogText != null) {
 		// display dialog
 		c.labels.addAll(new ConsoleLabel(boxX+1, boxY+1, fitToWidth(dialogText, boxW-2)).as2DLabel());
-		c.labels.add(new ConsoleLink(boxX+1, boxY+boxH-2, "ENTER) OK", "\n", (c, l) {
+		c.labels.add(new ConsoleLink(boxX+1, boxY+boxH-2, "ENTER) OK", 13, (c, l) {
 			dialogText = null;
 		}));
 	} else {
 		// display ACSII art
 		c.labels.add(new ConsoleLabel(boxX+1, boxY + boxH~/2, repeatString("-", boxW-2), ConsoleColor.GREEN));
 		for (int row = boxY + boxH~/2 + 1; row < boxY + boxH - 1; row++) {
+			c.labels.add(new ConsoleLabel(boxX+1, row, repeatString(".", boxW-2), ConsoleColor.GREEN));
 			if (row == boxY + boxH*3~/4) {
-				c.labels.add(new ConsoleLabel(boxX+1, row, repeatString(".", boxW~/2-1), ConsoleColor.GREEN));
 				c.labels.add(new ConsoleLabel(boxX + boxW~/2, row , "@"));
-				c.labels.add(new ConsoleLabel(boxX + boxW~/2 + 1, row, repeatString(".", boxW~/2+(boxW.isOdd?1:0)-2), ConsoleColor.GREEN));
-			} else {
-				c.labels.add(new ConsoleLabel(boxX+1, row, repeatString(".", boxW-2), ConsoleColor.GREEN));
 			}
 		}		
 	}

@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'myca_core.dart';
 
@@ -56,10 +57,16 @@ class ConsoleLabel {
 }
 
 class ConsoleLink extends ConsoleLabel {
-	String key;
+	int key;
 	ConsoleClickHandler onClick;
 	
-	ConsoleLink(x, y, text, this.key, this.onClick, [fore = ConsoleColor.WHITE, back = ConsoleColor.BLACK]) : super(x, y, text, fore, back);
+	ConsoleLink(x, y, text, var keyString, this.onClick, [fore = ConsoleColor.WHITE, back = ConsoleColor.BLACK]) : super(x, y, text, fore, back) {
+		if (keyString is String) {
+			key = keyString.codeUnitAt(0);
+		} else if (keyString is int) {
+			key = keyString;
+		}
+	}
 }
 
 class Console {
@@ -156,12 +163,35 @@ class Console {
 			
 			rowMap[row].sort((a, b) => a.x.compareTo(b.x));
 			int x = 0;
+			ConsoleLabel lastLabel;
 			for (ConsoleLabel label in rowMap[row]) {
 				int diff = label.x - x;
-				Element padding = new Element.div();
-				padding.classes.add("inline");
-				padding.text = repeatString(_nbsp, diff);
-				_consoleElement.children[row].children.add(padding);
+				ConsoleLabel splitLabelPost;
+				if (diff < 0) {
+					// split up the previous label to resolve the z-fighting.
+					// Note that this destroys links that overlap.
+					int begin = label.x - lastLabel.x;
+					String pre = lastLabel.text.substring(0, begin);
+					if (label.x + label.text.length < lastLabel.x + lastLabel.text.length) {
+						String post = lastLabel.text.substring(begin + label.text.length);
+						splitLabelPost = new ConsoleLabel(label.x + label.text.length, label.y, post, lastLabel.fore, lastLabel.back);
+					}
+					
+					_consoleElement.children[row].children.removeLast();
+					
+					Element labelElem = new Element.div();
+					labelElem.classes.add("inline");
+					labelElem.text = pre;
+					labelElem.style.color = _colorToString(lastLabel.fore);
+					labelElem.style.backgroundColor = _colorToString(lastLabel.back);
+					_consoleElement.children[row].children.add(labelElem);
+				} else {
+					// Add the padding between the two labels, then add the label proper
+					Element padding = new Element.div();
+					padding.classes.add("inline");
+					padding.text = repeatString(_nbsp, diff);
+					_consoleElement.children[row].children.add(padding);
+				}
 				
 				if (label is ConsoleLink) {
 					ConsoleLink link = label as ConsoleLink;
@@ -181,10 +211,12 @@ class Console {
 					});
 					var conn;
 					conn = window.onKeyPress.listen((e) {
-						if (e.key == link.key && link.onClick != null) {
+						if (e.keyCode == link.key) {
 							conn.cancel();
-							link.onClick(this, link);
-							refresh();
+							if (link.onClick != null) {
+								link.onClick(this, link);
+								refresh();
+							}
 						}
 					});
 					linkElem.onClick.listen((e) {
@@ -204,8 +236,24 @@ class Console {
 					_consoleElement.children[row].children.add(labelElem);
 				}
 				
-				x = label.x + label.text.length;
+				if (splitLabelPost != null) {
+					// add the end of the split label
+					
+					Element labelElem = new Element.div();
+					labelElem.classes.add("inline");
+					labelElem.text = splitLabelPost.text;
+					labelElem.style.color = _colorToString(splitLabelPost.fore);
+					labelElem.style.backgroundColor = _colorToString(splitLabelPost.back);
+					_consoleElement.children[row].children.add(labelElem);
+					
+					x = splitLabelPost.x + splitLabelPost.text.length;
+				} else {
+					x = label.x + label.text.length;
+				}
+				
+				lastLabel = label;
 			}
+			
 			if (x < width) {
 				int diff = width - x;
 				Element padding = new Element.div();
