@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'myca_core.dart';
 import 'myca_console.dart';
 import 'myca_world.dart';
@@ -80,11 +82,33 @@ void handleTileView(Console c) {
 	c.labels.add(new ConsoleLabel(c.width-6, 7, "+-----+"));
 	
 	/// display the movement compass
-	c.labels.add(new ConsoleLink(c.width-3, 9,  "^", 38, (c, l) {}));
-	c.labels.add(new ConsoleLink(c.width-5, 10, "<", 37, (c, l) {}));
-	c.labels.add(new ConsoleLink(c.width-3, 10, ".", ".".codeUnitAt(0), (c, l) {}));
-	c.labels.add(new ConsoleLink(c.width-1, 10, ">", 39, (c, l) {}));
-	c.labels.add(new ConsoleLink(c.width-3, 11, "V", 40, (c, l) {}));
+	c.labels.add(new ConsoleLink(c.width-3, 9,  "^", 38, (c, l) {
+		Point<int> pt = new Point<int>(world.player.tile.x, world.player.tile.y-1);
+		if (world.tiles[pt] != null) {
+			world.player.move(world.tiles[pt]);
+		}
+	}));
+	c.labels.add(new ConsoleLink(c.width-5, 10, "<", 37, (c, l) {
+		Point<int> pt = new Point<int>(world.player.tile.x-1, world.player.tile.y);
+		if (world.tiles[pt] != null) {
+			world.player.move(world.tiles[pt]);
+		}
+	}));
+	c.labels.add(new ConsoleLink(c.width-3, 10, ".", ".", (c, l) {
+		
+	}));
+	c.labels.add(new ConsoleLink(c.width-1, 10, ">", 39, (c, l) {
+		Point<int> pt = new Point<int>(world.player.tile.x+1, world.player.tile.y);
+		if (world.tiles[pt] != null) {
+			world.player.move(world.tiles[pt]);
+		}
+	}));
+	c.labels.add(new ConsoleLink(c.width-3, 11, "V", 40, (c, l) {
+		Point<int> pt = new Point<int>(world.player.tile.x, world.player.tile.y+1);
+		if (world.tiles[pt] != null) {
+			world.player.move(world.tiles[pt]);
+		}
+	}));
 	
 	/// display the status HUD
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 0,  world.player.name));
@@ -148,7 +172,7 @@ void handleInventoryView(Console c) {
 		c.labels.addAll(new ConsoleLabel(selX, 5, fitToWidth(selected.desc, actX-selX-2)).as2DLabel());
 		
 		c.labels.add(new ConsoleLabel(actX, 2, "Actions:"));
-		c.labels.add(new ConsoleLink(actX, 3, ",) Discard", ",", (c, l) {
+		c.labels.add(new ConsoleLink(actX, 3, ",) Discard", 188, (c, l) {
 			world.player.inventory.items.remove(selected);
 			selected = null;
 		}));
@@ -168,7 +192,7 @@ ConsoleRefreshHandler handleNotifyDialog(String message, NotifyDialogCallback on
 		
 		c.labels.addAll(new ConsoleLabel(2, 2, fitToWidth(message, c.width-6)).as2DLabel());
 		
-		c.labels.add(new ConsoleLink(2, c.height - 3,  "ENTER) OK", 13, (c, l) {
+		c.labels.add(new ConsoleLink(2, c.height - 3,  "ENTER) OK", ConsoleLink.ANY_KEY, (c, l) {
 			onAccept(c);
 		}));
 	};

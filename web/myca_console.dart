@@ -65,6 +65,8 @@ class ConsoleLink extends ConsoleLabel {
 	int key;
 	ConsoleClickHandler onClick;
 	
+	static const int ANY_KEY = -1;
+	
 	ConsoleLink(x, y, text, var keyString, this.onClick, [fore = ConsoleColor.WHITE, back = ConsoleColor.BLACK]) : super(x, y, text, fore, back) {
 		if (keyString is String) {
 			key = keyString.codeUnitAt(0);
@@ -248,8 +250,8 @@ class Console {
 						linkElem.style.color = _colorToString(label.fore);
 						linkElem.style.backgroundColor = _colorToString(label.back);
 					}));
-					conns.add(window.onKeyPress.listen((e) {
-						if (e.keyCode == link.key) {
+					conns.add(window.onKeyUp.listen((e) {
+						if (e.keyCode == link.key || link.key == ConsoleLink.ANY_KEY) {
 							if (link.onClick != null) {
 								link.onClick(this, link);
 								refresh();
