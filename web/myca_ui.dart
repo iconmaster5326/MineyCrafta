@@ -66,11 +66,11 @@ void handleTileView(Console c) {
 	c.labels.add(new ConsoleLabel(c.width-6, 7, "+-----+"));
 	
 	/// display the movement compass
-	c.labels.add(new ConsoleLink(c.width-3, 9,  "^", null, (c, l) {}));
-	c.labels.add(new ConsoleLink(c.width-5, 10, "<", null, (c, l) {}));
-	c.labels.add(new ConsoleLink(c.width-3, 10, ".", null, (c, l) {}));
-	c.labels.add(new ConsoleLink(c.width-1, 10, ">", null, (c, l) {}));
-	c.labels.add(new ConsoleLink(c.width-3, 11, "V", null, (c, l) {}));
+	c.labels.add(new ConsoleLink(c.width-3, 9,  "^", 38, (c, l) {}));
+	c.labels.add(new ConsoleLink(c.width-5, 10, "<", 37, (c, l) {}));
+	c.labels.add(new ConsoleLink(c.width-3, 10, ".", ".".codeUnitAt(0), (c, l) {}));
+	c.labels.add(new ConsoleLink(c.width-1, 10, ">", 39, (c, l) {}));
+	c.labels.add(new ConsoleLink(c.width-3, 11, "V", 40, (c, l) {}));
 	
 	/// display the status HUD
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 0,  world.player.name));
@@ -105,12 +105,6 @@ void handleTileView(Console c) {
 		}));
 	} else {
 		// display ACSII art
-		c.labels.add(new ConsoleLabel(boxX+1, boxY + boxH~/2, repeatString("-", boxW-2), ConsoleColor.GREEN));
-		for (int row = boxY + boxH~/2 + 1; row < boxY + boxH - 1; row++) {
-			c.labels.add(new ConsoleLabel(boxX+1, row, repeatString(".", boxW-2), ConsoleColor.GREEN));
-			if (row == boxY + boxH*3~/4) {
-				c.labels.add(new ConsoleLabel(boxX + boxW~/2, row , "@"));
-			}
-		}		
+		world.player.tile.drawPicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
 	}
 }

@@ -16,12 +16,30 @@ class Tile {
 	/// These properties will delegate to the enclosing WorldTile.
 	int x; int y;
 	Biome biome;
+	
+	// draws the ASCII art box.
+	void drawPicture(Console c, int x, int y, int w, int h) {}
 }
 
 /// A WorldTile is a Tile on the world map. It has a coordinate, biome, etc.
 class WorldTile extends Tile {
 	WorldTile(int nx, int ny, Biome nbiome) {
 		x = nx; y = ny; biome = nbiome;
+	}
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		c.labels.add(new ConsoleLabel(x, y + h~/2 - 1, repeatString("-", w), biome.groundColor));
+		for (int row = y + h~/2; row < y + h; row++) {
+			c.labels.add(new ConsoleLabel(x, row, repeatString(".", w), biome.groundColor));
+			if (row == y + h*3~/4) {
+				c.labels.add(new ConsoleLabel(x + w~/2, row , "@"));
+			}
+		}
+		
+		for (Feature f in features) {
+			f.drawPicture(c, x, y, w, h);
+		}
 	}
 }
 
@@ -40,6 +58,7 @@ class FeatureTile extends Tile {
 /// A biome is a world tile's biome, such as desert, forest, etc.
 class Biome {
 	String name;
+	ConsoleColor groundColor;
 	
 	void generate(WorldTile tile) {}
 }
@@ -68,4 +87,6 @@ class Feature {
 	}
 	
 	void addActions(List<ConsoleLink> actions) {}
+	// draws inside the ASCII art box.
+	void drawPicture(Console c, int x, int y, int w, int h) {}
 }

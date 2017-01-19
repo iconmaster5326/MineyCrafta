@@ -170,21 +170,21 @@ class Console {
 				if (diff < 0) {
 					// split up the previous label to resolve the z-fighting.
 					// Note that this destroys links that overlap.
-					int begin = label.x - lastLabel.x;
-					String pre = lastLabel.text.substring(0, begin);
-					if (label.x + label.text.length < lastLabel.x + lastLabel.text.length) {
-						String post = lastLabel.text.substring(begin + label.text.length);
-						splitLabelPost = new ConsoleLabel(label.x + label.text.length, label.y, post, lastLabel.fore, lastLabel.back);
-					}
-					
-					_consoleElement.children[row].children.removeLast();
-					
-					Element labelElem = new Element.div();
-					labelElem.classes.add("inline");
-					labelElem.text = pre;
-					labelElem.style.color = _colorToString(lastLabel.fore);
-					labelElem.style.backgroundColor = _colorToString(lastLabel.back);
-					_consoleElement.children[row].children.add(labelElem);
+					int begin = (label.x - lastLabel.x).abs();
+						String pre = lastLabel.text.substring(0, begin);
+						if (label.x + label.text.length < lastLabel.x + lastLabel.text.length) {
+							String post = lastLabel.text.substring(begin + label.text.length);
+							splitLabelPost = new ConsoleLabel(label.x + label.text.length, label.y, post, lastLabel.fore, lastLabel.back);
+						}
+						
+						_consoleElement.children[row].children.removeLast();
+						
+						Element labelElem = new Element.div();
+						labelElem.classes.add("inline");
+						labelElem.text = pre;
+						labelElem.style.color = _colorToString(lastLabel.fore);
+						labelElem.style.backgroundColor = _colorToString(lastLabel.back);
+						_consoleElement.children[row].children.add(labelElem);
 				} else {
 					// Add the padding between the two labels, then add the label proper
 					Element padding = new Element.div();
@@ -247,11 +247,13 @@ class Console {
 					_consoleElement.children[row].children.add(labelElem);
 					
 					x = splitLabelPost.x + splitLabelPost.text.length;
+					lastLabel = splitLabelPost;
 				} else {
 					x = label.x + label.text.length;
+					lastLabel = label;
 				}
 				
-				lastLabel = label;
+				
 			}
 			
 			if (x < width) {

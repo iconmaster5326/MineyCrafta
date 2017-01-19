@@ -1,3 +1,5 @@
+import 'dart:math';
+
 String repeatString(String s, int n) {
 	StringBuffer buf = new StringBuffer();
 	for (int i = 0; i < n; i++) {
@@ -36,3 +38,5 @@ String fitToWidth(String s, int n) {
 	}
 	return sb.toString();
 }
+
+Random rng = new Random();
