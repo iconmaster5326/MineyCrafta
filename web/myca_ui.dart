@@ -39,7 +39,17 @@ void handleTileView(Console c) {
 	actions.add(new ConsoleLink(0, 0, "Inventory", null, (c, l) {
 		c.onRefresh = handleInventoryView;
 	}));
-	actions.add(new ConsoleLink(0, 0, "Look Around", null, (c, l) {}));
+	actions.add(new ConsoleLink(0, 0, "Look Around", null, (c, l) {
+		String text = "Looking around you, you see:\n\n";
+		
+		for (Feature f in world.player.tile.features) {
+			text += "* " + f.name + "\n";
+		}
+		
+		c.onRefresh = handleNotifyDialog(text, (c) {
+			c.onRefresh = handleTileView;
+		});
+	}));
 	
 	for (Feature f in world.player.tile.features) {
 		f.addActions(actions);
@@ -103,6 +113,7 @@ void handleTileView(Console c) {
 	world.player.tile.drawPicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
 }
 
+ItemStack selected;
 void handleInventoryView(Console c) {
 	c.labels.add(new ConsoleLabel(0, 0,  "Your inventory:"));
 	
@@ -116,13 +127,32 @@ void handleInventoryView(Console c) {
 	
 	int i = 0;
 	for (ItemStack stack in world.player.inventory.items) {
-		c.labels.add(new ConsoleLink(0, i+2,  getKeyForInt(i+1) + ") " + stack.name, getKeyForInt(i+1), (c, l) {}, stack.color));
+		c.labels.add(new ConsoleLink(0, i+2,  getKeyForInt(i+1) + ") " + stack.name, getKeyForInt(i+1), (c, l) {
+			selected = stack;
+		}, stack.color));
 		i++;
 	}
 	
 	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+		selected = null;
 		c.onRefresh = handleTileView;
 	}));
+	
+	if (selected != null) {
+		int selX = c.width ~/ 3;
+		int actX = 2*c.width ~/ 3;
+		
+		c.labels.add(new ConsoleLabel(selX, 2, selected.name, selected.color));
+		c.labels.add(new ConsoleLabel(selX, 3, "Weight: " + (selected.size*selected.amt).toString()));
+		
+		c.labels.addAll(new ConsoleLabel(selX, 5, fitToWidth(selected.desc, actX-selX-2)).as2DLabel());
+		
+		c.labels.add(new ConsoleLabel(actX, 2, "Actions:"));
+		c.labels.add(new ConsoleLink(actX, 3, ",) Discard", ",", (c, l) {
+			world.player.inventory.items.remove(selected);
+			selected = null;
+		}));
+	}
 }
 
 typedef void NotifyDialogCallback(Console c);

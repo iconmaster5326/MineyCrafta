@@ -15,4 +15,5 @@ class ItemWood extends Item {
 	@override double size(ItemStack stack) => 1.0;
 	@override bool stackable(ItemStack stack) => true;
 	@override ConsoleColor color(ItemStack stack) => breed.trunkColor;
+	@override String desc(ItemStack stack) => "This is some chopped-up wood from a " + breed.name + " tree.";
 }
