@@ -1,5 +1,6 @@
 import 'myca_core.dart';
 import 'myca_console.dart';
+import 'myca_gamesave.dart';
 
 abstract class Item {
 	String name(ItemStack stack);
@@ -32,6 +33,11 @@ abstract class Item {
 	}
 	
 	void onTick(ItemStack stack, Console c, int delta) {}
+	
+	// ALWAYS override this. Set "class" to your class name, sop it can be loaded later.
+	void save(ItemStack stack, Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Item did not implement a save handler.");
+	}
 }
 
 class ItemStack {
@@ -67,6 +73,8 @@ class ItemStack {
 	ItemStack give([int toGive = 1]) => item.give(this, toGive);
 	
 	void onTick(Console c, int delta) => item.onTick(this, c, delta);
+	
+	void save(Map<String, Object> json) => item.save(this, json);
 }
 
 class Inventory {

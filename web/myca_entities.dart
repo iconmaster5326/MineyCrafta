@@ -2,6 +2,7 @@ import 'myca_core.dart';
 import 'myca_items.dart';
 import 'myca_world.dart';
 import 'myca_console.dart';
+import 'myca_gamesave.dart';
 
 class Entity {
 	String name;
@@ -23,6 +24,11 @@ class Entity {
 		for (ItemStack item in inventory.items) {
 			item.onTick(c, delta);
 		}
+	}
+	
+	// ALWAYS override this. Set "class" to your class name, sop it can be loaded later.
+	void save(Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Entity did not implement a save handler.");
 	}
 }
 
@@ -76,5 +82,13 @@ class Player extends Entity {
 			}
 			tile.timeAtLastVisit = tile.world.time;
 		}
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "Player";
+		json["hunger"] = hunger;
+		json["maxHunger"] = maxHunger;
+		json["hungerRate"] = hungerRate;
 	}
 }

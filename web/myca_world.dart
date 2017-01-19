@@ -3,6 +3,7 @@ import 'myca_items.dart';
 import 'myca_entities.dart';
 import 'myca_console.dart';
 import 'myca_worldgen.dart';
+import 'myca_gamesave.dart';
 
 /// A tile represents a location the player can be located in.
 class Tile {
@@ -27,7 +28,10 @@ class Tile {
 	// draws the ASCII art box.
 	void drawPicture(Console c, int x, int y, int w, int h) {}
 	
-	
+	// ALWAYS override this. Set "class" to your class name, so it can be loaded later.
+	void save(Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Tile did not implement a save handler.");
+	}
 }
 
 /// A WorldTile is a Tile on the world map. It has a coordinate, biome, etc.
@@ -60,6 +64,12 @@ class WorldTile extends Tile {
 		
 		return new ConsoleLabel(0, 0, ".", biome.groundColor);
 	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "WorldTile";
+		json["biome"] = biome.name;
+	}
 }
 
 /// A FeatureTile is a Tile inside of a Feature.
@@ -84,24 +94,11 @@ class Biome {
 	void generate(WorldTile tile) {}
 }
 
-/// This represents a class of features.
-class FeatureType {
-	String name;
-	/// The space required to host this feature.
-	int featureSpace = 0;
-	
-	/// Returns true if this feature can be placed in this tile. Override this for your custom features.
-	bool canPlaceIn(Tile tile) {
-		return true;
-	}
-}
-
 /// This represents a feature instance in the world.
 class Feature {
 	String name;
 	/// This is the tile the feature is INSIDE.
 	Tile tile;
-	FeatureType featureType;
 	
 	Feature(this.tile) {
 		tile.features.add(this);
@@ -113,4 +110,9 @@ class Feature {
 	void drawPicture(Console c, int x, int y, int w, int h) {}
 	// If not NULL, overrides the icon on the map.
 	get mapIcon => null as ConsoleLabel;
+	
+	// ALWAYS override this. Set "class" to your class name, so it can be loaded later.
+	void save(Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Feature did not implement a save handler.");
+	}
 }

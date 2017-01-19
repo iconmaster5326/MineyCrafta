@@ -7,6 +7,7 @@ import 'myca_items.dart';
 import 'myca_entities.dart';
 import 'myca_console.dart';
 import 'myca_ui.dart';
+import 'myca_gamesave.dart';
 
 import 'myca_item_data.dart';
 
@@ -31,18 +32,11 @@ Map<String, TreeBreed> treeBreeds = {
 	"Birch": new TreeBreed("Birch", trunkColor: ConsoleColor.SILVER),
 };
 
-class FeatureTypeTrees extends FeatureType {
-	FeatureTypeTrees() {
-		name = "Trees";
-	}
-}
-
 class FeatureTrees extends Feature {
 	TreeBreed breed;
 	int numTrees;
 	
 	FeatureTrees(Tile tile, this.breed, this.numTrees) : super(tile) {
-		featureType = new FeatureTypeTrees();
 		name = breed.name + " Trees";
 	}
 	
@@ -89,5 +83,12 @@ class FeatureTrees extends Feature {
 				}
 			}
 		}
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureTrees";
+		json["breed"] = breed.name;
+		json["numTrees"] = numTrees;
 	}
 }

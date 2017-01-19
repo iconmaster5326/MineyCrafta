@@ -3,6 +3,7 @@ import 'myca_world.dart';
 import 'myca_items.dart';
 import 'myca_entities.dart';
 import 'myca_console.dart';
+import 'myca_gamesave.dart';
 
 import 'myca_features_data.dart';
 
@@ -16,4 +17,10 @@ class ItemWood extends Item {
 	@override bool stackable(ItemStack stack) => true;
 	@override ConsoleColor color(ItemStack stack) => breed.trunkColor;
 	@override String desc(ItemStack stack) => "This is some chopped-up wood from a " + breed.name + " tree.";
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemWood";
+		json["breed"] = breed.name;
+	}
 }

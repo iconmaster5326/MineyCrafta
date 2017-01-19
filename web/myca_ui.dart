@@ -6,6 +6,7 @@ import 'myca_world.dart';
 import 'myca_worldgen.dart';
 import 'myca_entities.dart';
 import 'myca_items.dart';
+import 'myca_gamesave.dart';
 
 World world;
 
@@ -154,6 +155,10 @@ void handleTileView(Console c) {
 	}
 	
 	world.player.tile.drawPicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
+	
+	c.labels.add(new ConsoleLink(0, c.height-1,  "SAVE", "s", (c, l) {
+		saveToDisk(world);
+	}));
 }
 
 ItemStack selected;
