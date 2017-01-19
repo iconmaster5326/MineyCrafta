@@ -26,8 +26,7 @@ void handleTitleScreen(Console c) {
 	c.labels.add(new ConsoleLabel(c.centerJustified(intro), 1, intro));
 	c.labels.addAll(new ConsoleLabel(c.width~/2 - 20, 3, logo).as2DLabel());
 	c.labels.add(new ConsoleLink(c.centerJustified(newGame), 16, newGame, "1", (c, link) {
-		Player player = new Player();
-		player.name = "Bungus";
+		Player player = new Player("Bungus");
 		
 		world = new World(player);
 		c.onRefresh = handleTileView;
@@ -125,12 +124,12 @@ void handleTileView(Console c) {
 	
 	/// display the status HUD
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 0,  world.player.name));
-	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 1,  "HP: 100/100"));
-	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 2,  "Hunger: 0%"));
+	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 1,  "Health: "+(world.player.hp/world.player.hpMax*100.0).toStringAsFixed(0)+"%"));
+	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 2,  "Hunger: "+(world.player.hunger/world.player.maxHunger*100.0).toStringAsFixed(0)+"%"));
 	
 	c.labels.add(new ConsoleLabel(actionsMaxLen+22, 0,  world.player.tile.biome.name));
-	c.labels.add(new ConsoleLabel(actionsMaxLen+22, 1,  "Light: Bright"));
-	c.labels.add(new ConsoleLabel(actionsMaxLen+22, 2,  "Time: Day"));
+	c.labels.add(new ConsoleLabel(actionsMaxLen+22, 1,  "Light: " + world.lightDescriptor(world.player.tile.light)));
+	c.labels.add(new ConsoleLabel(actionsMaxLen+22, 2,  "Time: " + world.timeDescriptor()));
 	
 	/// display the picture box
 	int boxX = actionsMaxLen+4;

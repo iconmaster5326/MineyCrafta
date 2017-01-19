@@ -18,5 +18,15 @@ class Entity {
 }
 
 class Player extends Entity {
+	int hunger; int maxHunger;
 	
+	Player(String nname) {
+		this.name = nname;
+		
+		hpMax = 100;
+		hp = hpMax;
+		
+		hunger = 0;
+		maxHunger = 100;
+	}
 }

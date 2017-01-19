@@ -12,6 +12,9 @@ class World {
 	Player player;
 	Random worldRng;
 	int seed;
+	int time = 0;
+	
+	static const int TICKS_PER_DAY = 100;
 	
 	World(this.player, [this.size = 16, this.seed]) {
 		Biome b = new BiomeForest();
@@ -30,5 +33,35 @@ class World {
 		}
 		
 		player.move(tiles[new Point(size~/2, size~/2)]);
+	}
+	
+	bool get isDaytime => (time % TICKS_PER_DAY / TICKS_PER_DAY < .5);
+	int get day => time ~/ TICKS_PER_DAY;
+	double get naturalLight {
+		double timeInDay = time % TICKS_PER_DAY / TICKS_PER_DAY;
+		if (timeInDay < .25) {
+			return 1.0;
+		} else if (timeInDay < .5) {
+			return 0.6;
+		} else if (timeInDay < .75) {
+			return 0.2;
+		} else {
+			return 0.6;
+		}
+	}
+	
+	String lightDescriptor(double n) {
+		if (n < .25) {
+			return "Dark";
+		} else if (n < .5) {
+			return "Dim";
+		} else {
+			return "Bright";
+		}
+	}
+	String timeDescriptor() => (isDaytime ? "Day" : "Night");
+	
+	void passTime([int amt = 1]) {
+		time += amt;
 	}
 }

@@ -10,8 +10,8 @@ class Tile {
 	/// Every tile can have features added onto it, such as trees, buildings, torches, etc.
 	List<Feature> features = new List<Feature>();
 	List<Entity> entities = new List<Entity>();
-	/// The light level. 0 is completely dark.
-	int light = 0;
+	/// The light level. 0 is completely dark, 1 is compltetley light.
+	double get light => world.naturalLight;
 	/// A tile only has so much room for features.
 	int featureSpace = 0; int maxFeatureSpace = 0;
 	
