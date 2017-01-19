@@ -4,7 +4,7 @@ import 'myca_world.dart';
 
 class Entity {
 	String name;
-	Inventory inventory;
+	Inventory inventory = new Inventory(100.0);
 	int hp; int hpMax;
 	Tile tile;
 	

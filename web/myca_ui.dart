@@ -37,7 +37,9 @@ void handleTileView(Console c) {
 	/// gather possible actions for the action bar
 	List<ConsoleLink> actions = new List<ConsoleLink>();
 	
-	actions.add(new ConsoleLink(0, 0, "Inventory", null, (c, l) {}));
+	actions.add(new ConsoleLink(0, 0, "Inventory", null, (c, l) {
+		c.onRefresh = handleInventoryView;
+	}));
 	actions.add(new ConsoleLink(0, 0, "Look Around", null, (c, l) {}));
 	
 	for (Feature f in world.player.tile.features) {
@@ -110,4 +112,26 @@ void handleTileView(Console c) {
 		// display ACSII art
 		world.player.tile.drawPicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
 	}
+}
+
+void handleInventoryView(Console c) {
+	c.labels.add(new ConsoleLabel(0, 0,  "Your inventory:"));
+	
+	String sizeText;
+	if (world.player.inventory.maxSize == null) {
+		sizeText = "Weight: " + world.player.inventory.size.toStringAsFixed(0);
+	} else {
+		sizeText = "Weight: " + world.player.inventory.size.toStringAsFixed(0) + " / " + world.player.inventory.maxSize.toStringAsFixed(0);
+	}
+	c.labels.add(new ConsoleLabel(c.rightJustified(sizeText), 0,  sizeText));
+	
+	int i = 0;
+	for (ItemStack stack in world.player.inventory.items) {
+		c.labels.add(new ConsoleLink(0, i+2,  getKeyForInt(i+1) + ") " + stack.name, getKeyForInt(i+1), (c, l) {}, stack.color));
+		i++;
+	}
+	
+	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+		c.onRefresh = handleTileView;
+	}));
 }

@@ -7,6 +7,8 @@ import 'myca_entities.dart';
 import 'myca_console.dart';
 import 'myca_ui.dart';
 
+import 'myca_item_data.dart';
+
 /*
 Trees
 */
@@ -16,7 +18,11 @@ class TreeBreed {
 	ConsoleColor trunkColor;
 	ConsoleColor leavesColor;
 	
-	TreeBreed(this.name, {this.trunkColor:  ConsoleColor.MAROON, this.leavesColor:  ConsoleColor.LIME});
+	Item wood;
+	
+	TreeBreed(this.name, {this.trunkColor:  ConsoleColor.MAROON, this.leavesColor:  ConsoleColor.LIME}) {
+		wood = new ItemWood(this);
+	}
 }
 
 Map<String, TreeBreed> treeBreeds = {
@@ -42,7 +48,15 @@ class FeatureTrees extends Feature {
 	@override
 	void addActions(List<ConsoleLink> actions) {
 		actions.add(new ConsoleLink(0, 0, "Cut Down " + name, null, (c, l) {
-			dialogText = "You cut down some of the trees around you. Soon, you manage to gather:\n4 wood\n5 saplings";
+			ItemStack wood = new ItemStack(breed.wood, rng.nextInt(6)+1);
+			world.player.inventory.add(wood);
+			numTrees--;
+			dialogText = "You cut down some of the trees around you. Soon, you manage to gather:\n\n" + wood.name;
+			
+			if (numTrees <= 0) {
+				dialogText += "\n\nTHere are no more " + breed.name + " trees to cut down.";
+				tile.features.remove(this);
+			}
 		}));
 	}
 	
