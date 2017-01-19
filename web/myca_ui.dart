@@ -23,15 +23,24 @@ void handleTitleScreen(Console c) {
  | |___|  _ < / ___ \|  _|   | |/ ___ \ 
   \____|_| \_/_/   \_|_|     |_/_/   \_\ """;
 	const String newGame = "1) New Game";
+	const String loadGame = "2) Load Saved Game";
 	
 	c.labels.add(new ConsoleLabel(c.centerJustified(intro), 1, intro));
 	c.labels.addAll(new ConsoleLabel(c.width~/2 - 20, 3, logo).as2DLabel());
-	c.labels.add(new ConsoleLink(c.centerJustified(newGame), 16, newGame, "1", (c, link) {
+	
+	c.labels.add(new ConsoleLink(c.centerJustified(newGame), 16, newGame, "1", (c, l) {
 		Player player = new Player("Bungus");
 		
 		world = new World(player);
 		c.onRefresh = handleTileView;
 	}));
+	if (getSavedWorlds().isEmpty) {
+		c.labels.add(new ConsoleLabel(c.centerJustified(loadGame), 17, loadGame, ConsoleColor.SILVER));
+	} else {
+		c.labels.add(new ConsoleLink(c.centerJustified(loadGame), 17, loadGame, "2", (c, l) {
+			
+		}));
+	}
 }
 
 void handleTileView(Console c) {
@@ -156,12 +165,8 @@ void handleTileView(Console c) {
 	
 	world.player.tile.drawPicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
 	
-	c.labels.add(new ConsoleLink(0, c.height-1, "SAVE", 0, (c, l) {
-		saveToDisk(world, "world");
-	}));
-	
-	c.labels.add(new ConsoleLink(5, c.height-1, "LOAD", 0, (c, l) {
-		world = loadFromDisk("world");
+	c.labels.add(new ConsoleLink(0, c.height-1, "ENTER) Menu", 13, (c, l) {
+		c.onRefresh = handlePauseMenu;
 	}));
 }
 
@@ -224,4 +229,37 @@ ConsoleRefreshHandler handleNotifyDialog(String message, NotifyDialogCallback on
 			onAccept(c);
 		}));
 	};
+}
+
+void handlePauseMenu(Console c) {
+	const String menuHeader = "MINEYCRAFTA";
+	String quickSave = "1) Quick Save";
+	String quickLoad = "2) Quick Load";
+	const String save = "3) Save...";
+	const String load = "4) Load...";
+	const String mainMenu = "5) Quit";
+	const String ret = "ENTER) Return To Game";
+	
+	if (lastSavedFile == null) {
+		c.labels.add(new ConsoleLabel(c.centerJustified(quickSave), 2, quickSave, ConsoleColor.SILVER));
+		c.labels.add(new ConsoleLabel(c.centerJustified(quickLoad), 3, quickLoad, ConsoleColor.SILVER));
+	} else {
+		quickSave += " (" + lastSavedFile + ")";
+		quickLoad += " (" + lastSavedFile + ")";
+		
+		c.labels.add(new ConsoleLink(c.centerJustified(quickSave), 2, quickSave, "1", (c, l) {}));
+		c.labels.add(new ConsoleLink(c.centerJustified(quickLoad), 3, quickLoad, "2", (c, l) {}));
+	}
+	
+	c.labels.add(new ConsoleLabel(c.centerJustified(menuHeader), 0, menuHeader));
+
+	c.labels.add(new ConsoleLink(c.centerJustified(save), 4, save, "3", (c, l) {}));
+	c.labels.add(new ConsoleLink(c.centerJustified(load), 5, load, "4", (c, l) {}));
+	c.labels.add(new ConsoleLink(c.centerJustified(mainMenu), 6, mainMenu, "5", (c, l) {
+		world = null;
+		c.onRefresh = handleTitleScreen;
+	}));
+	c.labels.add(new ConsoleLink(c.centerJustified(ret), c.height-1, ret, 13, (c, l) {
+		c.onRefresh = handleTileView;
+	}));
 }
