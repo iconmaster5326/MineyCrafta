@@ -12,19 +12,41 @@ import 'myca_items.dart';
 import 'myca_features_data.dart';
 import 'myca_item_data.dart';
 
-void saveToDisk(World world) {
+String lastSavedFile;
+
+void saveToDisk(World world, String saveName) {
+	List<String> savedWorlds = getSavedWorlds();
+	if (!savedWorlds.contains(saveName)) {
+		savedWorlds.add(saveName);
+		window.localStorage["myca_saves"] = JSON.encode(savedWorlds);
+	}
+	
+	lastSavedFile = saveName;
+	
 	Object json = saveWorld(world);
 	String jsonString = JSON.encode(json);
-	window.localStorage["world"] = jsonString;
-	
-	//querySelector("body").children.clear();
-	//querySelector("body").text = jsonString;
+	window.localStorage["myca_savefile_" + saveName] = jsonString;
 }
 
-World loadFromDisk() {
-	String jsonString = window.localStorage["world"];
+World loadFromDisk(String saveName) {
+	List<String> savedWorlds = getSavedWorlds();
+	if (!savedWorlds.contains(saveName)) {
+		throw new ArgumentError("save file does not exist!");
+	}
+	
+	lastSavedFile = saveName;
+	
+	String jsonString = window.localStorage["myca_savefile_" + saveName];
 	Object json = JSON.decode(jsonString);
 	return loadWorld(json);
+}
+
+List<String> getSavedWorlds() {
+	if (window.localStorage["myca_saves"] == null) {
+		window.localStorage["myca_saves"] = JSON.encode([]);
+	}
+	
+	return JSON.decode(window.localStorage["myca_saves"]);
 }
 
 Object saveWorld(World world) {
