@@ -52,7 +52,7 @@ class FeatureTrees extends Feature {
 			ItemStack wood = new ItemStack(breed.wood, rng.nextInt(6)+1);
 			world.player.inventory.add(wood);
 			numTrees--;
-			world.passTime(10);
+			world.passTime(c, 10);
 			
 			String dialogText = "You cut down some of the trees around you. Soon, you manage to gather:\n\n" + wood.name;
 			if (numTrees <= 0) {

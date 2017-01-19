@@ -19,10 +19,15 @@ class Tile {
 	int x; int y;
 	Biome biome;
 	
-	Tile(this.world);
+	int timeAtLastVisit;
+	Tile(this.world) {
+		timeAtLastVisit = world.time;
+	}
 	
 	// draws the ASCII art box.
 	void drawPicture(Console c, int x, int y, int w, int h) {}
+	
+	
 }
 
 /// A WorldTile is a Tile on the world map. It has a coordinate, biome, etc.
@@ -102,6 +107,7 @@ class Feature {
 		tile.features.add(this);
 	}
 	
+	void onTick(Console c, int delta) {}
 	void addActions(List<ConsoleLink> actions) {}
 	// draws inside the ASCII art box.
 	void drawPicture(Console c, int x, int y, int w, int h) {}

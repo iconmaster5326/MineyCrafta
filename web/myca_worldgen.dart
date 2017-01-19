@@ -3,6 +3,7 @@ import 'dart:math';
 import 'myca_core.dart';
 import 'myca_world.dart';
 import 'myca_entities.dart';
+import 'myca_console.dart';
 
 import 'myca_biomes_data.dart';
 
@@ -61,10 +62,16 @@ class World {
 	}
 	String timeDescriptor() => (isDaytime ? "Day" : "Night");
 	
-	void passTime([int amt = 1]) {
+	void passTime(Console c, [int amt = 1]) {
 		time += amt;
 		
-		// the player gets more hungry every tick
-		player.hunger += player.hungerRate * amt;
+		// call onTick...
+		for (Feature f in player.tile.features) {
+			f.onTick(c, amt);
+		}
+		for (Entity e in player.tile.entities) {
+			e.onTick(c, amt);
+		}
+		player.tile.timeAtLastVisit = time;
 	}
 }
