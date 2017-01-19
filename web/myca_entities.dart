@@ -18,7 +18,12 @@ class Entity {
 	}
 	
 	void addActions(List<ConsoleLink> actions) {}
-	void onTick(Console c, int delta) {}
+	
+	void onTick(Console c, int delta) {
+		for (ItemStack item in inventory.items) {
+			item.onTick(c, delta);
+		}
+	}
 }
 
 class Player extends Entity {
@@ -38,6 +43,8 @@ class Player extends Entity {
 	
 	@override
 	void onTick(Console c2, int delta) {
+		super.onTick(c2, delta);
+		
 		c = c2;
 		
 		if (hunger >= maxHunger) {

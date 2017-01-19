@@ -31,6 +31,7 @@ abstract class Item {
 		return stack;
 	}
 	
+	void onTick(ItemStack stack, Console c, int delta) {}
 }
 
 class ItemStack {
@@ -64,6 +65,8 @@ class ItemStack {
 	
 	ItemStack take([int toTake = 1]) => item.take(this, toTake);
 	ItemStack give([int toGive = 1]) => item.give(this, toGive);
+	
+	void onTick(Console c, int delta) => item.onTick(this, c, delta);
 }
 
 class Inventory {
