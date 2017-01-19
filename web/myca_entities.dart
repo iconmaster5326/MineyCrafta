@@ -1,6 +1,7 @@
 import 'myca_core.dart';
 import 'myca_items.dart';
 import 'myca_world.dart';
+import 'myca_worldgen.dart';
 import 'myca_console.dart';
 import 'myca_gamesave.dart';
 
@@ -30,6 +31,12 @@ class Entity {
 	void save(Map<String, Object> json) {
 		throw new UnimplementedError("This subclass of Entity did not implement a save handler.");
 	}
+	void load(World world, Tile tile, Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Entity did not implement a load handler.");
+	}
+	
+	Entity();
+	Entity.raw();
 }
 
 class Player extends Entity {
@@ -91,4 +98,25 @@ class Player extends Entity {
 		json["maxHunger"] = maxHunger;
 		json["hungerRate"] = hungerRate;
 	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		hunger = json["hunger"];
+		maxHunger = json["maxHunger"];
+		hungerRate = json["hungerRate"];
+	}
+	
+	Player.raw() : super.raw();
+	static Entity loadClass(World world, Tile tile, Map<String, Object> json) {
+		world.player = new Player.raw();
+		return world.player;
+	}
 }
+
+/*
+Load handler map
+*/
+
+typedef Entity EntityLoadHandler(World world, Tile tile, Map<String, Object> json);
+Map<String, EntityLoadHandler> entityLoadHandlers = {
+	"Player": Player.loadClass,
+};

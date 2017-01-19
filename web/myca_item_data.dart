@@ -1,5 +1,6 @@
 import 'myca_core.dart';
 import 'myca_world.dart';
+import 'myca_worldgen.dart';
 import 'myca_items.dart';
 import 'myca_entities.dart';
 import 'myca_console.dart';
@@ -23,4 +24,22 @@ class ItemWood extends Item {
 		json["class"] = "ItemWood";
 		json["breed"] = breed.name;
 	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	ItemWood.raw() : super.raw();
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemWood(treeBreeds[json["breed"]]));
+	}
 }
+
+/*
+Load handler map
+*/
+
+typedef ItemStack ItemLoadHandler(World world, Inventory inventory, Map<String, Object> json);
+Map<String, ItemLoadHandler> itemLoadHandlers = {
+	"ItemWood": ItemWood.loadClass,
+};

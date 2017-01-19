@@ -35,6 +35,7 @@ class World {
 		
 		player.move(tiles[new Point(size~/2, size~/2)]);
 	}
+	World.raw();
 	
 	bool get isDaytime => (time % TICKS_PER_DAY / TICKS_PER_DAY < .5);
 	int get day => time ~/ TICKS_PER_DAY;

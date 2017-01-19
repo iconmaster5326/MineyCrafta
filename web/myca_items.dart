@@ -1,6 +1,7 @@
 import 'myca_core.dart';
 import 'myca_console.dart';
 import 'myca_gamesave.dart';
+import 'myca_worldgen.dart';
 
 abstract class Item {
 	String name(ItemStack stack);
@@ -38,6 +39,12 @@ abstract class Item {
 	void save(ItemStack stack, Map<String, Object> json) {
 		throw new UnimplementedError("This subclass of Item did not implement a save handler.");
 	}
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Item did not implement a load handler.");
+	}
+	
+	Item();
+	Item.raw();
 }
 
 class ItemStack {
@@ -75,6 +82,7 @@ class ItemStack {
 	void onTick(Console c, int delta) => item.onTick(this, c, delta);
 	
 	void save(Map<String, Object> json) => item.save(this, json);
+	void load(World world, Inventory inventory, Map<String, Object> json) => item.load(this, world, inventory, json);
 }
 
 class Inventory {

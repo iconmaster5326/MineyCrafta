@@ -1,5 +1,6 @@
 import 'dart:convert' show JSON;
 import 'dart:html';
+import 'dart:math';
 
 import 'myca_core.dart';
 import 'myca_console.dart';
@@ -8,13 +9,16 @@ import 'myca_worldgen.dart';
 import 'myca_entities.dart';
 import 'myca_items.dart';
 
+import 'myca_features_data.dart';
+import 'myca_item_data.dart';
+
 void saveToDisk(World world) {
 	Object json = saveWorld(world);
 	String jsonString = JSON.encode(json);
 	window.localStorage["world"] = jsonString;
 	
-	querySelector("body").children.clear();
-	querySelector("body").text = jsonString;
+	//querySelector("body").children.clear();
+	//querySelector("body").text = jsonString;
 }
 
 World loadFromDisk() {
@@ -40,7 +44,20 @@ Object saveWorld(World world) {
 }
 
 World loadWorld(Object json) {
+	World world = new World.raw();
+	world.size = json["size"];
+	world.seed = json["seed"]; world.worldRng = new Random(world.seed);
+	world.time = json["time"];
 	
+	for (String key in json["map"].keys) {
+		List<String> parts = key.split("_");
+		int x = int.parse(parts[0]); int y = int.parse(parts[1]);
+		Tile tile = loadTile(world, json["map"][key]);
+		tile.x = x; tile.y = y;
+		world.tiles[new Point<int>(x, y)] = tile;
+	}
+	
+	return world;
 }
 
 Object saveTile(Tile tile) {
@@ -63,8 +80,20 @@ Object saveTile(Tile tile) {
 	return json;
 }
 
-Tile loadTile(Object json) {
+Tile loadTile(World world, Object json) {
+	Tile tile = tileLoadHandlers[json["class"]](world, json);
+	tile.world = world;
 	
+	tile.timeAtLastVisit = json["timeAtLastVisit"];
+	for (Object featureJson in json["features"]) {
+		tile.features.add(loadFeature(world, tile, featureJson));
+	}
+	for (Object entityJson in json["entities"]) {
+		tile.entities.add(loadEntity(world, tile, entityJson));
+	}
+	
+	tile.load(world, json);
+	return tile;
 }
 
 Object saveFeature(Feature feature) {
@@ -77,8 +106,14 @@ Object saveFeature(Feature feature) {
 	return json;
 }
 
-Feature loadFeature(Object json) {
+Feature loadFeature(World world, Tile tile, Object json) {
+	Feature feature = featureLoadHandlers[json["class"]](world, tile, json);
+	feature.tile = tile;
 	
+	feature.name = json["name"];
+	
+	feature.load(world, tile, json);
+	return feature;
 }
 
 Object saveEntity(Entity entity) {
@@ -99,8 +134,21 @@ Object saveEntity(Entity entity) {
 	return json;
 }
 
-Entity loadEntity(Object json) {
+Entity loadEntity(World world, Tile tile, Object json) {
+	Entity entity = entityLoadHandlers[json["class"]](world, tile, json);
+	entity.tile = tile;
 	
+	entity.name = json["name"];
+	entity.hp = json["hp"];
+	entity.hpMax = json["hpMax"];
+	entity.inventory.maxSize = json["canCarry"];
+	
+	for (Object itemJson in json["items"]) {
+		entity.inventory.items.add(loadItem(world, entity.inventory, itemJson));
+	}
+	
+	entity.load(world, tile, json);
+	return entity;
 }
 
 Object saveItem(ItemStack stack) {
@@ -113,6 +161,13 @@ Object saveItem(ItemStack stack) {
 	return json;
 }
 
-ItemStack loadItem(Object json) {
+ItemStack loadItem(World world, Inventory inventory, Object json) {
+	ItemStack stack = itemLoadHandlers[json["class"]](world, inventory, json);
+	stack.inventory = inventory;
 	
+	stack.amt = json["amt"];
+	
+	stack.load(world, inventory, json);
+	
+	return stack;
 }

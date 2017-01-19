@@ -5,6 +5,8 @@ import 'myca_console.dart';
 import 'myca_worldgen.dart';
 import 'myca_gamesave.dart';
 
+import 'myca_biomes_data.dart';
+
 /// A tile represents a location the player can be located in.
 class Tile {
 	World world;
@@ -24,6 +26,7 @@ class Tile {
 	Tile(this.world) {
 		timeAtLastVisit = world.time;
 	}
+	Tile.raw();
 	
 	// draws the ASCII art box.
 	void drawPicture(Console c, int x, int y, int w, int h) {}
@@ -31,6 +34,9 @@ class Tile {
 	// ALWAYS override this. Set "class" to your class name, so it can be loaded later.
 	void save(Map<String, Object> json) {
 		throw new UnimplementedError("This subclass of Tile did not implement a save handler.");
+	}
+	void load(World world, Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Tile did not implement a load handler.");
 	}
 }
 
@@ -70,6 +76,15 @@ class WorldTile extends Tile {
 		json["class"] = "WorldTile";
 		json["biome"] = biome.name;
 	}
+	@override
+	void load(World world, Map<String, Object> json) {
+		biome = biomes[json["biome"]];
+	}
+	
+	WorldTile.raw() : super.raw();
+	static Tile loadClass(World world, Map<String, Object> json) {
+		return new WorldTile.raw();
+	}
 }
 
 /// A FeatureTile is a Tile inside of a Feature.
@@ -100,6 +115,7 @@ class Feature {
 	/// This is the tile the feature is INSIDE.
 	Tile tile;
 	
+	Feature.raw();
 	Feature(this.tile) {
 		tile.features.add(this);
 	}
@@ -114,5 +130,8 @@ class Feature {
 	// ALWAYS override this. Set "class" to your class name, so it can be loaded later.
 	void save(Map<String, Object> json) {
 		throw new UnimplementedError("This subclass of Feature did not implement a save handler.");
+	}
+	void load(World world, Tile tile, Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Feature did not implement a load handler.");
 	}
 }

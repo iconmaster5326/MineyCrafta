@@ -91,4 +91,28 @@ class FeatureTrees extends Feature {
 		json["breed"] = breed.name;
 		json["numTrees"] = numTrees;
 	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		this.breed = treeBreeds[json["breed"]];
+		this.numTrees = json["numTrees"];
+	}
+	
+	FeatureTrees.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureTrees.raw();
+	}
 }
+
+/*
+Load handler map
+*/
+
+typedef Tile TileLoadHandler(World world, Map<String, Object> json);
+Map<String, TileLoadHandler> tileLoadHandlers = {
+	"WorldTile": WorldTile.loadClass,
+};
+
+typedef Feature FeatureLoadHandler(World world, Tile tile, Map<String, Object> json);
+Map<String, FeatureLoadHandler> featureLoadHandlers = {
+	"FeatureTrees": FeatureTrees.loadClass,
+};
