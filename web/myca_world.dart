@@ -44,6 +44,17 @@ class WorldTile extends Tile {
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
 	}
+	
+	get mapIcon {
+		for (Feature f in features) {
+			ConsoleLabel icon = f.mapIcon;
+			if (icon != null) {
+				return icon;
+			}
+		}
+		
+		return new ConsoleLabel(0, 0, ".", biome.groundColor);
+	}
 }
 
 /// A FeatureTile is a Tile inside of a Feature.
@@ -94,4 +105,6 @@ class Feature {
 	void addActions(List<ConsoleLink> actions) {}
 	// draws inside the ASCII art box.
 	void drawPicture(Console c, int x, int y, int w, int h) {}
+	// If not NULL, overrides the icon on the map.
+	get mapIcon => null as ConsoleLabel;
 }

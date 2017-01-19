@@ -72,14 +72,27 @@ void handleTileView(Console c) {
 	}
 	
 	/// display the map
-	c.labels.add(new ConsoleLink(c.width-6, 0,  "?) MAP ", "?", (c, l) {}));
+	for (int mapX = 0; mapX < 5; mapX++) {
+		for (int mapY = 0; mapY < 5; mapY++) {
+			WorldTile tile = world.tiles[new Point(world.player.tile.x+mapX-2, world.player.tile.y+mapY-2)];
+			if (tile != null) {
+				ConsoleLabel label = tile.mapIcon;
+				label.x = c.width-5+mapX;
+				label.y = mapY+2;
+				c.labels.add(label);
+			}
+		}
+	}
+	
 	c.labels.add(new ConsoleLabel(c.width-6, 1, "+-----+"));
-	c.labels.add(new ConsoleLabel(c.width-6, 2, "|.....|"));
-	c.labels.add(new ConsoleLabel(c.width-6, 3, "|.....|"));
-	c.labels.add(new ConsoleLabel(c.width-6, 4, "|..@..|"));
-	c.labels.add(new ConsoleLabel(c.width-6, 5, "|.....|"));
-	c.labels.add(new ConsoleLabel(c.width-6, 6, "|.....|"));
 	c.labels.add(new ConsoleLabel(c.width-6, 7, "+-----+"));
+	for (int i = 2; i < 7; i++) {
+		c.labels.add(new ConsoleLabel(c.width-6, i, "|"));
+		c.labels.add(new ConsoleLabel(c.width, i, "|"));
+	}
+	c.labels.add(new ConsoleLabel(c.width-3, 4, "@"));
+	
+	c.labels.add(new ConsoleLink(c.width-6, 0,  "?) MAP ", "?", (c, l) {}));
 	
 	/// display the movement compass
 	c.labels.add(new ConsoleLink(c.width-3, 9,  "^", 38, (c, l) {
