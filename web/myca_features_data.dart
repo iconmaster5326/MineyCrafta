@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'myca_core.dart';
 import 'myca_world.dart';
+import 'myca_worldgen.dart';
 import 'myca_items.dart';
 import 'myca_entities.dart';
 import 'myca_console.dart';
@@ -51,6 +52,7 @@ class FeatureTrees extends Feature {
 			ItemStack wood = new ItemStack(breed.wood, rng.nextInt(6)+1);
 			world.player.inventory.add(wood);
 			numTrees--;
+			world.passTime(10);
 			
 			String dialogText = "You cut down some of the trees around you. Soon, you manage to gather:\n\n" + wood.name;
 			if (numTrees <= 0) {

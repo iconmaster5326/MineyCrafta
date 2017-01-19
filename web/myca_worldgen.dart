@@ -42,11 +42,11 @@ class World {
 		if (timeInDay < .25) {
 			return 1.0;
 		} else if (timeInDay < .5) {
-			return 0.6;
+			return 0.4;
 		} else if (timeInDay < .75) {
 			return 0.2;
 		} else {
-			return 0.6;
+			return 0.4;
 		}
 	}
 	
@@ -63,5 +63,8 @@ class World {
 	
 	void passTime([int amt = 1]) {
 		time += amt;
+		
+		// the player gets more hungry every tick
+		player.hunger += player.hungerRate * amt;
 	}
 }

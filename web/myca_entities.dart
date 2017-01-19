@@ -15,10 +15,13 @@ class Entity {
 		tile = newTile;
 		newTile.entities.add(this);
 	}
+	
+	void addActions(List<ConsoleLink> actions) {}
 }
 
 class Player extends Entity {
 	int hunger; int maxHunger;
+	int hungerRate = 1;
 	
 	Player(String nname) {
 		this.name = nname;
@@ -27,6 +30,6 @@ class Player extends Entity {
 		hp = hpMax;
 		
 		hunger = 0;
-		maxHunger = 100;
+		maxHunger = 500;
 	}
 }

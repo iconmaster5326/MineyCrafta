@@ -55,6 +55,9 @@ void handleTileView(Console c) {
 	for (Feature f in world.player.tile.features) {
 		f.addActions(actions);
 	}
+	for (Entity e in world.player.tile.entities) {
+		e.addActions(actions);
+	}
 	
 	/// Add the keybind labels and add to console
 	int i = 0;
@@ -98,27 +101,31 @@ void handleTileView(Console c) {
 		Point<int> pt = new Point<int>(world.player.tile.x, world.player.tile.y-1);
 		if (world.tiles[pt] != null) {
 			world.player.move(world.tiles[pt]);
+			world.passTime();
 		}
 	}));
 	c.labels.add(new ConsoleLink(c.width-5, 10, "<", 37, (c, l) {
 		Point<int> pt = new Point<int>(world.player.tile.x-1, world.player.tile.y);
 		if (world.tiles[pt] != null) {
 			world.player.move(world.tiles[pt]);
+			world.passTime();
 		}
 	}));
-	c.labels.add(new ConsoleLink(c.width-3, 10, ".", ".", (c, l) {
-		
+	c.labels.add(new ConsoleLink(c.width-3, 10, ".", 190, (c, l) {
+		world.passTime();
 	}));
 	c.labels.add(new ConsoleLink(c.width-1, 10, ">", 39, (c, l) {
 		Point<int> pt = new Point<int>(world.player.tile.x+1, world.player.tile.y);
 		if (world.tiles[pt] != null) {
 			world.player.move(world.tiles[pt]);
+			world.passTime();
 		}
 	}));
 	c.labels.add(new ConsoleLink(c.width-3, 11, "V", 40, (c, l) {
 		Point<int> pt = new Point<int>(world.player.tile.x, world.player.tile.y+1);
 		if (world.tiles[pt] != null) {
 			world.player.move(world.tiles[pt]);
+			world.passTime();
 		}
 	}));
 	
