@@ -38,7 +38,7 @@ void handleTitleScreen(Console c) {
 		c.labels.add(new ConsoleLabel(c.centerJustified(loadGame), 17, loadGame, ConsoleColor.SILVER));
 	} else {
 		c.labels.add(new ConsoleLink(c.centerJustified(loadGame), 17, loadGame, "2", (c, l) {
-			
+			c.onRefresh = handleLoadGame(c, handleTitleScreen);
 		}));
 	}
 }
@@ -253,8 +253,12 @@ void handlePauseMenu(Console c) {
 	
 	c.labels.add(new ConsoleLabel(c.centerJustified(menuHeader), 0, menuHeader));
 
-	c.labels.add(new ConsoleLink(c.centerJustified(save), 4, save, "3", (c, l) {}));
-	c.labels.add(new ConsoleLink(c.centerJustified(load), 5, load, "4", (c, l) {}));
+	c.labels.add(new ConsoleLink(c.centerJustified(save), 4, save, "3", (c, l) {
+		c.onRefresh = handleCreateNewSave;
+	}));
+	c.labels.add(new ConsoleLink(c.centerJustified(load), 5, load, "4", (c, l) {
+		c.onRefresh = handleLoadGame(c, handlePauseMenu);
+	}));
 	c.labels.add(new ConsoleLink(c.centerJustified(mainMenu), 6, mainMenu, "5", (c, l) {
 		world = null;
 		c.onRefresh = handleTitleScreen;
@@ -262,4 +266,41 @@ void handlePauseMenu(Console c) {
 	c.labels.add(new ConsoleLink(c.centerJustified(ret), c.height-1, ret, 13, (c, l) {
 		c.onRefresh = handleTileView;
 	}));
+}
+
+void handleCreateNewSave(Console c) {
+	const String menuHeader = "Save file name:";
+	c.labels.add(new ConsoleLabel(c.centerJustified(menuHeader), 0, menuHeader));
+	
+	c.labels.add(new ConsoleTextBox(c.width~/4, 2, "world", c.width~/2, (c, l, text) {
+		if (text == "") {
+			c.onRefresh = handlePauseMenu;
+			return;
+		}
+		saveToDisk(world, text);
+		c.onRefresh = handleTileView;
+	}));
+}
+
+ConsoleRefreshHandler handleLoadGame(Console c, ConsoleRefreshHandler onCancel) {
+	return (c) {
+		const String menuHeader = "Select game to load:";
+		c.labels.add(new ConsoleLabel(c.centerJustified(menuHeader), 0, menuHeader));
+		
+		int i = 0;
+		List<String> savedGames = getSavedWorlds();
+		for (String gameName in savedGames) {
+			String labelText = getKeyForInt(i+1) + ") " + gameName;
+			c.labels.add(new ConsoleLink(c.centerJustified(labelText), i+2,  labelText, getKeyForInt(i+1), (c, l) {
+				world = loadFromDisk(gameName);
+				c.onRefresh = handleTileView;
+			}));
+			i++;
+		}
+		
+		const String cancel = "ENTER) Cancel";
+		c.labels.add(new ConsoleLink(c.centerJustified(cancel), c.height-1, cancel, 13, (c, l) {
+			c.onRefresh = onCancel;
+		}));
+	};
 }

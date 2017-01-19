@@ -6,6 +6,7 @@ import 'myca_core.dart';
 
 typedef void ConsoleRefreshHandler(Console c);
 typedef void ConsoleClickHandler(Console c, ConsoleLink link);
+typedef void ConsoleTextBoxHandler(Console c, ConsoleTextBox box, String text);
 
 final String _nbsp = new String.fromCharCode(160);
 
@@ -81,6 +82,19 @@ class ConsoleLink extends ConsoleLabel {
 	}
 }
 
+class ConsoleTextBox extends ConsoleLabel {
+	int size;
+	String initText;
+	ConsoleTextBoxHandler onTextEntry;
+	
+	ConsoleTextBox(x, y, this.initText, this.size, this.onTextEntry, [fore = ConsoleColor.WHITE, back = ConsoleColor.BLACK]) : super(x, y, repeatString(" ", size), fore, back);
+	
+	@override
+	ConsoleLabel clone() {
+		return new ConsoleTextBox(x, y, initText, size, onTextEntry, fore, back);
+	}
+}
+
 class Console {
 	ConsoleRefreshHandler onRefresh;
 	int width;
@@ -89,7 +103,9 @@ class Console {
 	List<ConsoleLabel> labels = new List<ConsoleLabel>();
 	
 	final Element _consoleElement;
-	List<StreamSubscription> conns = new List<StreamSubscription>();
+	List<StreamSubscription> _conns = new List<StreamSubscription>();
+	int _charWidth;
+	int _charHeight;
 	
 	Console(this.onRefresh) : _consoleElement = querySelector("#output") {
 		refresh();
@@ -134,10 +150,10 @@ class Console {
 			e.remove();
 		}
 		
-		for (StreamSubscription conn in conns) {
+		for (StreamSubscription conn in _conns) {
 			conn.cancel();
 		}
-		conns.clear();
+		_conns.clear();
 		
 		// Find the new extents of the console
 		
@@ -145,12 +161,12 @@ class Console {
 		int windowHeight = window.innerHeight;
 		
 		_consoleElement.text = "X";
-		int charWidth = _consoleElement.contentEdge.width.toInt() + 1;
-		int charHeight = _consoleElement.contentEdge.height.toInt();
+		_charWidth = _consoleElement.contentEdge.width.toInt();
+		_charHeight = _consoleElement.contentEdge.height.toInt();
 		_consoleElement.text = "";
 		
-		width = windowWidth ~/ charWidth;
-		height = windowHeight ~/ charHeight;
+		width = windowWidth ~/ (_charWidth  + 1);
+		height = windowHeight ~/ _charHeight;
 		
 		// recreate the HTML structure
 		
@@ -242,15 +258,15 @@ class Console {
 					linkElem.style.color = _colorToString(label.fore);
 					linkElem.style.backgroundColor = _colorToString(label.back);
 					
-					conns.add(linkElem.onMouseEnter.listen((e) {
+					_conns.add(linkElem.onMouseEnter.listen((e) {
 						linkElem.style.color = _colorToString(invertColor(label.fore));
 						linkElem.style.backgroundColor = _colorToString(invertColor(label.back));
 					}));
-					conns.add(linkElem.onMouseLeave.listen((e) {
+					_conns.add(linkElem.onMouseLeave.listen((e) {
 						linkElem.style.color = _colorToString(label.fore);
 						linkElem.style.backgroundColor = _colorToString(label.back);
 					}));
-					conns.add(window.onKeyUp.listen((e) {
+					_conns.add(window.onKeyUp.listen((e) {
 						if (e.keyCode == link.key || link.key == ConsoleLink.ANY_KEY) {
 							if (link.onClick != null) {
 								link.onClick(this, link);
@@ -258,7 +274,7 @@ class Console {
 							}
 						}
 					}));
-					conns.add(linkElem.onClick.listen((e) {
+					_conns.add(linkElem.onClick.listen((e) {
 						if (link.onClick != null) {
 							link.onClick(this, link);
 							refresh();
@@ -266,6 +282,27 @@ class Console {
 					}));
 					
 					_consoleElement.children[row].children.add(linkElem);
+				} else if (label is ConsoleTextBox) {
+					ConsoleTextBox box = label as ConsoleTextBox;
+					
+					TextInputElement boxElem = new TextInputElement();
+					boxElem.classes.add("inline");
+					boxElem.value = box.initText;
+					boxElem.style.color = _colorToString(label.fore);
+					boxElem.style.backgroundColor = _colorToString(label.back);
+					
+					boxElem.style.width = ((_charWidth-1)*box.size).toString() + "px";
+					boxElem.style.height = _charHeight.toString() + "px";
+					
+					_conns.add(boxElem.onKeyUp.listen((e) {
+						if (e.keyCode == 13 && box.onTextEntry != null) {
+							box.onTextEntry(this, box, boxElem.value);
+							refresh();
+						}
+					}));
+					
+					_consoleElement.children[row].children.add(boxElem);
+					boxElem.focus();
 				} else {
 					Element labelElem = new Element.div();
 					labelElem.classes.add("inline");
