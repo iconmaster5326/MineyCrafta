@@ -49,6 +49,17 @@ List<String> getSavedWorlds() {
 	return JSON.decode(window.localStorage["myca_saves"]);
 }
 
+void deleteSavedWorld(String saveName) {
+	List<String> savedWorlds = getSavedWorlds();
+	if (!savedWorlds.contains(saveName)) {
+		throw new ArgumentError("save file does not exist!");
+	}
+	savedWorlds.remove(saveName);
+	window.localStorage["myca_saves"] = JSON.encode(savedWorlds);
+	
+	window.localStorage["myca_savefile_" + saveName] = null;
+}
+
 Object saveWorld(World world) {
 	Map<String, Object> json = {
 		"size": world.size,

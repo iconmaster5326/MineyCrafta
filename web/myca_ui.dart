@@ -304,9 +304,34 @@ ConsoleRefreshHandler handleLoadGame(Console c, ConsoleRefreshHandler onCancel) 
 			i++;
 		}
 		
-		const String cancel = "ENTER) Cancel";
-		c.labels.add(new ConsoleLink(c.centerJustified(cancel), c.height-1, cancel, 13, (c, l) {
+		c.labels.add(new ConsoleLink(0, c.height-1, "ENTER) Cancel", 13, (c, l) {
 			c.onRefresh = onCancel;
+		}));
+		
+		const String delFiles = "DEL) Delete Files";
+		c.labels.add(new ConsoleLink(c.rightJustified(delFiles), c.height-1, delFiles, 46, (c, l) {
+			c.onRefresh = handleDeleteGames(c, handleLoadGame(c, onCancel));
+		}));
+	};
+}
+
+ConsoleRefreshHandler handleDeleteGames(Console c, ConsoleRefreshHandler onDone) {
+	return (c) {
+		const String menuHeader = "Select game(s) to DELETE:";
+		c.labels.add(new ConsoleLabel(c.centerJustified(menuHeader), 0, menuHeader, ConsoleColor.RED));
+		
+		int i = 0;
+		List<String> savedGames = getSavedWorlds();
+		for (String gameName in savedGames) {
+			String labelText = getKeyForInt(i+1) + ") " + gameName;
+			c.labels.add(new ConsoleLink(c.centerJustified(labelText), i+2,  labelText, getKeyForInt(i+1), (c, l) {
+				deleteSavedWorld(gameName);
+			}));
+			i++;
+		}
+		
+		c.labels.add(new ConsoleLink(0, c.height-1, "ENTER) Back", 13, (c, l) {
+			c.onRefresh = onDone;
 		}));
 	};
 }
