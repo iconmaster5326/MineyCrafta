@@ -691,8 +691,65 @@ void handleInspectView(Console c) {
 		c.labels.addAll(new ConsoleLabel(selX, 5, fitToWidth(selFeature.desc, actX-selX-2)).as2DLabel());
 		
 		c.labels.add(new ConsoleLabel(actX, 2, "Actions:"));
-		c.labels.add(new ConsoleLink(actX, 3, ",) Deconstruct", 188, (c, l) {
-			
-		}));
+		
+		DeconstructionRecipe decon = selFeature.toDeconstruct;
+		if (decon != null) {
+			c.labels.add(new ConsoleLink(actX, 3, ",) Deconstruct", 188, (c, l) {
+				int i = 0;
+				List<ItemStack> items = [];
+				
+				SelectMaterialCallback onMatSel;
+				onMatSel = (c, succ, stack) {
+					if (!succ) {
+						i--;
+						if (i < 0) {
+							c.onRefresh = handleInspectView;
+						} else {
+							ItemStack cancelled = items.removeLast();
+							if (decon.inputs[i].usedUp) {
+								cancelled.give(decon.inputs[i].amt);
+							}
+							if (!world.player.inventory.items.contains(cancelled)) {
+								world.player.inventory.add(cancelled);
+							}
+							
+							c.onRefresh = handleSelectMaterial(c, decon.inputs[i], onMatSel);
+						}
+					} else {
+						items.add(stack);
+						if (decon.inputs[i].usedUp && stack != null) {
+							stack.take(decon.inputs[i].amt);
+						}
+						i++;
+						
+						if (i >= decon.inputs.length) {
+							// craft
+							List<ItemStack> results = decon.craft(items);
+							world.player.inventory.addAll(results);
+							selFeature.tile.features.remove(selFeature);
+							
+							String dialogText = "You deconstruct the " + selFeature.name + ".";
+							
+							if (results.isNotEmpty) {
+								dialogText += " You manage to salvage:\n\n";
+								for (ItemStack stack in results) {
+									dialogText += "* " + stack.name + "\n";
+								}
+							}
+							
+							c.onRefresh = handleNotifyDialog(dialogText, (c) {
+								selFeature = null;
+								c.onRefresh = handleInspectView;
+							});
+						} else {
+							c.onRefresh = handleSelectMaterial(c, decon.inputs[i], onMatSel);
+						}
+					}
+				};
+				c.onRefresh = handleSelectMaterial(c, decon.inputs[i], onMatSel);
+			}));
+		} else {
+			c.labels.add(new ConsoleLabel(actX, 3, ",) Deconstruct", ConsoleColor.SILVER));
+		}
 	}
 }

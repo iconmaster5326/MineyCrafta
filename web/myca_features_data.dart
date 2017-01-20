@@ -152,6 +152,8 @@ class FeatureHut extends Feature {
 	ConsoleColor get color => material.color;
 	String get desc => "A tiny hovel, perfect for cowering in. This is made of " + material.item.name(material).toLowerCase() + ".";
 	
+	DeconstructionRecipe get toDeconstruct => (innerTile.features.isEmpty ? new DeconstructHut(this) : null);
+	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
 		if (w <= 1 || h <= 1) {return;}
@@ -215,6 +217,25 @@ class RecipeHut extends FeatureRecipe {
 	
 	@override
 	bool canMakeOn(Tile tile) => tile.outdoors;
+}
+
+class DeconstructHut extends DeconstructionRecipe {
+	FeatureHut feature;
+	
+	DeconstructHut(this.feature) {
+		if (feature.material.item is ItemWood) {
+			inputs = [
+				new RecipeInput("wood-cutting tool (optional)", filterAnyWoodCuttingTool, 1, usedUp: false, optional: true),
+			];
+		} else {
+			inputs = [];
+		}
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items) {
+		return [new ItemStack(feature.material.item, rng.nextInt(4)+6)];
+	}
 }
 
 class TileHut extends FeatureTile {
@@ -281,6 +302,8 @@ class FeatureCraftingTable extends Feature {
 	String get name => "Crafting Table";
 	ConsoleColor get color => ConsoleColor.SILVER;
 	String get desc => "A bench full of tools, suitable for crafting larger and more impressive things.";
+	
+	DeconstructionRecipe get toDeconstruct => new DeconstructCraftingTable();
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
@@ -352,6 +375,19 @@ class RecipeCraftingTable extends FeatureRecipe {
 	
 	@override
 	bool canMakeOn(Tile tile) => !tile.outdoors;
+}
+
+class DeconstructCraftingTable extends DeconstructionRecipe {
+	DeconstructCraftingTable() {
+		inputs = [
+			new RecipeInput("wood-cutting tool (optional)", filterAnyWoodCuttingTool, 1, usedUp: false, optional: true),
+		];
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items) {
+		return [];
+	}
 }
 
 /*

@@ -176,6 +176,10 @@ abstract class ItemRecipe extends Recipe {
 	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]);
 }
 
+abstract class DeconstructionRecipe extends Recipe {
+	List<ItemStack> craft(List<ItemStack> items);
+}
+
 typedef bool RecipeInputFilter(ItemStack stack);
 class RecipeInput {
 	String name;
