@@ -644,10 +644,10 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 		
 		String factorString = selFactor.toString();
 		c.labels.add(new ConsoleLabel(c.centerJustified(factorString), c.height - 1,  factorString));
-		c.labels.add(new ConsoleLink(c.width~/2-2, c.height - 1,  "-", 190, (c, l) {
-			selFactor--;
+		c.labels.add(new ConsoleLink(c.width~/2-2, c.height - 1,  "-", 189, (c, l) {
+			if (selFactor > 1) {selFactor--;}
 		}));
-		c.labels.add(new ConsoleLink(c.width~/2+2, c.height - 1,  "+", 190, (c, l) {
+		c.labels.add(new ConsoleLink(c.width~/2+2, c.height - 1,  "+", 187, (c, l) {
 			selFactor++;
 		}));
 	};
