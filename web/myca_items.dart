@@ -4,6 +4,8 @@ import 'myca_gamesave.dart';
 import 'myca_worldgen.dart';
 import 'myca_world.dart';
 
+import 'myca_item_data.dart';
+
 abstract class Item {
 	String name(ItemStack stack);
 	double size(ItemStack stack) => 0.0;
@@ -183,5 +185,6 @@ class RecipeInput {
 }
 
 bool filterAnyWoodMetalStone(ItemStack stack) {
-	return true;
+	// TODO: add metal, stone
+	return stack.item is ItemWood;
 }

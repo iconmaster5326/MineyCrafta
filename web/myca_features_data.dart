@@ -120,6 +120,29 @@ class FeatureHut extends Feature {
 	String get name => material.item.name(material) + " Hut";
 	
 	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random rng = new Random(hashCode);
+		int drawX = rng.nextInt(w-6) - (w-6)~/2;
+		int drawY = rng.nextInt(h~/2);
+		
+		for (int i = 0; i < 4; i++) {
+			int realX = x + w~/2 + drawX;
+			int realY = y + h~/2 + drawY + i - 4;
+			
+			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+				switch (i) {
+					case 0: c.labels.add(new ConsoleLabel(realX, realY, "+---+", material.color)); break;
+					case 1: c.labels.add(new ConsoleLabel(realX, realY, "|   |", material.color)); break;
+					case 2: c.labels.add(new ConsoleLabel(realX, realY, "|   |", material.color)); break;
+					case 3: c.labels.add(new ConsoleLabel(realX, realY, "| # |", material.color)); break;
+				}
+			}
+		}
+	}
+	
+	@override
 	void save(Map<String, Object> json) {
 		json["class"] = "FeatureHut";
 		json["material"] = saveItem(material);
