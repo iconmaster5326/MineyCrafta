@@ -507,7 +507,7 @@ class RecipeMineshaft extends FeatureRecipe {
 }
 
 class TileMineshaft extends FeatureTile {
-	TileMineshaft(FeatureHut feature) : super(feature) {
+	TileMineshaft(FeatureMineshaft feature) : super(feature) {
 		maxFeatureSpace = 10;
 	}
 	
@@ -572,7 +572,23 @@ class FeatureTunnel extends Feature {
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
+		// only display 1 tunnel at a time
+		for (Feature f in tile.features) {
+			if (f == this) {
+				break;
+			}
+			if (f is FeatureTunnel) {
+				return;
+			}
+		}
 		
+		Random rng = new Random(w * h);
+		int drawX = rng.nextInt(w-6);
+		
+		c.labels.add(new ConsoleLabel(x+drawX, y+h~/2-4, "+---+", ConsoleColor.GREY));
+		c.labels.add(new ConsoleLabel(x+drawX, y+h~/2-3, "|...|", ConsoleColor.GREY));
+		c.labels.add(new ConsoleLabel(x+drawX, y+h~/2-2, "|...|", ConsoleColor.GREY));
+		c.labels.add(new ConsoleLabel(x+drawX, y+h~/2-1, "|...|", ConsoleColor.GREY));
 	}
 	
 	@override
@@ -593,10 +609,6 @@ class FeatureTunnel extends Feature {
 	
 	FeatureTunnel.raw() : super.raw();
 	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
-		if (items[0].item is ItemDurable) {
-			(items[0].item as ItemDurable).takeDamage(items[0], 5);
-		}
-		
 		return new FeatureTunnel.raw();
 	}
 }
@@ -612,7 +624,13 @@ class RecipeTunnel extends FeatureRecipe {
 	}
 	
 	@override
-	Feature craft(Tile tile, List<ItemStack> items) => new FeatureTunnel(tile);
+	Feature craft(Tile tile, List<ItemStack> items) {
+		if (items[0].item is ItemDurable) {
+			(items[0].item as ItemDurable).takeDamage(items[0], 5);
+		}
+		
+		return new FeatureTunnel(tile);
+	}
 	
 	@override
 	bool canMakeOn(Tile tile) => tile.underground;

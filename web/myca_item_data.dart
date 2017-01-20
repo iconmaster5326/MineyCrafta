@@ -259,6 +259,8 @@ typedef ItemStack ItemLoadHandler(World world, Inventory inventory, Map<String, 
 Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemWood": ItemWood.loadClass,
 	"ItemAxe": ItemAxe.loadClass,
+	"ItemPick": ItemPick.loadClass,
+	"ItemShovel": ItemShovel.loadClass,
 };
 
 /*
