@@ -227,6 +227,7 @@ class DeconstructHut extends DeconstructionRecipe {
 			inputs = [
 				new RecipeInput("wood-cutting tool (optional)", filterAnyWoodCuttingTool, 1, usedUp: false, optional: true),
 			];
+			timePassed = 20;
 		} else {
 			inputs = [];
 		}
@@ -382,6 +383,7 @@ class DeconstructCraftingTable extends DeconstructionRecipe {
 		inputs = [
 			new RecipeInput("wood-cutting tool (optional)", filterAnyWoodCuttingTool, 1, usedUp: false, optional: true),
 		];
+		timePassed = 2;
 	}
 	
 	@override

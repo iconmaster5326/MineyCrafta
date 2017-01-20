@@ -439,6 +439,7 @@ void handleCraftFeature(Console c) {
 					}
 					
 					selFeatureRecipe.craft(world.player.tile, items);
+					world.passTime(c, selFeatureRecipe.timePassed);
 					
 					selFeatureRecipe = null;
 					c.onRefresh = handleTileView;
@@ -471,6 +472,7 @@ void handleCraftFeature(Console c) {
 							if (i >= selFeatureRecipe.inputs.length) {
 								// craft
 								selFeatureRecipe.craft(world.player.tile, items);
+								world.passTime(c, selFeatureRecipe.timePassed);
 								
 								selFeatureRecipe = null;
 								c.onRefresh = handleTileView;
@@ -591,6 +593,7 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 						}
 						
 						world.player.inventory.addAll(selItemRecipe.craft(items, selFactor));
+						world.passTime(c, selItemRecipe.timePassed);
 						
 						selItemRecipe = null;
 						c.onRefresh = handleCraftItem(c, recipes);
@@ -623,6 +626,7 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 								if (i >= selItemRecipe.inputs.length) {
 									// craft
 									world.player.inventory.addAll(selItemRecipe.craft(items, selFactor));
+									world.passTime(c, selItemRecipe.timePassed);
 									
 									selItemRecipe = null;
 									c.onRefresh = handleCraftItem(c, recipes);
@@ -727,6 +731,8 @@ void handleInspectView(Console c) {
 							List<ItemStack> results = decon.craft(items);
 							world.player.inventory.addAll(results);
 							selFeature.tile.features.remove(selFeature);
+							
+							world.passTime(c, decon.timePassed);
 							
 							String dialogText = "You deconstruct the " + selFeature.name + ".";
 							

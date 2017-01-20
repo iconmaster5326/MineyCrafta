@@ -85,6 +85,7 @@ class RecipeAxe extends ItemRecipe {
 			new RecipeInput("of any wood, metal, stone (head)", filterAnyWoodMetalStone, 4),
 			new RecipeInput("of any wood, metal (head)", filterAnyWoodMetal, 2),
 		];
+		timePassed = 4;
 	}
 	
 	@override

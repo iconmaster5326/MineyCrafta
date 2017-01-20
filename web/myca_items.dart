@@ -139,6 +139,7 @@ class Recipe {
 	String name;
 	String desc;
 	List<RecipeInput> inputs;
+	int timePassed = 0;
 	
 	bool canMake(Inventory inv, [int factor = 1]) {
 		Map<ItemStack, int> amountUsed = {};
