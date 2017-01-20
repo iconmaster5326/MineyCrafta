@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'myca_core.dart';
 import 'myca_world.dart';
 import 'myca_worldgen.dart';
@@ -46,34 +48,68 @@ class ItemWood extends Item {
 }
 
 /*
+tools
+*/
+
+abstract class ItemDurable extends Item {
+	int maxDurability;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["durability"] = stack.data;
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		stack.data = json["durability"];
+	}
+	
+	ItemDurable();
+	ItemDurable.raw();
+	
+	void takeDamage(ItemStack stack, int amount) {
+		stack.data = max(0, (stack.data as int) - amount);
+	}
+}
+
+/*
 axe
 */
 
-class ItemAxe extends Item {
+class ItemAxe extends ItemDurable {
 	ItemStack head;
 	ItemStack handle;
 	
 	ItemAxe(this.head, this.handle);
 	
-	@override String name(ItemStack stack) => head.item.name(head) + " Axe";
+	@override String name(ItemStack stack) {
+		if ((stack.data as int) <= 0) {
+			return head.item.name(head) + " Axe (broken)";
+		} else {
+			return head.item.name(head) + " Axe (" + ((stack.data as int)/maxDurability*100).toStringAsFixed(0)+"%)";
+		}
+	}
 	@override double size(ItemStack stack) => head.size * 4 + handle.size * 2;
 	@override bool stackable(ItemStack stack) => false;
 	@override ConsoleColor color(ItemStack stack) => head.color;
 	@override String desc(ItemStack stack) => "This is an axe, useful for cutting down trees. The head is made of " + head.item.name(head).toLowerCase() + ". The handle is made of " + handle.item.name(handle).toLowerCase() + ".";
 	
+	int get maxDurability => 100;
+	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
+		super.save(stack, json);
+		
 		json["class"] = "ItemAxe";
 		json["head"] = saveItem(head);
 		json["handle"] = saveItem(handle);
 	}
 	@override
-	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
-		
+	void load(ItemStack stack, World world, Inventory inv, Map<String, Object> json) {
+		super.load(stack, world, inv, json);
 	}
 	
 	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
-		return new ItemStack(new ItemAxe(loadItem(world, inventory, json["head"]), loadItem(world, inventory, json["handle"])));
+		return new ItemStack(new ItemAxe(loadItem(world, inventory, json["head"]), loadItem(world, inventory, json["handle"])), 1, (json["durability"] as int));
 	}
 }
 
@@ -89,9 +125,10 @@ class RecipeAxe extends ItemRecipe {
 	}
 	
 	@override
-	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => new List.generate(factor, (i) =>
-		new ItemStack(new ItemAxe(items[0], items[1]))
-	);
+	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => new List.generate(factor, (i) {
+		ItemAxe item = new ItemAxe(items[0], items[1]);
+		return new ItemStack(item, 1, item.maxDurability);
+	});
 }
 
 /*

@@ -57,6 +57,10 @@ class FeatureTrees extends Feature {
 						dialogText = "You cut down some of the trees around you.";
 						treesCut = min(numTrees, rng.nextInt(3)+2);
 						timeSpent = 10;
+						
+						if (stack.item is ItemDurable) {
+							(stack.item as ItemDurable).takeDamage(stack, 10);
+						}
 					} else {
 						dialogText = "You manage to slowly punch a tree until it falls down. Good for you!";
 						treesCut = 1;
@@ -235,6 +239,9 @@ class DeconstructHut extends DeconstructionRecipe {
 	
 	@override
 	List<ItemStack> craft(List<ItemStack> items) {
+		if (items[0].item is ItemDurable) {
+			(items[0].item as ItemDurable).takeDamage(items[0], 10);
+		}
 		return [new ItemStack(feature.material.item, rng.nextInt(4)+6)];
 	}
 }
@@ -388,6 +395,9 @@ class DeconstructCraftingTable extends DeconstructionRecipe {
 	
 	@override
 	List<ItemStack> craft(List<ItemStack> items) {
+		if (items[0].item is ItemDurable) {
+			(items[0].item as ItemDurable).takeDamage(items[0], 4);
+		}
 		return [];
 	}
 }
@@ -473,10 +483,22 @@ class RecipeMineshaft extends FeatureRecipe {
 			new RecipeInput("mining tool", filterAnyWoodCuttingTool, 1, usedUp: false, optional: false),
 			new RecipeInput("digging tool (optional)", filterAnyWoodCuttingTool, 1, usedUp: false, optional: true),
 		];
+		timePassed = 20;
 	}
 	
 	@override
-	Feature craft(Tile tile, List<ItemStack> items) => new FeatureMineshaft(tile);
+	Feature craft(Tile tile, List<ItemStack> items) {
+		(items[0].item as ItemDurable).takeDamage(items[0], 10);
+		if (items[1] != null) {
+			if (items[1].item is ItemDurable) {
+				(items[1].item as ItemDurable).takeDamage(items[1], 5);
+			}
+		} else {
+			timePassed += 10;
+		}
+		
+		return new FeatureMineshaft(tile);
+	}
 	
 	@override
 	bool canMakeOn(Tile tile) => tile.outdoors;
