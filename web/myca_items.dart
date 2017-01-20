@@ -225,3 +225,11 @@ bool filterAnyWood(ItemStack stack) {
 bool filterAnyWoodCuttingTool(ItemStack stack) {
 	return stack.item is ItemAxe && (stack.data as int) > 0;
 }
+
+bool filterAnyMiningTool(ItemStack stack) {
+	return stack.item is ItemPick && (stack.data as int) > 0;
+}
+
+bool filterAnyDiggingTool(ItemStack stack) {
+	return stack.item is ItemShovel && (stack.data as int) > 0;
+}

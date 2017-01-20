@@ -480,8 +480,8 @@ class RecipeMineshaft extends FeatureRecipe {
 		desc = "Dig down, so you can dig up precious materials. Like cobblestone!";
 		space =  10;
 		inputs = [
-			new RecipeInput("mining tool", filterAnyWoodCuttingTool, 1, usedUp: false, optional: false),
-			new RecipeInput("digging tool (optional)", filterAnyWoodCuttingTool, 1, usedUp: false, optional: true),
+			new RecipeInput("mining tool", filterAnyMiningTool, 1, usedUp: false, optional: false),
+			new RecipeInput("digging tool (optional)", filterAnyDiggingTool, 1, usedUp: false, optional: true),
 		];
 		timePassed = 20;
 	}
