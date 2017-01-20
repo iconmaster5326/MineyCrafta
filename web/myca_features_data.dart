@@ -488,7 +488,9 @@ class RecipeMineshaft extends FeatureRecipe {
 	
 	@override
 	Feature craft(Tile tile, List<ItemStack> items) {
-		(items[0].item as ItemDurable).takeDamage(items[0], 10);
+		if (items[0].item is ItemDurable) {
+			(items[0].item as ItemDurable).takeDamage(items[0], 10);
+		}
 		if (items[1] != null) {
 			if (items[1].item is ItemDurable) {
 				(items[1].item as ItemDurable).takeDamage(items[1], 5);
@@ -511,6 +513,9 @@ class TileMineshaft extends FeatureTile {
 	
 	double get light => 0.0;
 	Tile get customUp => feature.tile;
+	
+	bool get outdoors => false;
+	bool get underground => true;
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
@@ -553,6 +558,67 @@ class TileMineshaft extends FeatureTile {
 }
 
 /*
+Tunnel
+*/
+
+class FeatureTunnel extends Feature {
+	FeatureTunnel(Tile tile) : super(tile) {
+		space =  4;
+	}
+	
+	String get name => "Tunnel";
+	ConsoleColor get color => ConsoleColor.GREY;
+	String get desc => "This is an underground tunnel, made for mining purposes. Who knows where it could lead?";
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		
+	}
+	
+	@override
+	void addActions(List<ConsoleLink> actions) {
+		actions.add(new ConsoleLink(0, 0, "Mine In Tunnel", null, (c, l) {
+			
+		}));
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureTunnel";
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		
+	}
+	
+	FeatureTunnel.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		if (items[0].item is ItemDurable) {
+			(items[0].item as ItemDurable).takeDamage(items[0], 5);
+		}
+		
+		return new FeatureTunnel.raw();
+	}
+}
+
+class RecipeTunnel extends FeatureRecipe {
+	RecipeTunnel() {
+		name = "Tunnel";
+		desc = "You can dig tunnels underground to search for resources. Once made, a tunnel can be extended until you've mined it dry.";
+		space =  4;
+		inputs = [
+			new RecipeInput("mining tool", filterAnyMiningTool, 1, usedUp: false, optional: false),
+		];
+	}
+	
+	@override
+	Feature craft(Tile tile, List<ItemStack> items) => new FeatureTunnel(tile);
+	
+	@override
+	bool canMakeOn(Tile tile) => tile.underground;
+}
+
+/*
 =================
 Load handler map
 =================
@@ -571,6 +637,7 @@ Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureHut": FeatureHut.loadClass,
 	"FeatureCraftingTable": FeatureCraftingTable.loadClass,
 	"FeatureMineshaft": FeatureMineshaft.loadClass,
+	"FeatureTunnel": FeatureTunnel.loadClass,
 };
 
 /*
@@ -583,4 +650,5 @@ List<FeatureRecipe> featureRecipes = [
 	new RecipeHut(),
 	new RecipeCraftingTable(),
 	new RecipeMineshaft(),
+	new RecipeTunnel(),
 ];

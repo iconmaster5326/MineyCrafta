@@ -24,8 +24,9 @@ class Tile {
 		}
 		return sum;
 	}
-	/// Some features can only be placed outdoors.
+	/// Some features can only be placed outdoors or underground.
 	bool outdoors;
+	bool underground;
 	/// Some tiles allow you enter or exit them, or go up or down... Anything that's not a WorldTile can use these.
 	Tile customUp;
 	Tile customDown;
@@ -101,6 +102,7 @@ class WorldTile extends Tile {
 	}
 	
 	bool get outdoors => true;
+	bool get underground => false;
 }
 
 /// A FeatureTile is a Tile inside of a Feature.
@@ -118,6 +120,7 @@ class FeatureTile extends Tile {
 	void set biome(Biome value) {feature.tile.biome = value;}
 	
 	bool get outdoors => false;
+	bool get underground => false;
 }
 
 /// A biome is a world tile's biome, such as desert, forest, etc.
