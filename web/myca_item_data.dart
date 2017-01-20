@@ -88,7 +88,9 @@ class RecipeAxe extends ItemRecipe {
 	}
 	
 	@override
-	ItemStack craft(List<ItemStack> items) => new ItemStack(new ItemAxe(items[0], items[1]));
+	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => new List.generate(factor, (i) =>
+		new ItemStack(new ItemAxe(items[0], items[1]))
+	);
 }
 
 /*

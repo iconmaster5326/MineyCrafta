@@ -140,16 +140,16 @@ class Recipe {
 	String desc;
 	List<RecipeInput> inputs;
 	
-	bool canMake(Inventory inv) {
+	bool canMake(Inventory inv, [int factor = 1]) {
 		Map<ItemStack, int> amountUsed = {};
 		for (RecipeInput input in inputs) {
 			bool inputSat = false;
 			for (ItemStack stack in inv.items) {
-				if (input.matches(stack)) {
+				if (input.matches(stack, factor)) {
 					int realAmt = stack.amt - (amountUsed[stack] ?? 0);
-					if (input.amt <= realAmt) {
+					if (input.amt*factor <= realAmt) {
 						inputSat = true;
-						amountUsed[stack] = (amountUsed[stack] ?? 0) + input.amt;
+						amountUsed[stack] = (amountUsed[stack] ?? 0) + input.amt*factor;
 						break;
 					}
 				}
@@ -169,7 +169,7 @@ abstract class FeatureRecipe extends Recipe {
 }
 
 abstract class ItemRecipe extends Recipe {
-	ItemStack craft(List<ItemStack> items);
+	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]);
 }
 
 typedef bool RecipeInputFilter(ItemStack stack);
@@ -181,14 +181,14 @@ class RecipeInput {
 	
 	RecipeInput(this.name, this.filter, [this.amt = 1, this.usedUp = true]);
 	
-	bool matches(ItemStack stack) {
-		if (stack.amt < amt) {return false;}
+	bool matches(ItemStack stack, [int factor = 1]) {
+		if (stack.amt < amt*factor) {return false;}
 		return filter(stack);
 	}
 	
-	bool matchesAny(Inventory inv) {
+	bool matchesAny(Inventory inv, [int factor = 1]) {
 		for (ItemStack stack in inv.items) {
-			if (matches(stack)) {
+			if (matches(stack, factor)) {
 				return true;
 			}
 		}

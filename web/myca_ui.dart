@@ -503,13 +503,13 @@ void handleCraftFeature(Console c) {
 }
 
 typedef void SelectMaterialCallback(Console c, ItemStack stack);
-ConsoleRefreshHandler handleSelectMaterial(Console c, RecipeInput input, SelectMaterialCallback onDone) {
+ConsoleRefreshHandler handleSelectMaterial(Console c, RecipeInput input, SelectMaterialCallback onDone, [int factor = 1]) {
 	return (c) {
-		c.labels.add(new ConsoleLabel(0, 0, "Select " + input.amt.toString() + " " + input.name + ":"));
+		c.labels.add(new ConsoleLabel(0, 0, "Select " + (input.amt*factor).toString() + " " + input.name + ":"));
 		
 		int i = 0;
 		for (ItemStack stack in world.player.inventory.items) {
-			if (input.matches(stack)) {
+			if (input.matches(stack, factor)) {
 				c.labels.add(new ConsoleLink(0, i+2,  getKeyForInt(i+1) + ") " + stack.name, getKeyForInt(i+1), (c, l) {
 					onDone(c, stack);
 				}, stack.color));
@@ -524,6 +524,7 @@ ConsoleRefreshHandler handleSelectMaterial(Console c, RecipeInput input, SelectM
 }
 
 ItemRecipe selItemRecipe;
+int selFactor = 1;
 ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 	return (c) {
 		c.labels.add(new ConsoleLabel(0, 0,  "Craft Item"));
@@ -534,7 +535,7 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 		int recipeXMax = 0;
 		int selI;
 		for (ItemRecipe recipe in recipes) {
-			ConsoleColor color = (recipe.canMake(world.player.inventory)) ? ConsoleColor.GREEN : ConsoleColor.RED;
+			ConsoleColor color = (recipe.canMake(world.player.inventory, selFactor)) ? ConsoleColor.GREEN : ConsoleColor.RED;
 			if (recipe == selItemRecipe) {
 				recipeLabels.add(new ConsoleLabel(0, menuI+2, getKeyForInt(menuI+1) + ") " + recipe.name, color));
 				selI = i;
@@ -558,14 +559,14 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 			c.labels.add(new ConsoleLabel(recipeXMax, desc.length+5, "Requires:"));
 			int y = desc.length+6;
 			for (RecipeInput input in selItemRecipe.inputs) {
-				String inputString = fitToWidth("* " + input.amt.toString() + " " + input.name, c.width - recipeXMax - 2);
-				ConsoleColor color = input.matchesAny(world.player.inventory) ? ConsoleColor.GREEN : ConsoleColor.RED;
+				String inputString = fitToWidth("* " + (input.amt*selFactor).toString() + " " + input.name, c.width - recipeXMax - 2);
+				ConsoleColor color = input.matchesAny(world.player.inventory, selFactor) ? ConsoleColor.GREEN : ConsoleColor.RED;
 				List<ConsoleLabel> inputLabels = new ConsoleLabel(recipeXMax, y, inputString, color).as2DLabel();
 				c.labels.addAll(inputLabels);
 				y += inputLabels.length;
 			}
 			
-			if (selItemRecipe.canMake(world.player.inventory)) {
+			if (selItemRecipe.canMake(world.player.inventory, selFactor)) {
 				c.labels.add(new ConsoleLink(recipeXMax, y+1, getKeyForInt(selI+1)+") Craft", getKeyForInt(selI+1), (c, l) {
 					List<ItemStack> items = [];
 					
@@ -577,7 +578,7 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 							for (ItemStack stack in new List<ItemStack>.from(world.player.inventory.items)) {
 								if (input.matches(stack)) {
 									if (input.usedUp) {
-										stack.take(input.amt);
+										stack.take(input.amt*selFactor);
 									}
 									items.add(stack);
 								}
@@ -585,7 +586,7 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 							}
 						}
 						
-						world.player.inventory.add(selItemRecipe.craft(items));
+						world.player.inventory.addAll(selItemRecipe.craft(items, selFactor));
 						
 						selItemRecipe = null;
 						c.onRefresh = handleCraftItem(c, recipes);
@@ -599,30 +600,30 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 									c.onRefresh = handleCraftItem;
 								} else {
 									ItemStack cancelled = items.removeLast();
-									cancelled.give(selItemRecipe.inputs[i].amt);
+									cancelled.give(selItemRecipe.inputs[i].amt*selFactor);
 									if (!world.player.inventory.items.contains(cancelled)) {
 										world.player.inventory.add(cancelled);
 									}
 									
-									c.onRefresh = handleSelectMaterial(c, selItemRecipe.inputs[i], onMatSel);
+									c.onRefresh = handleSelectMaterial(c, selItemRecipe.inputs[i], onMatSel, selFactor);
 								}
 							} else {
 								items.add(stack);
-								stack.take(selItemRecipe.inputs[i].amt);
+								stack.take(selItemRecipe.inputs[i].amt*selFactor);
 								i++;
 								
 								if (i >= selItemRecipe.inputs.length) {
 									// craft
-									world.player.inventory.add(selItemRecipe.craft(items));
+									world.player.inventory.addAll(selItemRecipe.craft(items, selFactor));
 									
 									selItemRecipe = null;
 									c.onRefresh = handleCraftItem(c, recipes);
 								} else {
-									c.onRefresh = handleSelectMaterial(c, selItemRecipe.inputs[i], onMatSel);
+									c.onRefresh = handleSelectMaterial(c, selItemRecipe.inputs[i], onMatSel, selFactor);
 								}
 							}
 						};
-						c.onRefresh = handleSelectMaterial(c, selItemRecipe.inputs[i], onMatSel);
+						c.onRefresh = handleSelectMaterial(c, selItemRecipe.inputs[i], onMatSel, selFactor);
 					}
 				}));
 			} else {
@@ -640,5 +641,14 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 		c.labels.add(new ConsoleLink(c.rightJustified(autocraftString), c.height - 1,  autocraftString, 190, (c, l) {
 			autocraft = !autocraft;
 		}, autocraftColor));
+		
+		String factorString = selFactor.toString();
+		c.labels.add(new ConsoleLabel(c.centerJustified(factorString), c.height - 1,  factorString));
+		c.labels.add(new ConsoleLink(c.width~/2-2, c.height - 1,  "-", 190, (c, l) {
+			selFactor--;
+		}));
+		c.labels.add(new ConsoleLink(c.width~/2+2, c.height - 1,  "+", 190, (c, l) {
+			selFactor++;
+		}));
 	};
 }
