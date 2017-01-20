@@ -149,6 +149,7 @@ class Recipe {
 }
 
 abstract class FeatureRecipe extends Recipe {
+	int space;
 	Feature craft(Tile tile, List<ItemStack> items);
 }
 

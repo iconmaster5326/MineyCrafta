@@ -364,12 +364,15 @@ bool autocraft = false;
 void handleCraftFeature(Console c) {
 	c.labels.add(new ConsoleLabel(0, 0,  "Craft Structure"));
 	
+	String spaceString = "Space: " + world.player.tile.featureSpace.toString() + " / " + world.player.tile.maxFeatureSpace.toString();
+	c.labels.add(new ConsoleLabel(c.rightJustified(spaceString), 0, spaceString, (world.player.tile.featureSpace >= world.player.tile.maxFeatureSpace ? ConsoleColor.RED : ConsoleColor.WHITE)));
+	
 	List<ConsoleLabel> recipes = [];
 	int i = 0;
 	int recipeXMax = 0;
 	int selI;
 	for (FeatureRecipe recipe in featureRecipes) {
-		ConsoleColor color = recipe.canMake(world.player.inventory) ? ConsoleColor.GREEN : ConsoleColor.RED;
+		ConsoleColor color = (recipe.canMake(world.player.inventory) && world.player.tile.featureSpace + recipe.space <= world.player.tile.maxFeatureSpace) ? ConsoleColor.GREEN : ConsoleColor.RED;
 		if (recipe == selFeatureRecipe) {
 			recipes.add(new ConsoleLabel(0, i+2, getKeyForInt(i+1) + ") " + recipe.name, color));
 			selI = i;
@@ -390,7 +393,8 @@ void handleCraftFeature(Console c) {
 		c.labels.addAll(desc);
 		
 		c.labels.add(new ConsoleLabel(recipeXMax, desc.length+4, "Requires:"));
-		int y = desc.length+5;
+		c.labels.add(new ConsoleLabel(recipeXMax, desc.length+5, "* " + selFeatureRecipe.space.toString() + " space", (world.player.tile.featureSpace + selFeatureRecipe.space <= world.player.tile.maxFeatureSpace ? ConsoleColor.GREEN : ConsoleColor.RED)));
+		int y = desc.length+6;
 		for (RecipeInput input in selFeatureRecipe.inputs) {
 			String inputString = fitToWidth("* " + input.amt.toString() + " " + input.name, c.width - recipeXMax - 2);
 			ConsoleColor color = input.matchesAny(world.player.inventory) ? ConsoleColor.GREEN : ConsoleColor.RED;
@@ -399,7 +403,7 @@ void handleCraftFeature(Console c) {
 			y += inputLabels.length;
 		}
 		
-		if (selFeatureRecipe.canMake(world.player.inventory)) {
+		if (selFeatureRecipe.canMake(world.player.inventory) && world.player.tile.featureSpace + selFeatureRecipe.space <= world.player.tile.maxFeatureSpace) {
 			c.labels.add(new ConsoleLink(recipeXMax, y+1, getKeyForInt(selI+1)+") Craft", getKeyForInt(selI+1), (c, l) {
 				List<ItemStack> items = [];
 				

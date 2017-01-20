@@ -16,7 +16,14 @@ class Tile {
 	/// The light level. 0 is completely dark, 1 is compltetley light.
 	double get light => world.naturalLight;
 	/// A tile only has so much room for features.
-	int featureSpace = 0; int maxFeatureSpace = 0;
+	int maxFeatureSpace = 20;
+	int get featureSpace {
+		int sum = 0;
+		for (Feature f in features) {
+			sum += f.space;
+		}
+		return sum;
+	}
 	
 	/// These properties will delegate to the enclosing WorldTile.
 	int x; int y;
@@ -114,6 +121,8 @@ class Feature {
 	String name;
 	/// This is the tile the feature is INSIDE.
 	Tile tile;
+	/// The space this tile uses up.
+	int space = 0;
 	
 	Feature.raw();
 	Feature(this.tile) {

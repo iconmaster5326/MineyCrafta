@@ -96,6 +96,7 @@ World loadWorld(Object json) {
 Object saveTile(Tile tile) {
 	Map<String, Object> json = {
 		"timeAtLastVisit": tile.timeAtLastVisit,
+		"maxFeatureSpace": tile.maxFeatureSpace,
 	};
 	
 	List<Object> featuresJson = []; json["features"] = featuresJson;
@@ -118,6 +119,8 @@ Tile loadTile(World world, Object json) {
 	tile.world = world;
 	
 	tile.timeAtLastVisit = json["timeAtLastVisit"];
+	tile.maxFeatureSpace = json["maxFeatureSpace"];
+	
 	for (Object featureJson in json["features"]) {
 		tile.features.add(loadFeature(world, tile, featureJson));
 	}
@@ -132,6 +135,7 @@ Tile loadTile(World world, Object json) {
 Object saveFeature(Feature feature) {
 	Map<String, Object> json = {
 		"name": feature.name,
+		"space": feature.space,
 	};
 	
 	feature.save(json);
@@ -144,6 +148,7 @@ Feature loadFeature(World world, Tile tile, Object json) {
 	feature.tile = tile;
 	
 	feature.name = json["name"];
+	feature.space = json["space"];
 	
 	feature.load(world, tile, json);
 	return feature;

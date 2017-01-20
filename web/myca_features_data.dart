@@ -36,7 +36,9 @@ class FeatureTrees extends Feature {
 	TreeBreed breed;
 	int numTrees;
 	
-	FeatureTrees(Tile tile, this.breed, this.numTrees) : super(tile);
+	FeatureTrees(Tile tile, this.breed, this.numTrees) : super(tile) {
+		space = numTrees;
+	}
 	
 	String get name => breed.name + " Trees";
 	
@@ -45,7 +47,7 @@ class FeatureTrees extends Feature {
 		actions.add(new ConsoleLink(0, 0, "Cut Down " + name, null, (c, l) {
 			ItemStack wood = new ItemStack(breed.wood, rng.nextInt(6)+1);
 			world.player.inventory.add(wood);
-			numTrees--;
+			numTrees--; space--;
 			world.passTime(c, 10);
 			
 			String dialogText = "You cut down some of the trees around you. Soon, you manage to gather:\n\n" + wood.name;
@@ -112,6 +114,7 @@ class FeatureHut extends Feature {
 	
 	FeatureHut(Tile tile, this.material) : super(tile) {
 		material = material.clone();
+		space =  4;
 	}
 	
 	String get name => material.item.name(material) + " Hut";
@@ -136,6 +139,7 @@ class RecipeHut extends FeatureRecipe {
 	RecipeHut() {
 		name = "Hut";
 		desc = "A tiny hovel. Perfect for cowering in.";
+		space =  4;
 		inputs = [
 			new RecipeInput("of any wood, metal, stone", filterAnyWoodMetalStone, 10),
 		];
