@@ -36,7 +36,7 @@ String fitToWidth(String s, int n) {
 		}
 		sb.write("\n");
 	}
-	return sb.toString();
+	return sb.toString().trimRight();
 }
 
 Random rng = new Random();

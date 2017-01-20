@@ -141,8 +141,20 @@ class Recipe {
 	List<RecipeInput> inputs;
 	
 	bool canMake(Inventory inv) {
+		Map<ItemStack, int> amountUsed = {};
 		for (RecipeInput input in inputs) {
-			if (!input.matchesAny(inv)) {
+			bool inputSat = false;
+			for (ItemStack stack in inv.items) {
+				if (input.matches(stack)) {
+					int realAmt = stack.amt - (amountUsed[stack] ?? 0);
+					if (input.amt <= realAmt) {
+						inputSat = true;
+						amountUsed[stack] = (amountUsed[stack] ?? 0) + input.amt;
+						break;
+					}
+				}
+			}
+			if (!inputSat) {
 				return false;
 			}
 		}
@@ -157,7 +169,7 @@ abstract class FeatureRecipe extends Recipe {
 }
 
 abstract class ItemRecipe extends Recipe {
-	ItemStack craft(Inventory inv, List<ItemStack> items);
+	ItemStack craft(List<ItemStack> items);
 }
 
 typedef bool RecipeInputFilter(ItemStack stack);
@@ -186,5 +198,14 @@ class RecipeInput {
 
 bool filterAnyWoodMetalStone(ItemStack stack) {
 	// TODO: add metal, stone
+	return stack.item is ItemWood;
+}
+
+bool filterAnyWoodMetal(ItemStack stack) {
+	// TODO: add metal
+	return stack.item is ItemWood;
+}
+
+bool filterAnyWood(ItemStack stack) {
 	return stack.item is ItemWood;
 }

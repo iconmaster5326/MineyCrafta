@@ -181,10 +181,7 @@ class RecipeHut extends FeatureRecipe {
 	}
 	
 	@override
-	Feature craft(Tile tile, List<ItemStack> items) {
-		FeatureHut result = new FeatureHut(tile, items[0]);
-		return result;
-	}
+	Feature craft(Tile tile, List<ItemStack> items) => new FeatureHut(tile, items[0]);
 	
 	@override
 	bool canMakeOn(Tile tile) => tile.outdoors;
@@ -221,7 +218,7 @@ class TileHut extends FeatureTile {
 		}
 		
 		for (Feature f in features) {
-			f.drawPicture(c, x, y, w, h);
+			f.drawPicture(c, x, y+h~/8, 3*w~/4, 7*h~/8);
 		}
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
@@ -243,6 +240,89 @@ class TileHut extends FeatureTile {
 }
 
 /*
+Crafting Table
+*/
+
+class FeatureCraftingTable extends Feature {
+	FeatureCraftingTable(Tile tile) : super(tile) {
+		space =  1;
+	}
+	
+	String get name => "Crafting Table";
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random rng = new Random(hashCode);
+		int drawX = rng.nextInt(w-6) - (w-6)~/2;
+		int drawY = rng.nextInt(h~/2);
+		
+		for (int i = 0; i < 4; i++) {
+			int realX = x + w~/2 + drawX;
+			int realY = y + h~/2 + drawY + i - 4;
+			
+			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+				switch (i) {
+					case 0:
+						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.MAROON));
+						break;
+					case 1:
+						c.labels.add(new ConsoleLabel(realX, realY, "| | |", ConsoleColor.MAROON));
+						c.labels.add(new ConsoleLabel(realX+3, realY, "X", ConsoleColor.SILVER));
+						break;
+					case 2:
+						c.labels.add(new ConsoleLabel(realX, realY, "| | |", ConsoleColor.MAROON));
+						c.labels.add(new ConsoleLabel(realX+1, realY, ">", ConsoleColor.SILVER));
+						break;
+					case 3:
+						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.MAROON));
+						break;
+				}
+			}
+		}
+	}
+	
+	@override
+	void addActions(List<ConsoleLink> actions) {
+		actions.add(new ConsoleLink(0, 0, "Use Crafting Table", null, (c, l) {
+			c.onRefresh = handleCraftItem(c, craftingTableRecipes);
+		}));
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureCraftingTable";
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		
+	}
+	
+	FeatureCraftingTable.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureCraftingTable.raw();
+	}
+}
+
+class RecipeCraftingTable extends FeatureRecipe {
+	RecipeCraftingTable() {
+		name = "Crafting Table";
+		desc = "A bench full of tools, suitable for crafting larger and more impressive things.";
+		space =  1;
+		inputs = [
+			new RecipeInput("of any wood", filterAnyWood, 4),
+		];
+	}
+	
+	@override
+	Feature craft(Tile tile, List<ItemStack> items) => new FeatureCraftingTable(tile);
+	
+	@override
+	bool canMakeOn(Tile tile) => !tile.outdoors;
+}
+
+/*
 =================
 Load handler map
 =================
@@ -258,6 +338,7 @@ typedef Feature FeatureLoadHandler(World world, Tile tile, Map<String, Object> j
 Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureTrees": FeatureTrees.loadClass,
 	"FeatureHut": FeatureHut.loadClass,
+	"FeatureCraftingTable": FeatureCraftingTable.loadClass,
 };
 
 /*
@@ -268,4 +349,5 @@ Crafting recipes registry
 
 List<FeatureRecipe> featureRecipes = [
 	new RecipeHut(),
+	new RecipeCraftingTable(),
 ];
