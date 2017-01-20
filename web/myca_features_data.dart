@@ -41,6 +41,8 @@ class FeatureTrees extends Feature {
 	}
 	
 	String get name => breed.name + " Trees";
+	ConsoleColor get color => breed.leavesColor;
+	String get desc => "A cluster of " + breed.name.toLowerCase() + " trees. Use an axe to chop them down for wood.";
 	
 	@override
 	void addActions(List<ConsoleLink> actions) {
@@ -147,6 +149,8 @@ class FeatureHut extends Feature {
 	}
 	
 	String get name => material.item.name(material) + " Hut";
+	ConsoleColor get color => material.color;
+	String get desc => "A tiny hovel, perfect for cowering in. This is made of " + material.item.name(material).toLowerCase() + ".";
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
@@ -275,6 +279,8 @@ class FeatureCraftingTable extends Feature {
 	}
 	
 	String get name => "Crafting Table";
+	ConsoleColor get color => ConsoleColor.SILVER;
+	String get desc => "A bench full of tools, suitable for crafting larger and more impressive things.";
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {

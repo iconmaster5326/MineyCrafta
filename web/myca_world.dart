@@ -29,6 +29,9 @@ class Tile {
 	/// Some tiles allow you enter or exit them, or go up or down... Anything that's not a WorldTile can use these.
 	Tile customUp;
 	Tile customDown;
+	/// For the inspect view, features can have colors and descriptions.
+	ConsoleColor color;
+	String desc;
 	
 	/// These properties will delegate to the enclosing WorldTile.
 	int x; int y;

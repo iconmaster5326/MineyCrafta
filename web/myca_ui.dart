@@ -68,15 +68,7 @@ void handleTileView(Console c) {
 		c.onRefresh = handleInventoryView;
 	}));
 	actions.add(new ConsoleLink(0, 0, "Look Around", null, (c, l) {
-		String text = "Looking around you, you see:\n\n";
-		
-		for (Feature f in world.player.tile.features) {
-			text += "* " + f.name + "\n";
-		}
-		
-		c.onRefresh = handleNotifyDialog(text, (c) {
-			c.onRefresh = handleTileView;
-		});
+		c.onRefresh = handleInspectView;
 	}));
 	actions.add(new ConsoleLink(0, 0, "Craft Item", null, (c, l) {
 		c.onRefresh = handleCraftItem(c, handRecipes);
@@ -667,4 +659,40 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 			selFactor++;
 		}));
 	};
+}
+
+
+Feature selFeature;
+void handleInspectView(Console c) {
+	c.labels.add(new ConsoleLabel(0, 0,  "Looking around you, you see:"));
+	
+	String spaceString = "Space: " + world.player.tile.featureSpace.toString() + " / " + world.player.tile.maxFeatureSpace.toString();
+	c.labels.add(new ConsoleLabel(c.rightJustified(spaceString), c.height - 1, spaceString, (world.player.tile.featureSpace >= world.player.tile.maxFeatureSpace ? ConsoleColor.RED : ConsoleColor.WHITE)));
+	
+	int i = 0;
+	for (Feature feature in world.player.tile.features) {
+		c.labels.add(new ConsoleLink(0, i+2,  getKeyForInt(i+1) + ") " + feature.name, getKeyForInt(i+1), (c, l) {
+			selFeature = feature;
+		}, feature.color));
+		i++;
+	}
+	
+	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+		selFeature = null;
+		c.onRefresh = handleTileView;
+	}));
+	
+	if (selFeature != null) {
+		int selX = c.width ~/ 3;
+		int actX = 2*c.width ~/ 3;
+		
+		c.labels.add(new ConsoleLabel(selX, 2, selFeature.name, selFeature.color));
+		c.labels.add(new ConsoleLabel(selX, 4, "Space used: "+selFeature.space.toString()));
+		c.labels.addAll(new ConsoleLabel(selX, 5, fitToWidth(selFeature.desc, actX-selX-2)).as2DLabel());
+		
+		c.labels.add(new ConsoleLabel(actX, 2, "Actions:"));
+		c.labels.add(new ConsoleLink(actX, 3, ",) Deconstruct", 188, (c, l) {
+			
+		}));
+	}
 }
