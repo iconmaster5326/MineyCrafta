@@ -24,6 +24,8 @@ class Tile {
 		}
 		return sum;
 	}
+	/// Some features can only be placed outdoors.
+	bool outdoors;
 	
 	/// These properties will delegate to the enclosing WorldTile.
 	int x; int y;
@@ -92,6 +94,8 @@ class WorldTile extends Tile {
 	static Tile loadClass(World world, Map<String, Object> json) {
 		return new WorldTile.raw();
 	}
+	
+	bool get outdoors => true;
 }
 
 /// A FeatureTile is a Tile inside of a Feature.
@@ -106,6 +110,8 @@ class FeatureTile extends Tile {
 	void set y(int value) {feature.tile.y = value;}
 	Biome get biome => feature.tile.biome;
 	void set biome(Biome value) {feature.tile.biome = value;}
+	
+	bool get outdoors => false;
 }
 
 /// A biome is a world tile's biome, such as desert, forest, etc.

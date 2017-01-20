@@ -369,19 +369,23 @@ void handleCraftFeature(Console c) {
 	
 	List<ConsoleLabel> recipes = [];
 	int i = 0;
+	int menuI = 0;
 	int recipeXMax = 0;
 	int selI;
 	for (FeatureRecipe recipe in featureRecipes) {
-		ConsoleColor color = (recipe.canMake(world.player.inventory) && world.player.tile.featureSpace + recipe.space <= world.player.tile.maxFeatureSpace) ? ConsoleColor.GREEN : ConsoleColor.RED;
-		if (recipe == selFeatureRecipe) {
-			recipes.add(new ConsoleLabel(0, i+2, getKeyForInt(i+1) + ") " + recipe.name, color));
-			selI = i;
-		} else {
-			recipes.add(new ConsoleLink(0, i+2, getKeyForInt(i+1) + ") " + recipe.name, getKeyForInt(i+1), (c, l) {
-				selFeatureRecipe = recipe;
-			}, color));
+		if (recipe.canMakeOn(world.player.tile)) {
+			ConsoleColor color = (recipe.canMake(world.player.inventory) && world.player.tile.featureSpace + recipe.space <= world.player.tile.maxFeatureSpace) ? ConsoleColor.GREEN : ConsoleColor.RED;
+			if (recipe == selFeatureRecipe) {
+				recipes.add(new ConsoleLabel(0, menuI+2, getKeyForInt(menuI+1) + ") " + recipe.name, color));
+				selI = i;
+			} else {
+				recipes.add(new ConsoleLink(0, menuI+2, getKeyForInt(menuI+1) + ") " + recipe.name, getKeyForInt(menuI+1), (c, l) {
+					selFeatureRecipe = recipe;
+				}, color));
+			}
+			recipeXMax = max(recipeXMax, recipe.name.length+5);
+			menuI++;
 		}
-		recipeXMax = max(recipeXMax, recipe.name.length+5);
 		i++;
 	}
 	c.labels.addAll(recipes);

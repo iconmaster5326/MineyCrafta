@@ -150,6 +150,9 @@ class RecipeHut extends FeatureRecipe {
 		FeatureHut result = new FeatureHut(tile, items[0]);
 		return result;
 	}
+	
+	@override
+	bool canMakeOn(Tile tile) => tile.outdoors;
 }
 
 /*

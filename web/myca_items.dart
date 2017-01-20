@@ -151,6 +151,7 @@ class Recipe {
 abstract class FeatureRecipe extends Recipe {
 	int space;
 	Feature craft(Tile tile, List<ItemStack> items);
+	bool canMakeOn(Tile tile) => true;
 }
 
 abstract class ItemRecipe extends Recipe {
