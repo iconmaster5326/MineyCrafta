@@ -440,6 +440,7 @@ void handleCraftFeature(Console c) {
 									stack.take(input.amt);
 								}
 								items.add(stack);
+								break;
 							}
 							i++;
 						}
@@ -452,14 +453,16 @@ void handleCraftFeature(Console c) {
 				} else {
 					int i = 0;
 					SelectMaterialCallback onMatSel;
-					onMatSel = (c, stack) {
-						if (stack == null) {
+					onMatSel = (c, succ, stack) {
+						if (!succ) {
 							i--;
 							if (i < 0) {
 								c.onRefresh = handleCraftFeature;
 							} else {
 								ItemStack cancelled = items.removeLast();
-								cancelled.give(selFeatureRecipe.inputs[i].amt);
+								if (selFeatureRecipe.inputs[i].usedUp) {
+									cancelled.give(selFeatureRecipe.inputs[i].amt);
+								}
 								if (!world.player.inventory.items.contains(cancelled)) {
 									world.player.inventory.add(cancelled);
 								}
@@ -468,7 +471,9 @@ void handleCraftFeature(Console c) {
 							}
 						} else {
 							items.add(stack);
-							stack.take(selFeatureRecipe.inputs[i].amt);
+							if (selFeatureRecipe.inputs[i].usedUp && stack != null) {
+								stack.take(selFeatureRecipe.inputs[i].amt);
+							}
 							i++;
 							
 							if (i >= selFeatureRecipe.inputs.length) {
@@ -502,23 +507,30 @@ void handleCraftFeature(Console c) {
 	}, autocraftColor));
 }
 
-typedef void SelectMaterialCallback(Console c, ItemStack stack);
+typedef void SelectMaterialCallback(Console c, bool success, ItemStack stack);
 ConsoleRefreshHandler handleSelectMaterial(Console c, RecipeInput input, SelectMaterialCallback onDone, [int factor = 1]) {
 	return (c) {
 		c.labels.add(new ConsoleLabel(0, 0, "Select " + (input.amt*factor).toString() + " " + input.name + ":"));
 		
 		int i = 0;
+		if (input.optional) {
+			c.labels.add(new ConsoleLink(0, i+2,  getKeyForInt(i+1) + ") None", getKeyForInt(i+1), (c, l) {
+				onDone(c, true, null);
+			}));
+			i++;
+		}
+		
 		for (ItemStack stack in world.player.inventory.items) {
 			if (input.matches(stack, factor)) {
 				c.labels.add(new ConsoleLink(0, i+2,  getKeyForInt(i+1) + ") " + stack.name, getKeyForInt(i+1), (c, l) {
-					onDone(c, stack);
+					onDone(c, true, stack);
 				}, stack.color));
 				i++;
 			}
 		}
 		
 		c.labels.add(new ConsoleLink(0, c.height - 1, "ENTER) Back", 13, (c, l) {
-			onDone(c, null);
+			onDone(c, false, null);
 		}));
 	};
 }
@@ -593,14 +605,16 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 					} else {
 						int i = 0;
 						SelectMaterialCallback onMatSel;
-						onMatSel = (c, stack) {
-							if (stack == null) {
+						onMatSel = (c, succ, stack) {
+							if (!succ) {
 								i--;
 								if (i < 0) {
-									c.onRefresh = handleCraftItem;
+									c.onRefresh = handleCraftItem(c, recipes);
 								} else {
 									ItemStack cancelled = items.removeLast();
-									cancelled.give(selItemRecipe.inputs[i].amt*selFactor);
+									if (selItemRecipe.inputs[i].usedUp) {
+										cancelled.give(selItemRecipe.inputs[i].amt*selFactor);
+									}
 									if (!world.player.inventory.items.contains(cancelled)) {
 										world.player.inventory.add(cancelled);
 									}
@@ -609,7 +623,9 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 								}
 							} else {
 								items.add(stack);
-								stack.take(selItemRecipe.inputs[i].amt*selFactor);
+								if (selItemRecipe.inputs[i].usedUp && stack != null) {
+									stack.take(selItemRecipe.inputs[i].amt*selFactor);
+								}
 								i++;
 								
 								if (i >= selItemRecipe.inputs.length) {

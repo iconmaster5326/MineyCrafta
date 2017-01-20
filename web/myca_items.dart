@@ -143,13 +143,17 @@ class Recipe {
 	bool canMake(Inventory inv, [int factor = 1]) {
 		Map<ItemStack, int> amountUsed = {};
 		for (RecipeInput input in inputs) {
+			if (input.optional) {continue;}
+			
 			bool inputSat = false;
 			for (ItemStack stack in inv.items) {
 				if (input.matches(stack, factor)) {
 					int realAmt = stack.amt - (amountUsed[stack] ?? 0);
 					if (input.amt*factor <= realAmt) {
 						inputSat = true;
-						amountUsed[stack] = (amountUsed[stack] ?? 0) + input.amt*factor;
+						if (input.usedUp) {
+							amountUsed[stack] = (amountUsed[stack] ?? 0) + input.amt*factor;
+						}
 						break;
 					}
 				}
@@ -178,8 +182,9 @@ class RecipeInput {
 	RecipeInputFilter filter;
 	int amt;
 	bool usedUp;
+	bool optional;
 	
-	RecipeInput(this.name, this.filter, [this.amt = 1, this.usedUp = true]);
+	RecipeInput(this.name, this.filter, this.amt, {this.usedUp: true, this.optional: false});
 	
 	bool matches(ItemStack stack, [int factor = 1]) {
 		if (stack.amt < amt*factor) {return false;}
@@ -187,6 +192,8 @@ class RecipeInput {
 	}
 	
 	bool matchesAny(Inventory inv, [int factor = 1]) {
+		if (optional) {return true;}
+		
 		for (ItemStack stack in inv.items) {
 			if (matches(stack, factor)) {
 				return true;
@@ -208,4 +215,8 @@ bool filterAnyWoodMetal(ItemStack stack) {
 
 bool filterAnyWood(ItemStack stack) {
 	return stack.item is ItemWood;
+}
+
+bool filterAnyWoodCuttingTool(ItemStack stack) {
+	return stack.item is ItemAxe;
 }

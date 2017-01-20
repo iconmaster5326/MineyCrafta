@@ -45,19 +45,45 @@ class FeatureTrees extends Feature {
 	@override
 	void addActions(List<ConsoleLink> actions) {
 		actions.add(new ConsoleLink(0, 0, "Cut Down " + name, null, (c, l) {
-			ItemStack wood = new ItemStack(breed.wood, rng.nextInt(6)+1);
-			world.player.inventory.add(wood);
-			numTrees--; space--;
-			world.passTime(c, 10);
-			
-			String dialogText = "You cut down some of the trees around you. Soon, you manage to gather:\n\n" + wood.name;
-			if (numTrees <= 0) {
-				dialogText += "\n\nTHere are no more " + breed.name + " trees to cut down.";
-				tile.features.remove(this);
-			}
-			
-			c.onRefresh = handleNotifyDialog(dialogText, (c) {
-				c.onRefresh = handleTileView;
+			c.onRefresh = handleSelectMaterial(c, new RecipeInput("wood-cutting tool (optional)", filterAnyWoodCuttingTool, 1, usedUp: false, optional: true), (c, succ, stack) {
+				if (succ) {
+					String dialogText;
+					int treesCut;
+					int timeSpent;
+					
+					if (stack != null) {
+						dialogText = "You cut down some of the trees around you.";
+						treesCut = min(numTrees, rng.nextInt(3)+2);
+						timeSpent = 10;
+					} else {
+						dialogText = "You manage to slowly punch a tree until it falls down. Good for you!";
+						treesCut = 1;
+						timeSpent = 20;
+					}
+					
+					int woodMade = 0;
+					for (int i = 0; i < treesCut; i++) {
+						woodMade += rng.nextInt(7)+2;
+					}
+					
+					ItemStack wood = new ItemStack(breed.wood, woodMade);
+					world.player.inventory.add(wood);
+					numTrees-=treesCut; space-=treesCut;
+					world.passTime(c, timeSpent);
+					
+					dialogText += " You manage to gather:\n\n" + wood.name;
+					
+					if (numTrees <= 0) {
+						dialogText += "\n\nTHere are no more " + breed.name + " trees to cut down.";
+						tile.features.remove(this);
+					}
+					
+					c.onRefresh = handleNotifyDialog(dialogText, (c) {
+						c.onRefresh = handleTileView;
+					});
+				} else {
+					c.onRefresh = handleTileView;
+				}
 			});
 		}));
 	}
