@@ -29,6 +29,8 @@ class Tile {
 	/// Some tiles allow you enter or exit them, or go up or down... Anything that's not a WorldTile can use these.
 	Tile customUp;
 	Tile customDown;
+	/// Tiles can provide custom actions.
+	void addActions(List<ConsoleLink> actions) {}
 	
 	/// These properties will delegate to the enclosing WorldTile.
 	int x; int y;

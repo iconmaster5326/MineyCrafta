@@ -77,6 +77,7 @@ void handleTileView(Console c) {
 		c.onRefresh = handleCraftFeature;
 	}));
 	
+	world.player.tile.addActions(actions);
 	for (Feature f in world.player.tile.features) {
 		f.addActions(actions);
 	}

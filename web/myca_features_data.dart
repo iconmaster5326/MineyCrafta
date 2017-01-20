@@ -393,6 +393,144 @@ class DeconstructCraftingTable extends DeconstructionRecipe {
 }
 
 /*
+Mineshaft
+*/
+
+class FeatureMineshaft extends Feature {
+	TileMineshaft innerTile;
+	
+	FeatureMineshaft(Tile tile) : super(tile) {
+		space =  10;
+		
+		innerTile = new TileMineshaft(this);
+	}
+	
+	String get name => "Mineshaft";
+	ConsoleColor get color => ConsoleColor.GREY;
+	String get desc => "This is a hole, leading to somewhere underground.";
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random rng = new Random(hashCode);
+		int drawX = rng.nextInt(w-6) - (w-6)~/2;
+		int drawY = rng.nextInt(h~/2);
+		
+		for (int i = 0; i < 4; i++) {
+			int realX = x + w~/2 + drawX;
+			int realY = y + h~/2 + drawY + i;
+			
+			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+				switch (i) {
+					case 0:
+						c.labels.add(new ConsoleLabel(realX, realY, "+", ConsoleColor.GREY));
+						c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
+						c.labels.add(new ConsoleLabel(realX+4, realY, "+", ConsoleColor.GREY));
+						break;
+					case 1:
+						c.labels.add(new ConsoleLabel(realX, realY, "|", ConsoleColor.GREY));
+						c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
+						c.labels.add(new ConsoleLabel(realX+4, realY, "|", ConsoleColor.GREY));
+						break;
+					case 2:
+						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
+						break;
+				}
+			}
+		}
+	}
+	
+	@override
+	void addActions(List<ConsoleLink> actions) {
+		actions.add(new ConsoleLink(0, 0, "Enter Mineshaft", null, (c, l) {
+			world.player.move(innerTile);
+		}));
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureMineshaft";
+		json["innerTile"] = saveTile(innerTile);
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		innerTile = loadTile(world, json["innerTile"]); innerTile.feature = this;
+	}
+	
+	FeatureMineshaft.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureMineshaft.raw();
+	}
+}
+
+class RecipeMineshaft extends FeatureRecipe {
+	RecipeMineshaft() {
+		name = "Mineshaft";
+		desc = "Dig down, so you can dig up precious materials. Like cobblestone!";
+		space =  10;
+		inputs = [
+			new RecipeInput("mining tool", filterAnyWoodCuttingTool, 1, usedUp: false, optional: false),
+			new RecipeInput("digging tool (optional)", filterAnyWoodCuttingTool, 1, usedUp: false, optional: true),
+		];
+	}
+	
+	@override
+	Feature craft(Tile tile, List<ItemStack> items) => new FeatureMineshaft(tile);
+	
+	@override
+	bool canMakeOn(Tile tile) => tile.outdoors;
+}
+
+class TileMineshaft extends FeatureTile {
+	TileMineshaft(FeatureHut feature) : super(feature) {
+		maxFeatureSpace = 10;
+	}
+	
+	double get light => 0.0;
+	Tile get customUp => feature.tile;
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		c.labels.add(new ConsoleLabel(x, y+h~/2, repeatString("-", w), ConsoleColor.GREY));
+		
+		Random rng = new Random(w * h);
+		
+		int numStones = rng.nextInt(w*h~/16)+w*h~/16;
+		List<String> stoneIcons = [".", "o", ","];
+		for (int i = y; i < numStones; i++) {
+			c.labels.add(new ConsoleLabel(x+rng.nextInt(w), y+h~/2+1+rng.nextInt(h~/2), stoneIcons[rng.nextInt(stoneIcons.length)], ConsoleColor.GREY));
+		}
+		
+		int ladderX = x + rng.nextInt(w-5)+2;
+		
+		for (int i = y; i <= y + h~/2; i++) {
+			c.labels.add(new ConsoleLabel(ladderX, i, "|-|", ConsoleColor.MAROON));
+		}
+		
+		for (Feature f in features) {
+			f.drawPicture(c, x, y, w, h);
+		}
+		
+		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "TileMineshaft";
+	}
+	@override
+	void load(World world, Map<String, Object> json) {
+		
+	}
+	
+	TileMineshaft.raw() : super.raw();
+	static Tile loadClass(World world, Map<String, Object> json) {
+		return new TileMineshaft.raw();
+	}
+}
+
+/*
 =================
 Load handler map
 =================
@@ -402,6 +540,7 @@ typedef Tile TileLoadHandler(World world, Map<String, Object> json);
 Map<String, TileLoadHandler> tileLoadHandlers = {
 	"WorldTile": WorldTile.loadClass,
 	"TileHut": TileHut.loadClass,
+	"TileMineshaft": TileMineshaft.loadClass,
 };
 
 typedef Feature FeatureLoadHandler(World world, Tile tile, Map<String, Object> json);
@@ -409,6 +548,7 @@ Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureTrees": FeatureTrees.loadClass,
 	"FeatureHut": FeatureHut.loadClass,
 	"FeatureCraftingTable": FeatureCraftingTable.loadClass,
+	"FeatureMineshaft": FeatureMineshaft.loadClass,
 };
 
 /*
@@ -420,4 +560,5 @@ Crafting recipes registry
 List<FeatureRecipe> featureRecipes = [
 	new RecipeHut(),
 	new RecipeCraftingTable(),
+	new RecipeMineshaft(),
 ];
