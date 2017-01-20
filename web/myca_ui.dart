@@ -392,7 +392,7 @@ void handleCraftFeature(Console c) {
 		c.labels.add(new ConsoleLabel(recipeXMax, desc.length+4, "Requires:"));
 		int y = desc.length+5;
 		for (RecipeInput input in selFeatureRecipe.inputs) {
-			String inputString = "* " + fitToWidth(input.name, c.width - recipeXMax - 2);
+			String inputString = fitToWidth("* " + input.amt.toString() + " " + input.name, c.width - recipeXMax - 2);
 			ConsoleColor color = input.matchesAny(world.player.inventory) ? ConsoleColor.GREEN : ConsoleColor.RED;
 			List<ConsoleLabel> inputLabels = new ConsoleLabel(recipeXMax, y, inputString, color).as2DLabel();
 			c.labels.addAll(inputLabels);
@@ -477,7 +477,7 @@ void handleCraftFeature(Console c) {
 typedef void SelectMaterialCallback(Console c, ItemStack stack);
 ConsoleRefreshHandler onSelectMaterial(Console c, RecipeInput input, SelectMaterialCallback onDone) {
 	return (c) {
-		c.labels.add(new ConsoleLabel(0, 0, "Select " + input.name + ":"));
+		c.labels.add(new ConsoleLabel(0, 0, "Select " + input.amt.toString() + " " + input.name + ":"));
 		
 		int i = 0;
 		for (ItemStack stack in world.player.inventory.items) {

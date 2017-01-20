@@ -137,7 +137,7 @@ class RecipeHut extends FeatureRecipe {
 		name = "Hut";
 		desc = "A tiny hovel. Perfect for cowering in.";
 		inputs = [
-			new RecipeInput("10 of any wood, metal, stone", filterAnyWoodMetalStone, 10),
+			new RecipeInput("of any wood, metal, stone", filterAnyWoodMetalStone, 10),
 		];
 	}
 	
