@@ -47,6 +47,8 @@ void handleNewGame(Console c) {
 	}
 	c.labels.addAll(intro);
 	
+	c.labels.add(new ConsoleLabel(c.width~/2, c.height-4, "@"));
+	
 	c.labels.add(new ConsoleTextBox(c.width~/4, c.height-2, "", c.width~/2, (c, l, text) {
 		Player player = new Player(text);
 		
@@ -295,7 +297,7 @@ void handleCreateNewSave(Console c) {
 			c.onRefresh = handlePauseMenu;
 			return;
 		}
-		saveToDisk(world, text);
+		saveToDisk(world, text.replaceAll("'", "").replaceAll('"', "").replaceAll("\\", "").replaceAll("&", "")); // sanitize input
 		c.onRefresh = handleTileView;
 	}));
 }
