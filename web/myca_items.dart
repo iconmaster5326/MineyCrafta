@@ -19,19 +19,19 @@ abstract class Item {
 		return stack;
 	}
 	
-	ItemStack take(ItemStack stack, [int toTake = 1]) {
+	void take(ItemStack stack, [int toTake = 1]) {
 		stack.amt -= toTake;
-		if (stack.amt <= 0) {
-			return null;
+		if (stack.amt <= 0 && stack.inventory != null) {
+			stack.inventory.items.remove(stack);
+			stack.inventory = null;
 		}
-		return stack;
 	}
-	ItemStack give(ItemStack stack, [int toGive = 1]) {
+	void give(ItemStack stack, [int toGive = 1]) {
 		stack.amt += toGive;
-		if (stack.amt <= 0) {
-			return null;
+		if (stack.amt <= 0 && stack.inventory != null) {
+			stack.inventory.items.remove(this);
+			stack.inventory = null;
 		}
-		return stack;
 	}
 	
 	void onTick(ItemStack stack, Console c, int delta) {}
@@ -46,6 +46,8 @@ abstract class Item {
 	
 	Item();
 	Item.raw();
+	
+	ItemStack clone(ItemStack stack) => new ItemStack(this, stack.amt, stack.data);
 }
 
 class ItemStack {
@@ -53,20 +55,16 @@ class ItemStack {
 	int amt;
 	Object data;
 	
-	String _nameOverride;
 	Inventory inventory;
 	
 	ItemStack(this.item, [this.amt = 1, this.data]);
 	
 	get name {
-		String nameBase = _nameOverride ?? item.name(this);
+		String nameBase = item.name(this);
 		if (stackable && amt != 1) {
 			nameBase += " (" + amt.toString() + ")";
 		}
 		return nameBase;
-	}
-	set name(String value) {
-		_nameOverride = value;
 	}
 	
 	get size => item.size(this);
@@ -77,13 +75,15 @@ class ItemStack {
 	bool canMerge(ItemStack other) => item.canMerge(this, other);
 	ItemStack merge(ItemStack other) => item.merge(this, other);
 	
-	ItemStack take([int toTake = 1]) => item.take(this, toTake);
-	ItemStack give([int toGive = 1]) => item.give(this, toGive);
+	void take([int toTake = 1]) => item.take(this, toTake);
+	void give([int toGive = 1]) => item.give(this, toGive);
 	
 	void onTick(Console c, int delta) => item.onTick(this, c, delta);
 	
 	void save(Map<String, Object> json) => item.save(this, json);
 	void load(World world, Inventory inventory, Map<String, Object> json) => item.load(this, world, inventory, json);
+	
+	ItemStack clone() => item.clone(this);
 }
 
 class Inventory {

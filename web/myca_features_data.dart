@@ -111,10 +111,10 @@ class FeatureHut extends Feature {
 	ItemStack material;
 	
 	FeatureHut(Tile tile, this.material) : super(tile) {
-		material.amt = 1;
+		material = material.clone();
 	}
 	
-	String get name => material.name + " Hut";
+	String get name => material.item.name(material) + " Hut";
 	
 	@override
 	void save(Map<String, Object> json) {

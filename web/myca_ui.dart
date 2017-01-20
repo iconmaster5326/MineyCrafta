@@ -406,16 +406,15 @@ void handleCraftFeature(Console c) {
 					List<ItemStack> items = [];
 					for (RecipeInput input in selFeatureRecipe.inputs) {
 						int i = 0;
-						for (ItemStack stack in world.player.inventory.items) {
+						for (ItemStack stack in new List<ItemStack>.from(world.player.inventory.items)) {
 							if (input.matches(stack)) {
 								if (input.usedUp) {
-									world.player.inventory.items[i] = stack.take(input.amt);
+									stack.take(input.amt);
 								}
 								items.add(stack);
 							}
 							i++;
 						}
-						world.player.inventory.items.remove(null);
 					}
 					
 					selFeatureRecipe.craft(world.player.tile, items);
