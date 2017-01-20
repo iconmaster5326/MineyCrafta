@@ -8,6 +8,9 @@ import 'myca_entities.dart';
 import 'myca_items.dart';
 import 'myca_gamesave.dart';
 
+import 'myca_features_data.dart';
+import 'myca_item_data.dart';
+
 World world;
 
 void handleTitleScreen(Console c) {
@@ -74,6 +77,12 @@ void handleTileView(Console c) {
 		c.onRefresh = handleNotifyDialog(text, (c) {
 			c.onRefresh = handleTileView;
 		});
+	}));
+	actions.add(new ConsoleLink(0, 0, "Craft Item", null, (c, l) {
+		
+	}));
+	actions.add(new ConsoleLink(0, 0, "Craft Structure", null, (c, l) {
+		c.onRefresh = handleCraftFeature;
 	}));
 	
 	for (Feature f in world.player.tile.features) {
@@ -348,4 +357,87 @@ ConsoleRefreshHandler handleDeleteGames(Console c, ConsoleRefreshHandler onDone)
 			c.onRefresh = onDone;
 		}));
 	};
+}
+
+FeatureRecipe selFeatureRecipe;
+bool autocraft = true;
+void handleCraftFeature(Console c) {
+	c.labels.add(new ConsoleLabel(0, 0,  "Craft Structure"));
+	
+	List<ConsoleLabel> recipes = [];
+	int i = 0;
+	int recipeXMax = 0;
+	int selI;
+	for (FeatureRecipe recipe in featureRecipes) {
+		ConsoleColor color = recipe.canMake(world.player.inventory) ? ConsoleColor.GREEN : ConsoleColor.RED;
+		if (recipe == selFeatureRecipe) {
+			recipes.add(new ConsoleLabel(0, i+2, getKeyForInt(i+1) + ") " + recipe.name, color));
+			selI = i;
+		} else {
+			recipes.add(new ConsoleLink(0, i+2, getKeyForInt(i+1) + ") " + recipe.name, getKeyForInt(i+1), (c, l) {
+				selFeatureRecipe = recipe;
+			}, color));
+		}
+		recipeXMax = max(recipeXMax, recipe.name.length+5);
+		i++;
+	}
+	c.labels.addAll(recipes);
+	
+	if (selFeatureRecipe != null) {
+		c.labels.add(new ConsoleLabel(recipeXMax, 2, selFeatureRecipe.name));
+		
+		List<ConsoleLabel> desc = new ConsoleLabel(recipeXMax, 4, fitToWidth(selFeatureRecipe.desc, c.width - recipeXMax - 2)).as2DLabel();
+		c.labels.addAll(desc);
+		
+		c.labels.add(new ConsoleLabel(recipeXMax, desc.length+4, "Requires:"));
+		int y = desc.length+5;
+		for (RecipeInput input in selFeatureRecipe.inputs) {
+			String inputString = "* " + fitToWidth(input.name, c.width - recipeXMax - 2);
+			ConsoleColor color = input.matchesAny(world.player.inventory) ? ConsoleColor.GREEN : ConsoleColor.RED;
+			List<ConsoleLabel> inputLabels = new ConsoleLabel(recipeXMax, y, inputString, color).as2DLabel();
+			c.labels.addAll(inputLabels);
+			y += inputLabels.length;
+		}
+		
+		if (selFeatureRecipe.canMake(world.player.inventory)) {
+			c.labels.add(new ConsoleLink(recipeXMax, y+1, getKeyForInt(selI+1)+") Craft", getKeyForInt(selI+1), (c, l) {
+				if (autocraft) {
+					// just craft it
+					List<ItemStack> items = [];
+					for (RecipeInput input in selFeatureRecipe.inputs) {
+						int i = 0;
+						for (ItemStack stack in world.player.inventory.items) {
+							if (input.matches(stack)) {
+								if (input.usedUp) {
+									world.player.inventory.items[i] = stack.take(input.amt);
+								}
+								items.add(stack);
+							}
+							i++;
+						}
+						world.player.inventory.items.remove(null);
+					}
+					
+					selFeatureRecipe.craft(world.player.tile, items);
+					
+					c.onRefresh = handleTileView;
+				} else {
+					// show material selection gui
+				}
+			}));
+		} else {
+			c.labels.add(new ConsoleLabel(recipeXMax, y+1, getKeyForInt(selI+1)+") Craft", ConsoleColor.SILVER));
+		}
+	}
+	
+	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+		selFeatureRecipe = null;
+		c.onRefresh = handleTileView;
+	}));
+	
+	String autocraftString = ".) Autocraft: " + (autocraft ? "ON" : "OFF");
+	ConsoleColor autocraftColor = autocraft ? ConsoleColor.GREEN : ConsoleColor.RED;
+	c.labels.add(new ConsoleLink(c.rightJustified(autocraftString), c.height - 1,  autocraftString, 190, (c, l) {
+		autocraft = !autocraft;
+	}, autocraftColor));
 }

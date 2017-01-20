@@ -11,7 +11,14 @@ import 'myca_features_data.dart';
 class ItemWood extends Item {
 	TreeBreed breed;
 	
-	ItemWood(this.breed);
+	static Map<TreeBreed, ItemWood> _cache = {};
+	ItemWood._fresh(this.breed);
+	factory ItemWood(TreeBreed breed) {
+		if (_cache[breed] == null) {
+			_cache[breed] = new ItemWood._fresh(breed);
+		}
+		return _cache[breed];
+	}
 	
 	@override String name(ItemStack stack) => breed.name + " Wood";
 	@override double size(ItemStack stack) => 1.0;
@@ -29,7 +36,6 @@ class ItemWood extends Item {
 		
 	}
 	
-	ItemWood.raw() : super.raw();
 	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
 		return new ItemStack(new ItemWood(treeBreeds[json["breed"]]));
 	}

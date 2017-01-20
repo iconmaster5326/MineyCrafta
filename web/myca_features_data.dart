@@ -36,9 +36,9 @@ class FeatureTrees extends Feature {
 	TreeBreed breed;
 	int numTrees;
 	
-	FeatureTrees(Tile tile, this.breed, this.numTrees) : super(tile) {
-		name = breed.name + " Trees";
-	}
+	FeatureTrees(Tile tile, this.breed, this.numTrees) : super(tile);
+	
+	String get name => breed.name + " Trees";
 	
 	@override
 	void addActions(List<ConsoleLink> actions) {
@@ -104,7 +104,54 @@ class FeatureTrees extends Feature {
 }
 
 /*
+Hut
+*/
+
+class FeatureHut extends Feature {
+	ItemStack material;
+	
+	FeatureHut(Tile tile, this.material) : super(tile) {
+		material.amt = 1;
+	}
+	
+	String get name => material.name + " Hut";
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureHut";
+		json["material"] = saveItem(material);
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		this.material = loadItem(world, null, json["material"]);
+	}
+	
+	FeatureHut.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureHut.raw();
+	}
+}
+
+class RecipeHut extends FeatureRecipe {
+	RecipeHut() {
+		name = "Hut";
+		desc = "A tiny hovel. Perfect for cowering in.";
+		inputs = [
+			new RecipeInput("10 of any wood, metal, stone", filterAnyWoodMetalStone, 10),
+		];
+	}
+	
+	@override
+	Feature craft(Tile tile, List<ItemStack> items) {
+		FeatureHut result = new FeatureHut(tile, items[0]);
+		return result;
+	}
+}
+
+/*
+=================
 Load handler map
+=================
 */
 
 typedef Tile TileLoadHandler(World world, Map<String, Object> json);
@@ -115,4 +162,15 @@ Map<String, TileLoadHandler> tileLoadHandlers = {
 typedef Feature FeatureLoadHandler(World world, Tile tile, Map<String, Object> json);
 Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureTrees": FeatureTrees.loadClass,
+	"FeatureHut": FeatureHut.loadClass,
 };
+
+/*
+=================
+Crafting recipes registry
+=================
+*/
+
+List<FeatureRecipe> featureRecipes = [
+	new RecipeHut(),
+];

@@ -2,6 +2,7 @@ import 'myca_core.dart';
 import 'myca_console.dart';
 import 'myca_gamesave.dart';
 import 'myca_worldgen.dart';
+import 'myca_world.dart';
 
 abstract class Item {
 	String name(ItemStack stack);
@@ -130,4 +131,55 @@ class Inventory {
 			add(stack);
 		}
 	}
+}
+
+class Recipe {
+	String name;
+	String desc;
+	List<RecipeInput> inputs;
+	
+	bool canMake(Inventory inv) {
+		for (RecipeInput input in inputs) {
+			if (!input.matchesAny(inv)) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
+abstract class FeatureRecipe extends Recipe {
+	Feature craft(Tile tile, List<ItemStack> items);
+}
+
+abstract class ItemRecipe extends Recipe {
+	ItemStack craft(Inventory inv, List<ItemStack> items);
+}
+
+typedef bool RecipeInputFilter(ItemStack stack);
+class RecipeInput {
+	String name;
+	RecipeInputFilter filter;
+	int amt;
+	bool usedUp;
+	
+	RecipeInput(this.name, this.filter, [this.amt = 1, this.usedUp = true]);
+	
+	bool matches(ItemStack stack) {
+		if (stack.amt < amt) {return false;}
+		return filter(stack);
+	}
+	
+	bool matchesAny(Inventory inv) {
+		for (ItemStack stack in inv.items) {
+			if (matches(stack)) {
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+bool filterAnyWoodMetalStone(ItemStack stack) {
+	return true;
 }

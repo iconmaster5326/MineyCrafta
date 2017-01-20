@@ -177,7 +177,7 @@ Entity loadEntity(World world, Tile tile, Object json) {
 	entity.inventory.maxSize = json["canCarry"];
 	
 	for (Object itemJson in json["items"]) {
-		entity.inventory.items.add(loadItem(world, entity.inventory, itemJson));
+		entity.inventory.add(loadItem(world, entity.inventory, itemJson));
 	}
 	
 	entity.load(world, tile, json);
