@@ -29,10 +29,7 @@ void handleTitleScreen(Console c) {
 	c.labels.addAll(new ConsoleLabel(c.width~/2 - 20, 3, logo).as2DLabel());
 	
 	c.labels.add(new ConsoleLink(c.centerJustified(newGame), 16, newGame, "1", (c, l) {
-		Player player = new Player("Bungus");
-		
-		world = new World(player);
-		c.onRefresh = handleTileView;
+		c.onRefresh = handleNewGame;
 	}));
 	if (getSavedWorlds().isEmpty) {
 		c.labels.add(new ConsoleLabel(c.centerJustified(loadGame), 17, loadGame, ConsoleColor.SILVER));
@@ -41,6 +38,21 @@ void handleTitleScreen(Console c) {
 			c.onRefresh = handleLoadGame(c, handleTitleScreen);
 		}));
 	}
+}
+
+void handleNewGame(Console c) {
+	List<ConsoleLabel> intro = new ConsoleLabel(0, 1, fitToWidth("You, a simple at sign, have woken up in a mysterious land. This, of course, is the world of MINEYCRAFTA. Will you rise to the challenge and claim the world as yours, or will you die hungry and alone? Let us begin your new journey with haste!\n\nBut first...\nWhat is your name?", c.width-2)).as2DLabel();
+	for (ConsoleLabel label in intro) {
+		label.x = c.centerJustified(label.text);
+	}
+	c.labels.addAll(intro);
+	
+	c.labels.add(new ConsoleTextBox(c.width~/4, c.height-2, "", c.width~/2, (c, l, text) {
+		Player player = new Player(text);
+		
+		world = new World(player);
+		c.onRefresh = handleTileView;
+	}));
 }
 
 void handleTileView(Console c) {
@@ -278,7 +290,7 @@ void handleCreateNewSave(Console c) {
 	const String menuHeader = "Save file name:";
 	c.labels.add(new ConsoleLabel(c.centerJustified(menuHeader), 0, menuHeader));
 	
-	c.labels.add(new ConsoleTextBox(c.width~/4, 2, "world", c.width~/2, (c, l, text) {
+	c.labels.add(new ConsoleTextBox(c.width~/4, 2, world.player.name, c.width~/2, (c, l, text) {
 		if (text == "") {
 			c.onRefresh = handlePauseMenu;
 			return;

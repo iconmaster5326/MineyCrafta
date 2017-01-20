@@ -296,6 +296,7 @@ class Console {
 					
 					_conns.add(boxElem.onKeyUp.listen((e) {
 						if (e.keyCode == 13 && box.onTextEntry != null) {
+							e.stopPropagation();
 							box.onTextEntry(this, box, boxElem.value);
 							refresh();
 						}
