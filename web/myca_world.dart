@@ -26,6 +26,9 @@ class Tile {
 	}
 	/// Some features can only be placed outdoors.
 	bool outdoors;
+	/// Some tiles allow you enter or exit them, or go up or down... Anything that's not a WorldTile can use these.
+	Tile customUp;
+	Tile customDown;
 	
 	/// These properties will delegate to the enclosing WorldTile.
 	int x; int y;
@@ -102,7 +105,8 @@ class WorldTile extends Tile {
 class FeatureTile extends Tile {
 	Feature feature;
 	
-	FeatureTile(World world) : super(world);
+	FeatureTile(this.feature) : super(feature.tile.world);
+	FeatureTile.raw() : super.raw();
 	
 	int get x => feature.tile.x;
 	void set x(int value) {feature.tile.x = value;}

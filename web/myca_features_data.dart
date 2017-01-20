@@ -111,10 +111,13 @@ Hut
 
 class FeatureHut extends Feature {
 	ItemStack material;
+	TileHut innerTile;
 	
 	FeatureHut(Tile tile, this.material) : super(tile) {
 		material = material.clone();
-		space =  4;
+		space =  5;
+		
+		innerTile = new TileHut(this);
 	}
 	
 	String get name => material.item.name(material) + " Hut";
@@ -143,13 +146,22 @@ class FeatureHut extends Feature {
 	}
 	
 	@override
+	void addActions(List<ConsoleLink> actions) {
+		actions.add(new ConsoleLink(0, 0, "Enter " + name, null, (c, l) {
+			world.player.move(innerTile);
+		}));
+	}
+	
+	@override
 	void save(Map<String, Object> json) {
 		json["class"] = "FeatureHut";
 		json["material"] = saveItem(material);
+		json["innerTile"] = saveTile(innerTile);
 	}
 	@override
 	void load(World world, Tile tile, Map<String, Object> json) {
-		this.material = loadItem(world, null, json["material"]);
+		material = loadItem(world, null, json["material"]);
+		innerTile = loadTile(world, json["innerTile"]); innerTile.feature = this;
 	}
 	
 	FeatureHut.raw() : super.raw();
@@ -162,7 +174,7 @@ class RecipeHut extends FeatureRecipe {
 	RecipeHut() {
 		name = "Hut";
 		desc = "A tiny hovel. Perfect for cowering in.";
-		space =  4;
+		space =  5;
 		inputs = [
 			new RecipeInput("of any wood, metal, stone", filterAnyWoodMetalStone, 10),
 		];
@@ -178,6 +190,58 @@ class RecipeHut extends FeatureRecipe {
 	bool canMakeOn(Tile tile) => tile.outdoors;
 }
 
+class TileHut extends FeatureTile {
+	TileHut(FeatureHut feature) : super(feature) {
+		maxFeatureSpace = 4;
+	}
+	
+	double get light => 0.0;
+	Tile get customUp => feature.tile;
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		c.labels.add(new ConsoleLabel(x, y+h~/2, repeatString("-", 3*w~/4), feature.material.color));
+		for (int i = 0; i < h~/2; i++) {
+			c.labels.add(new ConsoleLabel(x+3*w~/4, y+i, "|", feature.material.color));
+		}
+		
+		int xx = 3*w~/4;
+		int yy = h~/2;
+		while (xx < w && yy < h) {
+			c.labels.add(new ConsoleLabel(x+xx, y+yy, "\\", feature.material.color));
+			
+			xx++; yy++;
+		}
+		
+		c.labels.add(new ConsoleLabel(x+7*w~/16, y+h~/4, "+"+repeatString("-", w~/8)+"+", feature.material.color));
+		for (int i = h~/4 + 1; i < h~/2; i++) {
+			c.labels.add(new ConsoleLabel(x+7*w~/16, y+i, "|", feature.material.color));
+			c.labels.add(new ConsoleLabel(x+7*w~/16+1, y+i, repeatString(".", w~/8), biome.groundColor));
+			c.labels.add(new ConsoleLabel(x+7*w~/16+w~/8+1, y+i, "|", feature.material.color));
+		}
+		
+		for (Feature f in features) {
+			f.drawPicture(c, x, y, w, h);
+		}
+		
+		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "TileHut";
+	}
+	@override
+	void load(World world, Map<String, Object> json) {
+		
+	}
+	
+	TileHut.raw() : super.raw();
+	static Tile loadClass(World world, Map<String, Object> json) {
+		return new TileHut.raw();
+	}
+}
+
 /*
 =================
 Load handler map
@@ -187,6 +251,7 @@ Load handler map
 typedef Tile TileLoadHandler(World world, Map<String, Object> json);
 Map<String, TileLoadHandler> tileLoadHandlers = {
 	"WorldTile": WorldTile.loadClass,
+	"TileHut": TileHut.loadClass,
 };
 
 typedef Feature FeatureLoadHandler(World world, Tile tile, Map<String, Object> json);
