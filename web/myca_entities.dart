@@ -272,6 +272,17 @@ class Battle {
 		}
 	}
 	
+	bool canMoveForwards(Entity entity) {
+		int row = getRow(entity);
+		List<List<Entity>> side = isEmeny(entity) ? enemies : allies;
+		
+		if (row == 0 && side[row].length == 1) {
+			return false;
+		}
+		
+		return true;
+	}
+	
 	void moveForwards(Entity entity) {
 		int row = getRow(entity);
 		List<List<Entity>> side = isEmeny(entity) ? enemies : allies;
@@ -288,6 +299,17 @@ class Battle {
 				side.remove(li);
 			}
 		}
+	}
+	
+	bool canMoveBackwards(Entity entity) {
+		int row = getRow(entity);
+		List<List<Entity>> side = isEmeny(entity) ? enemies : allies;
+		
+		if (row == side.length-1 && side[row].length == 1) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	void moveBackwards(Entity entity) {
