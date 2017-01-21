@@ -241,3 +241,7 @@ bool filterAnyMiningTool(ItemStack stack) {
 bool filterAnyDiggingTool(ItemStack stack) {
 	return stack.item is ItemShovel && (stack.data as int) > 0;
 }
+
+bool filterAnyFuel(ItemStack stack) {
+	return stack.fuelValue != null;
+}

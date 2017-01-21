@@ -521,7 +521,7 @@ class TileMineshaft extends FeatureTile {
 	void drawPicture(Console c, int x, int y, int w, int h) {
 		c.labels.add(new ConsoleLabel(x, y+h~/2, repeatString("-", w), ConsoleColor.GREY));
 		
-		Random rng = new Random(w * h);
+		Random rng = new Random(hashCode);
 		
 		int numStones = rng.nextInt(w*h~/16)+w*h~/16;
 		List<String> stoneIcons = [".", "o", ","];
@@ -582,7 +582,7 @@ class FeatureTunnel extends Feature {
 			}
 		}
 		
-		Random rng = new Random(w * h);
+		Random rng = new Random(hashCode);
 		int drawX = rng.nextInt(w-6);
 		
 		c.labels.add(new ConsoleLabel(x+drawX, y+h~/2-4, "+---+", ConsoleColor.GREY));
@@ -675,6 +675,90 @@ class RecipeTunnel extends FeatureRecipe {
 }
 
 /*
+Torches
+*/
+
+class FeatureTorches extends Feature {
+	FeatureTorches(Tile tile) : super(tile) {
+		space =  1;
+	}
+	
+	String get name => "Torches";
+	ConsoleColor get color => ConsoleColor.RED;
+	String get desc => "A bunch of torches, placed to make sure there is absolutely no darkness for evil to breed in.";
+	int get lightProvided => 0.5;
+	
+	DeconstructionRecipe get toDeconstruct => new DeconstructTorches();
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random rng = new Random(hashCode);
+		int numTorches = rng.nextInt(8)+4;
+		for (int torch = 0; torch < numTorches; torch++) {
+			int torchX = rng.nextInt(w-1) - (w-1)~/2;
+			int torchY = rng.nextInt(h~/2);
+			
+			for (int i = 0; i < 2; i++) {
+				int realX = x + w~/2 + torchX;
+				int realY = y + h~/2 + torchY + i - 1;
+				
+				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+					switch (i) {
+						case 0: c.labels.add(new ConsoleLabel(realX, realY, "*", ConsoleColor.YELLOW)); break;
+						case 1: c.labels.add(new ConsoleLabel(realX, realY, "|", ConsoleColor.MAROON)); break;
+					}
+				}
+			}
+		}
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureTorches";
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		
+	}
+	
+	FeatureTorches.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureTorches.raw();
+	}
+}
+
+class RecipeTorches extends FeatureRecipe {
+	RecipeTorches() {
+		name = "Torches";
+		desc = "Place down some torches to keep evil at bay! Also, place them so you can see what you're doing indoors.";
+		space =  1;
+		inputs = [
+			new RecipeInput("of any wood", filterAnyWood, 2),
+			new RecipeInput("of any fuel", filterAnyFuel, 1),
+		];
+	}
+	
+	@override
+	Feature craft(Tile tile, List<ItemStack> items) => new FeatureTorches(tile);
+}
+
+class DeconstructTorches extends DeconstructionRecipe {
+	DeconstructTorches() {
+		inputs = [
+			
+		];
+		timePassed = 2;
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items) {
+		return [];
+	}
+}
+
+/*
 =================
 Load handler map
 =================
@@ -694,6 +778,7 @@ Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureCraftingTable": FeatureCraftingTable.loadClass,
 	"FeatureMineshaft": FeatureMineshaft.loadClass,
 	"FeatureTunnel": FeatureTunnel.loadClass,
+	"FeatureTorches": FeatureTorches.loadClass,
 };
 
 /*
@@ -707,4 +792,5 @@ List<FeatureRecipe> featureRecipes = [
 	new RecipeCraftingTable(),
 	new RecipeMineshaft(),
 	new RecipeTunnel(),
+	new RecipeTorches(),
 ];
