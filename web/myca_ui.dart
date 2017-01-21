@@ -819,7 +819,9 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 			List<ConsoleLink> actions = new List<ConsoleLink>();
 			
 			actions.add(new ConsoleLink(0, 0, "Attack With Fists", null, (c, l) {
-				
+				battle.log.clear();
+				battle.doAction(world.player, battleActionAttack(world.player, selBattleTarget, "fists", 5, 5));
+				battle.doTurn();
 			}));
 			
 			for (ItemStack stack in world.player.inventory.items) {
@@ -827,7 +829,9 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 			}
 			
 			actions.add(new ConsoleLink(0, 0, "Flee", null, (c, l) {
-				
+				battle.log.clear();
+				battle.doAction(world.player, battleActionDoNothing(world.player, 4));
+				battle.doTurn();
 			}));
 			
 			// Add the action bar
@@ -871,7 +875,7 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 			}
 		}
 		
-		// TODO: background based on tile in
+		world.player.tile.drawBattlePicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
 		
 		int ex = 0;
 		for (List<Entity> col in battle.allies) {
@@ -881,20 +885,24 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 				ConsoleColor back = (e == selBattleTarget ? ConsoleColor.WHITE : ConsoleColor.BLACK);
 				
 				int key = null;
-				if (ey > 0 && battle.allies[ex][ey-1] == selBattleTarget) {
-					key = 38;
-				} else if (ey < battle.allies[ex].length-1 && battle.allies[ex][ey+1] == selBattleTarget) {
-					key = 40;
-				} else if (ex > 0 && battle.allies[ex-1][min(ey, battle.allies[ex-1].length-1)] == selBattleTarget) {
-					key = 37;
-				} else if (ex < battle.allies.length-1 && battle.allies[ex+1][min(ey, battle.allies[ex+1].length-1)] == selBattleTarget) {
-					key = 39;
-				} else if (battle.enemies[0][min(ey, battle.enemies[0].length-1)] == selBattleTarget) {
-					key = 37;
+				if (!isDoneBattling) {
+					if (ey > 0 && battle.allies[ex][ey-1] == selBattleTarget) {
+						key = 38;
+					} else if (ey < battle.allies[ex].length-1 && battle.allies[ex][ey+1] == selBattleTarget) {
+						key = 40;
+					} else if (ex > 0 && battle.allies[ex-1][min(ey, battle.allies[ex-1].length-1)] == selBattleTarget) {
+						key = 37;
+					} else if (ex < battle.allies.length-1 && battle.allies[ex+1][min(ey, battle.allies[ex+1].length-1)] == selBattleTarget) {
+						key = 39;
+					} else if (battle.enemies[0][min(ey, battle.enemies[0].length-1)] == selBattleTarget) {
+						key = 37;
+					}
 				}
 				
 				c.labels.add(new ConsoleLink(boxX+boxW~/2-(ex/battle.allies.length*boxW/2).toInt()-2-((boxW~/2-1)~/(2*battle.allies.length)), boxY+((boxH-2)~/(2*col.length))+(ey/col.length*(boxH-2)).toInt()+1, e.char, key, (c, l) {
-					selBattleTarget = e;
+					if (!isDoneBattling) {
+						selBattleTarget = e;
+					}
 				}, fore, back));
 				ey++;
 			}
@@ -909,20 +917,24 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 				ConsoleColor back = (e == selBattleTarget ? ConsoleColor.WHITE : ConsoleColor.BLACK);
 				
 				int key = null;
-				if (ey > 0 && battle.enemies[ex][ey-1] == selBattleTarget) {
-					key = 40;
-				} else if (ey < battle.enemies[ex].length-1 && battle.enemies[ex][ey+1] == selBattleTarget) {
-					key = 38;
-				} else if (ex > 0 && battle.enemies[ex-1][min(ey, battle.enemies[ex-1].length-1)] == selBattleTarget) {
-					key = 39;
-				} else if (ex < battle.enemies.length-1 && battle.enemies[ex+1][min(ey, battle.enemies[ex+1].length-1)] == selBattleTarget) {
-					key = 37;
-				} else if (battle.allies[0][min(ey, battle.allies[0].length-1)] == selBattleTarget) {
-					key = 39;
+				if (!isDoneBattling) {
+					if (ey > 0 && battle.enemies[ex][ey-1] == selBattleTarget) {
+						key = 40;
+					} else if (ey < battle.enemies[ex].length-1 && battle.enemies[ex][ey+1] == selBattleTarget) {
+						key = 38;
+					} else if (ex > 0 && battle.enemies[ex-1][min(ey, battle.enemies[ex-1].length-1)] == selBattleTarget) {
+						key = 39;
+					} else if (ex < battle.enemies.length-1 && battle.enemies[ex+1][min(ey, battle.enemies[ex+1].length-1)] == selBattleTarget) {
+						key = 37;
+					} else if (battle.allies[0][min(ey, battle.allies[0].length-1)] == selBattleTarget) {
+						key = 39;
+					}
 				}
 				
 				c.labels.add(new ConsoleLink(boxX+boxW~/2+(ex/battle.enemies.length*boxW/2).toInt()+2-((boxW~/2-1)~/(2*battle.enemies.length)), boxY+((boxH-2)~/(2*col.length))+(ey/col.length*(boxH-2)).toInt()+1, e.char, key, (c, l) {
-					selBattleTarget = e;
+					if (!isDoneBattling) {
+						selBattleTarget = e;
+					}
 				}, fore, back));
 				ey++;
 			}

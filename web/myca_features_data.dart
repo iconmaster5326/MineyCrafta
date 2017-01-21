@@ -284,6 +284,11 @@ class TileHut extends FeatureTile {
 	}
 	
 	@override
+	void drawBattlePicture(Console c, int x, int y, int w, int h) {
+		c.labels.add(new ConsoleLabel(x, y+1, repeatString("-", w), feature.material.color));
+	}
+	
+	@override
 	void save(Map<String, Object> json) {
 		json["class"] = "TileHut";
 	}
@@ -540,6 +545,17 @@ class TileMineshaft extends FeatureTile {
 		}
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
+	}
+	
+	@override
+	void drawBattlePicture(Console c, int x, int y, int w, int h) {
+		Random rng = new Random(hashCode);
+		
+		int numStones = rng.nextInt(w*h~/16)+w*h~/16;
+		List<String> stoneIcons = [".", "o", ","];
+		for (int i = y; i < numStones; i++) {
+			c.labels.add(new ConsoleLabel(x+rng.nextInt(w), y+rng.nextInt(h), stoneIcons[rng.nextInt(stoneIcons.length)], ConsoleColor.GREY));
+		}
 	}
 	
 	@override

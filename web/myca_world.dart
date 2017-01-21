@@ -50,8 +50,9 @@ class Tile {
 	}
 	Tile.raw();
 	
-	// draws the ASCII art box.
+	/// draws the ASCII art box.
 	void drawPicture(Console c, int x, int y, int w, int h) {}
+	void drawBattlePicture(Console c, int x, int y, int w, int h) {}
 	
 	// ALWAYS override this. Set "class" to your class name, so it can be loaded later.
 	void save(Map<String, Object> json) {
@@ -82,6 +83,13 @@ class WorldTile extends Tile {
 		}
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
+	}
+	
+	@override
+	void drawBattlePicture(Console c, int x, int y, int w, int h) {
+		for (int row = y; row < y + h; row++) {
+			c.labels.add(new ConsoleLabel(x, row, repeatString(".", w), biome.groundColor));
+		}
 	}
 	
 	get mapIcon {
