@@ -34,6 +34,7 @@ class ItemWood extends Item {
 	@override int hardness(ItemStack stack) => 1;
 	@override int value(ItemStack stack) => 1;
 	@override String materialName(ItemStack stack) => breed.name.toLowerCase() + " wood";
+	@override int fuelValue(ItemStack stack) => 1;
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {

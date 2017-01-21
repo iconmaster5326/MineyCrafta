@@ -15,6 +15,7 @@ abstract class Item {
 	int hardness(ItemStack stack) => null;
 	int value(ItemStack stack) => 0;
 	String materialName(ItemStack stack) => null;
+	int fuelValue(ItemStack stack) => null;
 	
 	bool canMerge(ItemStack stack, ItemStack other) {
 		return (stack.stackable && other.stackable && stack.item == other.item);
@@ -79,6 +80,7 @@ class ItemStack {
 	int get hardness => item.hardness(this);
 	int get value => item.value(this);
 	String get materialName => item.materialName(this);
+	int get fuelValue => item.fuelValue(this);
 	
 	bool canMerge(ItemStack other) => item.canMerge(this, other);
 	ItemStack merge(ItemStack other) => item.merge(this, other);
