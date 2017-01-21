@@ -811,6 +811,8 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		int actionsMaxLen = 0;
 		if (isDoneBattling) {
 			c.labels.add(new ConsoleLink(0, 0, "ENTER) Continue", ConsoleLink.ANY_KEY, (c, l) {
+				selBattleTarget = null;
+				
 				if (world.player.hp > 0) {
 					String dialogText = "You emerge victorious! Gathering the spoils of battle, you find:\n\n";
 					for (ItemStack item in battle.loot.items) {

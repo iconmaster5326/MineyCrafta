@@ -189,16 +189,6 @@ class ItemAxe extends ItemDurable {
 	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
 		return new ItemStack(new ItemAxe(loadItem(world, inventory, json["head"]), loadItem(world, inventory, json["handle"])), 1, (json["durability"] as int));
 	}
-	
-	// TODO: Move addBattleActions to sword
-	@override
-	void addBattleActions(ItemStack stack, Battle battle, List<ConsoleLink> actions) {
-		actions.add(new ConsoleLink(0, 0, "Attack With " + name(stack), null, (c, l) {
-			battle.log.clear();
-			battle.doAction(world.player, battleActionAttack(world.player, selBattleTarget, name(stack), 10, 5));
-			battle.doTurn();
-		}));
-	}
 }
 
 class RecipeAxe extends ItemRecipe {
@@ -342,6 +332,76 @@ class RecipeShovel extends ItemRecipe {
 }
 
 /*
+sword
+*/
+
+class ItemSword extends ItemDurable {
+	ItemStack head;
+	ItemStack handle;
+	
+	ItemSword(this.head, this.handle);
+	
+	@override String name(ItemStack stack) {
+		if ((stack.data as int) <= 0) {
+			return capitalize(head.materialName) + " Sword (broken)";
+		} else {
+			return capitalize(head.materialName) + " Sword (" + ((stack.data as int)/maxDurability*100).toStringAsFixed(0)+"%)";
+		}
+	}
+	@override double size(ItemStack stack) => head.size * 4 + handle.size * 2;
+	@override bool stackable(ItemStack stack) => false;
+	@override ConsoleColor color(ItemStack stack) => head.color;
+	@override String desc(ItemStack stack) => "This is a sword, your most basic of melee weapons. It works best on the front row of enemies.\nThe head is made of " + head.materialName + ". The handle is made of " + handle.materialName + ".";
+	@override int value(ItemStack stack) => (head.value * 4 + handle.value * 2)*5~/4;
+	
+	int get maxDurability => head.hardness * 75 + handle.hardness * 25;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		super.save(stack, json);
+		
+		json["class"] = "ItemSword";
+		json["head"] = saveItem(head);
+		json["handle"] = saveItem(handle);
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inv, Map<String, Object> json) {
+		super.load(stack, world, inv, json);
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemSword(loadItem(world, inventory, json["head"]), loadItem(world, inventory, json["handle"])), 1, (json["durability"] as int));
+	}
+	
+	@override
+	void addBattleActions(ItemStack stack, Battle battle, List<ConsoleLink> actions) {
+		actions.add(new ConsoleLink(0, 0, "Attack With " + name(stack), null, (c, l) {
+			battle.log.clear();
+			battle.doAction(world.player, battleActionAttack(world.player, selBattleTarget, name(stack), 10, 5));
+			battle.doTurn();
+		}));
+	}
+}
+
+class RecipeSword extends ItemRecipe {
+	RecipeSword() {
+		name = "Sword";
+		desc = "Swords are the tried-and-true tool for doing damage to enemies in the front row. The further away you go, though, the less effective it is.";
+		inputs = [
+			new RecipeInput("of any wood, metal, stone (head)", filterAnyWoodMetalStone, 4),
+			new RecipeInput("of any wood, metal (handle)", filterAnyWoodMetal, 2),
+		];
+		timePassed = 4;
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => new List.generate(factor, (i) {
+		ItemSword item = new ItemSword(items[0], items[1]);
+		return new ItemStack(item, 1, item.maxDurability);
+	});
+}
+
+/*
 =================
 Load handler map
 =================
@@ -355,6 +415,7 @@ Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemAxe": ItemAxe.loadClass,
 	"ItemPick": ItemPick.loadClass,
 	"ItemShovel": ItemShovel.loadClass,
+	"ItemSword": ItemSword.loadClass,
 };
 
 /*
@@ -371,4 +432,5 @@ List<ItemRecipe> craftingTableRecipes = [
 	new RecipeAxe(),
 	new RecipePick(),
 	new RecipeShovel(),
+	new RecipeSword(),
 ];
