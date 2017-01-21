@@ -415,13 +415,6 @@ basic actions
 
 BattleAction battleActionDoNothing(Entity user, int time) {
 	return (b) {
-		if (user is Player) {
-			b.log.write("You do nothing!\n");
-		} else {
-			b.log.write(user.name);
-			b.log.write(" does nothing!\n");
-		}
-		
 		return time;
 	};
 }

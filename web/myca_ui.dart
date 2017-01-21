@@ -814,15 +814,19 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 				selBattleTarget = null;
 				
 				if (world.player.hp > 0) {
-					String dialogText = "You emerge victorious! Gathering the spoils of battle, you find:\n\n";
-					for (ItemStack item in battle.loot.items) {
-						dialogText += "* " + item.name + "\n";
-					}
-					c.onRefresh = handleNotifyDialog(dialogText, (c) {
-						world.player.inventory.addAll(battle.loot.items);
-						
+					if (battle.loot.items.isNotEmpty) {
+						String dialogText = "You emerge victorious! Gathering the spoils of battle, you find:\n\n";
+						for (ItemStack item in battle.loot.items) {
+							dialogText += "* " + item.name + "\n";
+						}
+						c.onRefresh = handleNotifyDialog(dialogText, (c) {
+							world.player.inventory.addAll(battle.loot.items);
+							
+							c.onRefresh = handleTileView;
+						});
+					} else {
 						c.onRefresh = handleTileView;
-					});
+					}
 				} else {
 					c.onRefresh = handleTitleScreen;
 				}
@@ -863,8 +867,17 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 			
 			actions.add(new ConsoleLink(0, 0, "Flee", null, (c, l) {
 				battle.log.clear();
-				battle.doAction(world.player, battleActionDoNothing(world.player, 4));
-				battle.doTurn();
+				battle.log.write("You attempt to flee... ");
+				
+				double fleeChance = .4;
+				if (rng.nextDouble() < fleeChance) {
+					battle.log.write("You manage to get away safely!\n");
+					battle.enemies.clear();
+				} else {
+					battle.log.write("You can't escape!\n");
+					battle.doAction(world.player, battleActionDoNothing(world.player, 4));
+					battle.doTurn();
+				}
 			}));
 			
 			// Add the action bar
