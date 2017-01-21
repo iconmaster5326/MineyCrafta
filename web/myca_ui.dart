@@ -834,7 +834,10 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 			
 			actions.add(new ConsoleLink(0, 0, "Attack With Fists", null, (c, l) {
 				battle.log.clear();
-				battle.doAction(world.player, battleActionAttack(world.player, selBattleTarget, "fists", 5, 5));
+				
+				double hitChance = 0.9 - (0.4*battle.getRow(selBattleTarget));
+				battle.doAction(world.player, battleActionHitOrMiss(world.player, selBattleTarget, "fists", 5, hitChance, 5));
+				
 				battle.doTurn();
 			}));
 			

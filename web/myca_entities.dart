@@ -305,6 +305,28 @@ class Battle {
 		remove(entity);
 		loot.addAll(entity.deathDrops);
 	}
+	
+	int getRow(Entity entity) {
+		int i;
+		
+		i = 0;
+		for (List<Entity> a in allies) {
+			if (a.contains(entity)) {
+				return i;
+			}
+			i++;
+		}
+		
+		i = 0;
+		for (List<Entity> a in enemies) {
+			if (a.contains(entity)) {
+				return i;
+			}
+			i++;
+		}
+		
+		return null;
+	}
 }
 
 /*
@@ -352,6 +374,40 @@ BattleAction battleActionAttack(Entity user, Entity target, String withDesc, int
 		}
 		
 		return time;
+	};
+}
+
+BattleAction battleActionMiss(Entity user, Entity target, String withDesc, int time) {
+	return (b) {
+		if (user is Player) {
+			b.log.write("You attack ");
+			b.log.write(target.name);
+			b.log.write(" with your ");
+		} else if (target is Player) {
+			b.log.write(user.name);
+			b.log.write(" attacks you with thier ");
+		} else {
+			b.log.write(user.name);
+			b.log.write(" attacks ");
+			b.log.write(target.name);
+			b.log.write(" with thier ");
+		}
+		b.log.write(withDesc);
+		b.log.write("... But ");
+		b.log.write(user is Player ? "you" : "they");
+		b.log.write(" miss!\n");
+		
+		return time;
+	};
+}
+
+BattleAction battleActionHitOrMiss(Entity user, Entity target, String withDesc, int dmg, double hitChance, int time) {
+	return (b) {
+		if (rng.nextDouble() < hitChance) {
+			return battleActionAttack(user, target, withDesc, dmg, time)(b);
+		} else {
+			return battleActionMiss(user, target, withDesc, time)(b);
+		}
 	};
 }
 

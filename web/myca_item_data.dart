@@ -377,7 +377,10 @@ class ItemSword extends ItemDurable {
 	void addBattleActions(ItemStack stack, Battle battle, List<ConsoleLink> actions) {
 		actions.add(new ConsoleLink(0, 0, "Attack With " + name(stack), null, (c, l) {
 			battle.log.clear();
-			battle.doAction(world.player, battleActionAttack(world.player, selBattleTarget, name(stack), 10, 5));
+			
+			double hitChance = 0.9 - (0.3*battle.getRow(selBattleTarget));
+			battle.doAction(world.player, battleActionHitOrMiss(world.player, selBattleTarget, name(stack), 10, hitChance, 5));
+			
 			battle.doTurn();
 		}));
 	}
