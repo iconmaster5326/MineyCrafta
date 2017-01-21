@@ -594,7 +594,8 @@ class FeatureTunnel extends Feature {
 	@override
 	void addActions(List<ConsoleLink> actions) {
 		actions.add(new ConsoleLink(0, 0, "Mine In Tunnel", null, (c, l) {
-			c.onRefresh = handleSelectMaterial(c, new RecipeInput("mining tool", filterAnyMiningTool, 1, usedUp: false, optional: false), (c, succ, stack) {
+			SelectMaterialCallback onMine;
+			onMine = (c, succ, stack) {
 				if (!succ) {
 					c.onRefresh = handleTileView;
 					return;
@@ -604,7 +605,7 @@ class FeatureTunnel extends Feature {
 					(stack.item as ItemDurable).takeDamage(stack, 10);
 				}
 				
-				List<ItemStack> results = [new ItemStack(new ItemCobble(), rng.nextInt(13)+6)];
+				List<ItemStack> results = [new ItemStack(new ItemCobble(), rng.nextInt(4)+6)];
 				world.player.inventory.addAll(results);
 				
 				String dialogText = "You extend the tunnel, collecting resources along the way. You mined out:\n\n";
@@ -613,10 +614,25 @@ class FeatureTunnel extends Feature {
 					dialogText += "* " + item.name + "\n";
 				}
 				
-				c.onRefresh = handleNotifyDialog(dialogText, (c) {
-					c.onRefresh = handleTileView;
-				});
-			});
+				if (stack.item is ItemDurable && (stack.data as int) <= 0) {
+					dialogText += "\nYour tool is now broken.";
+					c.onRefresh = handleNotifyDialog(dialogText, (c) {
+						c.onRefresh = handleTileView;
+					});
+				} else {
+					dialogText += "\nWill you continue to mine in this tunnel?";
+					
+					c.onRefresh = handleYesNoDialog(dialogText, (c, choice) {
+						if (choice) {
+							onMine(c, true, stack);
+						} else {
+							c.onRefresh = handleTileView;
+						}
+					});
+				}
+			};
+			
+			c.onRefresh = handleSelectMaterial(c, new RecipeInput("mining tool", filterAnyMiningTool, 1, usedUp: false, optional: false), onMine);
 		}));
 	}
 	

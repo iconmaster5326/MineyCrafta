@@ -264,6 +264,29 @@ ConsoleRefreshHandler handleNotifyDialog(String message, NotifyDialogCallback on
 	};
 }
 
+typedef void YesNoDialogCallback(Console c, bool choice);
+ConsoleRefreshHandler handleYesNoDialog(String message, YesNoDialogCallback onAccept) {
+	return (c) {
+		c.labels.add(new ConsoleLabel(1, 1,  "+"+repeatString("-", c.width-4)+"+"));
+		c.labels.add(new ConsoleLabel(1, c.height-2,  "+"+repeatString("-", c.width-4)+"+"));
+		
+		for (int i = 2; i < c.height-2; i++) {
+			c.labels.add(new ConsoleLabel(1, i, "|"));
+			c.labels.add(new ConsoleLabel(c.width-2, i, "|"));
+		}
+		
+		c.labels.addAll(new ConsoleLabel(2, 2, fitToWidth(message, c.width-6)).as2DLabel());
+		
+		c.labels.add(new ConsoleLink(2, c.height - 3,  "1) Yes", "1", (c, l) {
+			onAccept(c, true);
+		}, ConsoleColor.GREEN));
+		
+		c.labels.add(new ConsoleLink(c.rightJustified("2) No") - 2, c.height - 3,  "2) No", "2", (c, l) {
+			onAccept(c, false);
+		}, ConsoleColor.RED));
+	};
+}
+
 void handlePauseMenu(Console c) {
 	const String menuHeader = "MINEYCRAFTA";
 	String quickSave = "1) Quick Save";
