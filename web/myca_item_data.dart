@@ -31,6 +31,8 @@ class ItemWood extends Item {
 	@override bool stackable(ItemStack stack) => true;
 	@override ConsoleColor color(ItemStack stack) => breed.trunkColor;
 	@override String desc(ItemStack stack) => "This is some chopped-up wood from a " + breed.name + " tree.";
+	@override int hardness(ItemStack stack) => 1;
+	@override int value(ItemStack stack) => 1;
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
@@ -66,6 +68,8 @@ class ItemCobble extends Item {
 	@override bool stackable(ItemStack stack) => true;
 	@override ConsoleColor color(ItemStack stack) => ConsoleColor.GREY;
 	@override String desc(ItemStack stack) => "This is a pile of rocks. Just boring old rocks. Nothing special, really.";
+	@override int hardness(ItemStack stack) => 5;
+	@override int value(ItemStack stack) => 1;
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
@@ -126,8 +130,9 @@ class ItemAxe extends ItemDurable {
 	@override bool stackable(ItemStack stack) => false;
 	@override ConsoleColor color(ItemStack stack) => head.color;
 	@override String desc(ItemStack stack) => "This is an axe, useful for cutting down trees and demolishing carpentry.\nThe head is made of " + head.item.name(head).toLowerCase() + ". The handle is made of " + handle.item.name(handle).toLowerCase() + ".";
+	@override int value(ItemStack stack) => (head.value * 4 + handle.value * 2)*5~/4;
 	
-	int get maxDurability => 100;
+	int get maxDurability => head.hardness * 75 + handle.hardness * 25;
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
@@ -186,8 +191,9 @@ class ItemPick extends ItemDurable {
 	@override bool stackable(ItemStack stack) => false;
 	@override ConsoleColor color(ItemStack stack) => head.color;
 	@override String desc(ItemStack stack) => "This is a pick. It's the tool you use for getting between the earth and its valuable minerals! Not like the earth needs them anyways.\nThe head is made of " + head.item.name(head).toLowerCase() + ". The handle is made of " + handle.item.name(handle).toLowerCase() + ".";
+	@override int value(ItemStack stack) => (head.value * 4 + handle.value * 2)*5~/4;
 	
-	int get maxDurability => 100;
+	int get maxDurability => head.hardness * 75 + handle.hardness * 25;
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
@@ -246,8 +252,9 @@ class ItemShovel extends ItemDurable {
 	@override bool stackable(ItemStack stack) => false;
 	@override ConsoleColor color(ItemStack stack) => head.color;
 	@override String desc(ItemStack stack) => "This is a shovel. If you like digging holes, you'll love this tool.\nThe head is made of " + head.item.name(head).toLowerCase() + ". The handle is made of " + handle.item.name(handle).toLowerCase() + ".";
+	@override int value(ItemStack stack) => (head.value * 4 + handle.value * 2)*5~/4;
 	
-	int get maxDurability => 100;
+	int get maxDurability => head.hardness * 75 + handle.hardness * 25;
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {

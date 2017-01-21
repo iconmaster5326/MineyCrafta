@@ -12,6 +12,8 @@ abstract class Item {
 	bool stackable(ItemStack stack) => true;
 	ConsoleColor color(ItemStack stack) => ConsoleColor.WHITE;
 	String desc(ItemStack stack) => "";
+	int hardness(ItemStack stack) => null;
+	int value(ItemStack stack) => 0;
 	
 	bool canMerge(ItemStack stack, ItemStack other) {
 		return (stack.stackable && other.stackable && stack.item == other.item);
@@ -69,10 +71,12 @@ class ItemStack {
 		return nameBase;
 	}
 	
-	get size => item.size(this);
-	get stackable => item.stackable(this);
-	get color => item.color(this);
-	get desc => item.desc(this);
+	double get size => item.size(this);
+	bool get stackable => item.stackable(this);
+	ConsoleColor get color => item.color(this);
+	String get desc => item.desc(this);
+	int get hardness => item.hardness(this);
+	int get value => item.value(this);
 	
 	bool canMerge(ItemStack other) => item.canMerge(this, other);
 	ItemStack merge(ItemStack other) => item.merge(this, other);
