@@ -48,6 +48,40 @@ class ItemWood extends Item {
 }
 
 /*
+cobble
+*/
+
+class ItemCobble extends Item {
+	static ItemCobble _cached;
+	ItemCobble.raw();
+	factory ItemCobble() {
+		if (_cached == null) {
+			_cached = new ItemCobble.raw();
+		}
+		return _cached;
+	}
+	
+	@override String name(ItemStack stack) => "Cobblestone";
+	@override double size(ItemStack stack) => 2.0;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => ConsoleColor.GREY;
+	@override String desc(ItemStack stack) => "This is a pile of rocks. Just boring old rocks. Nothing special, really.";
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemCobble";
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemCobble());
+	}
+}
+
+/*
 tools
 */
 
@@ -252,12 +286,15 @@ class RecipeShovel extends ItemRecipe {
 }
 
 /*
+=================
 Load handler map
+=================
 */
 
 typedef ItemStack ItemLoadHandler(World world, Inventory inventory, Map<String, Object> json);
 Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemWood": ItemWood.loadClass,
+	"ItemCobble": ItemCobble.loadClass,
 	"ItemAxe": ItemAxe.loadClass,
 	"ItemPick": ItemPick.loadClass,
 	"ItemShovel": ItemShovel.loadClass,

@@ -594,7 +594,29 @@ class FeatureTunnel extends Feature {
 	@override
 	void addActions(List<ConsoleLink> actions) {
 		actions.add(new ConsoleLink(0, 0, "Mine In Tunnel", null, (c, l) {
-			
+			c.onRefresh = handleSelectMaterial(c, new RecipeInput("mining tool", filterAnyMiningTool, 1, usedUp: false, optional: false), (c, succ, stack) {
+				if (!succ) {
+					c.onRefresh = handleTileView;
+					return;
+				}
+				
+				if (stack.item is ItemDurable) {
+					(stack.item as ItemDurable).takeDamage(stack, 10);
+				}
+				
+				List<ItemStack> results = [new ItemStack(new ItemCobble(), rng.nextInt(13)+6)];
+				world.player.inventory.addAll(results);
+				
+				String dialogText = "You extend the tunnel, collecting resources along the way. You mined out:\n\n";
+				
+				for (ItemStack item in results) {
+					dialogText += "* " + item.name + "\n";
+				}
+				
+				c.onRefresh = handleNotifyDialog(dialogText, (c) {
+					c.onRefresh = handleTileView;
+				});
+			});
 		}));
 	}
 	
