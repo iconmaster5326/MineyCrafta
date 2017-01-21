@@ -251,7 +251,7 @@ class TileHut extends FeatureTile {
 		maxFeatureSpace = 4;
 	}
 	
-	double get light => 0.0;
+	double get baseLight => 0.0;
 	Tile get customUp => feature.tile;
 	
 	@override
@@ -511,7 +511,7 @@ class TileMineshaft extends FeatureTile {
 		maxFeatureSpace = 10;
 	}
 	
-	double get light => 0.0;
+	double get baseLight => 0.0;
 	Tile get customUp => feature.tile;
 	
 	bool get outdoors => false;

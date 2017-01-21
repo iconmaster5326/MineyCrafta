@@ -14,7 +14,14 @@ class Tile {
 	List<Feature> features = new List<Feature>();
 	List<Entity> entities = new List<Entity>();
 	/// The light level. 0 is completely dark, 1 is compltetley light.
-	double get light => world.naturalLight;
+	double baseLight;
+	double get light {
+		double sum = baseLight;
+		for (Feature f in features) {
+			sum += f.lightProvided;
+		}
+		return sum;
+	}
 	/// A tile only has so much room for features.
 	int maxFeatureSpace = 20;
 	int get featureSpace {
@@ -60,6 +67,8 @@ class WorldTile extends Tile {
 	WorldTile(World world, int nx, int ny, Biome nbiome) : super(world) {
 		x = nx; y = ny; biome = nbiome;
 	}
+	
+	double get baseLight => world.naturalLight;
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
@@ -145,6 +154,9 @@ class Feature {
 	
 	/// A Recipe telling us how we can deconstruct this feature. Null if non-deconstructable.
 	DeconstructionRecipe toDeconstruct;
+	
+	/// A Feauture can provide light to the tile it's in.
+	double lightProvided = 0.0;
 	
 	Feature.raw();
 	Feature(this.tile) {
