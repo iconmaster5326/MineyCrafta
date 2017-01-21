@@ -260,10 +260,57 @@ class Battle {
 	}
 }
 
+/*
+==================
+basic actions
+==================
+*/
+
 BattleAction battleActionDoNothing(Entity user, int time) {
 	return (b) {
-		b.log.write(user.name);
-		b.log.write(" does nothing!");
+		if (user is Player) {
+			b.log.write(user.name);
+			b.log.write(" does nothing!\n");
+		} else {
+			b.log.write("You do nothing!\n");
+		}
+		
+		return time;
+	};
+}
+
+BattleAction battleActionAttack(Entity user, Entity target, String withDesc, int dmg, int time) {
+	return (b) {
+		if (user is Player) {
+			b.log.write("You attack ");
+			b.log.write(target.name);
+			b.log.write(" with your ");
+		} else if (target is Player) {
+			b.log.write(user.name);
+			b.log.write(" attacks you with thier ");
+		} else {
+			b.log.write(user.name);
+			b.log.write(" attacks ");
+			b.log.write(target.name);
+			b.log.write(" with thier ");
+		}
+		b.log.write(withDesc);
+		b.log.write(", dealing ");
+		b.log.write(dmg.toString());
+		b.log.write(" damage!\n");
+		
+		target.hp -= dmg;
+		if (target.hp >= 0) {
+			if (target is Player) {
+				b.log.write("You die...\n");
+			} else {
+				b.log.write(target.name);
+				b.log.write(" dies!");
+			}
+			
+			b.remove(target);
+		}
+		
 		return time;
 	};
 }

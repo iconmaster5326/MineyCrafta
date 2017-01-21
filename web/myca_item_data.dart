@@ -7,6 +7,7 @@ import 'myca_items.dart';
 import 'myca_entities.dart';
 import 'myca_console.dart';
 import 'myca_gamesave.dart';
+import 'myca_ui.dart';
 
 import 'myca_features_data.dart';
 
@@ -152,6 +153,14 @@ class ItemAxe extends ItemDurable {
 	
 	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
 		return new ItemStack(new ItemAxe(loadItem(world, inventory, json["head"]), loadItem(world, inventory, json["handle"])), 1, (json["durability"] as int));
+	}
+	
+	// TODO: Move addBattleActions to sword
+	@override
+	void addBattleActions(ItemStack stack, Battle battle, List<ConsoleLink> actions) {
+		actions.add(new ConsoleLink(0, 0, "Attack With " + name(stack), null, (c, l) {
+			battle.doAction(world.player, battleActionAttack(world.player, selBattleTarget, name(stack), 10, 5));
+		}));
 	}
 }
 

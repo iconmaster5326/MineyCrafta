@@ -3,6 +3,7 @@ import 'myca_console.dart';
 import 'myca_gamesave.dart';
 import 'myca_worldgen.dart';
 import 'myca_world.dart';
+import 'myca_entities.dart';
 
 import 'myca_item_data.dart';
 
@@ -54,6 +55,9 @@ abstract class Item {
 	Item.raw();
 	
 	ItemStack clone(ItemStack stack) => new ItemStack(this, stack.amt, stack.data);
+	
+	/// Use this to add custom battle actions for the player.
+	void addBattleActions(ItemStack stack, Battle battle, List<ConsoleLink> actions) {}
 }
 
 class ItemStack {
@@ -94,6 +98,8 @@ class ItemStack {
 	void load(World world, Inventory inventory, Map<String, Object> json) => item.load(this, world, inventory, json);
 	
 	ItemStack clone() => item.clone(this);
+	
+	void addBattleActions(Battle battle, List<ConsoleLink> actions) => item.addBattleActions(this, battle, actions);
 }
 
 class Inventory {

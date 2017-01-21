@@ -254,7 +254,7 @@ void handleInventoryView(Console c) {
 }
 
 typedef void NotifyDialogCallback(Console c);
-ConsoleRefreshHandler handleNotifyDialog(String message, NotifyDialogCallback onAccept) {
+ConsoleRefreshHandler handleNotifyDialog(String message, NotifyDialogCallback onAccept, [String ok = "OK"]) {
 	return (c) {
 		c.labels.add(new ConsoleLabel(1, 1,  "+"+repeatString("-", c.width-4)+"+"));
 		c.labels.add(new ConsoleLabel(1, c.height-2,  "+"+repeatString("-", c.width-4)+"+"));
@@ -266,14 +266,14 @@ ConsoleRefreshHandler handleNotifyDialog(String message, NotifyDialogCallback on
 		
 		c.labels.addAll(new ConsoleLabel(2, 2, fitToWidth(message, c.width-6)).as2DLabel());
 		
-		c.labels.add(new ConsoleLink(2, c.height - 3,  "ENTER) OK", ConsoleLink.ANY_KEY, (c, l) {
+		c.labels.add(new ConsoleLink(2, c.height - 3,  "ENTER) " + ok, ConsoleLink.ANY_KEY, (c, l) {
 			onAccept(c);
 		}));
 	};
 }
 
 typedef void YesNoDialogCallback(Console c, bool choice);
-ConsoleRefreshHandler handleYesNoDialog(String message, YesNoDialogCallback onAccept) {
+ConsoleRefreshHandler handleYesNoDialog(String message, YesNoDialogCallback onAccept, [String yes = "Yes", String no = "No"]) {
 	return (c) {
 		c.labels.add(new ConsoleLabel(1, 1,  "+"+repeatString("-", c.width-4)+"+"));
 		c.labels.add(new ConsoleLabel(1, c.height-2,  "+"+repeatString("-", c.width-4)+"+"));
@@ -285,11 +285,11 @@ ConsoleRefreshHandler handleYesNoDialog(String message, YesNoDialogCallback onAc
 		
 		c.labels.addAll(new ConsoleLabel(2, 2, fitToWidth(message, c.width-6)).as2DLabel());
 		
-		c.labels.add(new ConsoleLink(2, c.height - 3,  "1) Yes", "1", (c, l) {
+		c.labels.add(new ConsoleLink(2, c.height - 3,  "1) "+yes, "1", (c, l) {
 			onAccept(c, true);
 		}, ConsoleColor.GREEN));
 		
-		c.labels.add(new ConsoleLink(c.rightJustified("2) No") - 2, c.height - 3,  "2) No", "2", (c, l) {
+		c.labels.add(new ConsoleLink(c.rightJustified("2) "+no) - 2, c.height - 3,  "2) "+no, "2", (c, l) {
 			onAccept(c, false);
 		}, ConsoleColor.RED));
 	};
@@ -697,7 +697,6 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 	};
 }
 
-
 Feature selFeature;
 void handleInspectView(Console c) {
 	c.labels.add(new ConsoleLabel(0, 0,  "Looking around you, you see:"));
@@ -790,4 +789,11 @@ void handleInspectView(Console c) {
 			c.labels.add(new ConsoleLabel(actX, 3, ",) Deconstruct", ConsoleColor.SILVER));
 		}
 	}
+}
+
+Entity selBattleTarget;
+ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
+	return (c) {
+		
+	};
 }
