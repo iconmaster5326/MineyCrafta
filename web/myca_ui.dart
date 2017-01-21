@@ -64,8 +64,9 @@ ConsoleRefreshHandler tileViewOverride;
 void handleTileView(Console c) {
 	// The override is used for things like getting into encounters and dying.
 	if (tileViewOverride != null) {
-		tileViewOverride(c);
+		c.onRefresh = tileViewOverride;
 		tileViewOverride = null;
+		c.refresh();
 		return;
 	}
 	
@@ -794,6 +795,83 @@ void handleInspectView(Console c) {
 Entity selBattleTarget;
 ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 	return (c) {
+		bool isDoneBattling = (battle.enemies.isEmpty || battle.allies.isEmpty);
 		
+		// handle what happens when selBattleTarget is null, or the target is no longer in the fight
+		if (selBattleTarget == null || !battle.isInBattle(selBattleTarget)) {
+			if (battle.enemies.isEmpty && battle.allies.isEmpty) {
+				selBattleTarget = world.player;
+			} else if (battle.enemies.isEmpty) {
+				selBattleTarget = battle.allies[0][0];
+			} else {
+				selBattleTarget = battle.enemies[0][0];
+			}
+		}
+		
+		int actionsMaxLen = 0;
+		if (isDoneBattling) {
+			c.labels.add(new ConsoleLink(0, 0, "ENTER) Continue", ConsoleLink.ANY_KEY, (c, l) {
+				c.onRefresh = handleTileView;
+			}));
+			actionsMaxLen = 15;
+		} else {
+			// gather possible actions for the action bar
+			List<ConsoleLink> actions = new List<ConsoleLink>();
+			
+			actions.add(new ConsoleLink(0, 0, "Attack With Fists", null, (c, l) {
+				
+			}));
+			
+			for (ItemStack stack in world.player.inventory.items) {
+				stack.addBattleActions(battle, actions);
+			}
+			
+			actions.add(new ConsoleLink(0, 0, "Flee", null, (c, l) {
+				
+			}));
+			
+			// Add the action bar
+			int i = 0;
+			for (ConsoleLink link in actions) {
+				link.text = getKeyForInt(i+1) + ") " + link.text;
+				link.x = 0;
+				link.y = i;
+				link.key = getKeyForInt(i+1).codeUnitAt(0);
+				i++;
+				
+				if (link.text.length > actionsMaxLen) {actionsMaxLen = link.text.length;}
+				c.labels.add(link);
+			}
+		}
+		
+		// Add the player's info
+		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 0,  "You:"));
+		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 1,  world.player.name));
+		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 2,  "Health: "+(world.player.hp/world.player.hpMax*100.0).toStringAsFixed(0)+"%"));
+		
+		// Add the target's info
+		if (!isDoneBattling) {
+			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 0,  "Target:"));
+			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 1,  selBattleTarget.name));
+			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 2,  "Health: "+(selBattleTarget.hp/selBattleTarget.hpMax*100.0).toStringAsFixed(0)+"%"));
+		}
+		
+		// Add the battle graphic
+		int boxX = actionsMaxLen+2;
+		int boxY = 5;
+		int boxW = c.width - boxX - 2;
+		int boxH = (c.height-5) ~/ 2;
+		
+		for (int row = boxY; row < boxY + boxH; row++) {
+			if (row == boxY || row == boxY + boxH - 1) {
+				c.labels.add(new ConsoleLabel(boxX, row,  "+"+repeatString("-", boxW-2)+"+"));
+			} else {
+				c.labels.add(new ConsoleLabel(boxX, row,  "|"));
+				c.labels.add(new ConsoleLabel(boxX+boxW-1, row,  "|"));
+			}
+		}
+		
+		// Add the log
+		c.labels.addAll(new ConsoleLabel(boxX, boxY + boxH + 2, fitToWidth(battle.log.toString(), boxW)).as2DLabel());
 	};
 }

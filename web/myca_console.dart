@@ -267,7 +267,7 @@ class Console {
 						linkElem.style.backgroundColor = _colorToString(label.back);
 					}));
 					_conns.add(window.onKeyUp.listen((e) {
-						if (e.keyCode == link.key || link.key == ConsoleLink.ANY_KEY) {
+						if (e.keyCode == link.key || (link.key == ConsoleLink.ANY_KEY && e.keyCode < 37 && e.keyCode > 40)) {
 							if (link.onClick != null) {
 								link.onClick(this, link);
 								refresh();

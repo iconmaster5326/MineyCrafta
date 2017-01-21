@@ -159,7 +159,9 @@ class ItemAxe extends ItemDurable {
 	@override
 	void addBattleActions(ItemStack stack, Battle battle, List<ConsoleLink> actions) {
 		actions.add(new ConsoleLink(0, 0, "Attack With " + name(stack), null, (c, l) {
+			battle.log.clear();
 			battle.doAction(world.player, battleActionAttack(world.player, selBattleTarget, name(stack), 10, 5));
+			battle.doTurn();
 		}));
 	}
 }

@@ -6,6 +6,7 @@ import 'myca_world.dart';
 import 'myca_worldgen.dart';
 import 'myca_console.dart';
 import 'myca_gamesave.dart';
+import 'myca_ui.dart';
 
 class Entity {
 	String name;
@@ -96,7 +97,15 @@ class Player extends Entity {
 		
 		if (rng.nextDouble() < encounterChance) {
 			// trigger encounter
+			Battle battle = new Battle();
+			battle.allies.add([this]);
+			battle.enemies.add([new EntityZombie()]);
+			battle.init();
 			
+			String dialogText = "Suddenly, you're assaulted by a roving pack of enemies! They include:\n\n* Zombie";
+			tileViewOverride = handleNotifyDialog(dialogText, (c) {
+				c.onRefresh = handleBattle(c, battle);
+			}, "To Battle!");
 		}
 	}
 	
@@ -170,13 +179,12 @@ class Battle {
 		user.turnCooldown = max(0, passed - user.cooldownReduction);
 	}
 	
-	void doTurn() {
-		log.clear();
-		
+	/// Returns true if the battle is over, and false if we're waiting for the player's input.
+	bool doTurn() {
 		do {
 			// Return if all of one side or the other is dead
 			if (allies.isEmpty || enemies.isEmpty) {
-				return;
+				return true;
 			}
 			
 			// find the entity that will go next
@@ -208,7 +216,7 @@ class Battle {
 					e.turnCooldown = 0;
 					BattleAction ai = e.battleAi(this);
 					if (ai == null) {
-						return;
+						return false;
 					}
 					
 					doAction(e, ai);
@@ -219,7 +227,7 @@ class Battle {
 					e.turnCooldown = 0;
 					BattleAction ai = e.battleAi(this);
 					if (ai == null) {
-						return;
+						return false;
 					}
 					
 					doAction(e, ai);
@@ -258,6 +266,20 @@ class Battle {
 	void moveBackwards(Entity entity) {
 		
 	}
+	
+	bool isInBattle(Entity entity) {
+		for (List<Entity> a in allies) {
+			if (a.contains(entity)) {
+				return true;
+			}
+		}
+		for (List<Entity> a in enemies) {
+			if (a.contains(entity)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 /*
@@ -269,10 +291,10 @@ basic actions
 BattleAction battleActionDoNothing(Entity user, int time) {
 	return (b) {
 		if (user is Player) {
+			b.log.write("You do nothing!\n");
+		} else {
 			b.log.write(user.name);
 			b.log.write(" does nothing!\n");
-		} else {
-			b.log.write("You do nothing!\n");
 		}
 		
 		return time;
@@ -300,12 +322,12 @@ BattleAction battleActionAttack(Entity user, Entity target, String withDesc, int
 		b.log.write(" damage!\n");
 		
 		target.hp -= dmg;
-		if (target.hp >= 0) {
+		if (target.hp <= 0) {
 			if (target is Player) {
 				b.log.write("You die...\n");
 			} else {
 				b.log.write(target.name);
-				b.log.write(" dies!");
+				b.log.write(" dies!\n");
 			}
 			
 			b.remove(target);
@@ -324,6 +346,7 @@ custom entities
 class EntityZombie extends Entity {
 	EntityZombie() {
 		name = "Zombie";
+		hpMax = 50; hp = hpMax;
 	}
 	
 	@override
