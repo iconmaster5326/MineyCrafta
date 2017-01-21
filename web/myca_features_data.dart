@@ -686,7 +686,7 @@ class FeatureTorches extends Feature {
 	String get name => "Torches";
 	ConsoleColor get color => ConsoleColor.RED;
 	String get desc => "A bunch of torches, placed to make sure there is absolutely no darkness for evil to breed in.";
-	int get lightProvided => 0.5;
+	double get lightProvided => 0.5;
 	
 	DeconstructionRecipe get toDeconstruct => new DeconstructTorches();
 	

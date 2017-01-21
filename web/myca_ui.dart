@@ -60,7 +60,15 @@ void handleNewGame(Console c) {
 	}));
 }
 
+ConsoleRefreshHandler tileViewOverride;
 void handleTileView(Console c) {
+	// The override is used for things like getting into encounters and dying.
+	if (tileViewOverride != null) {
+		tileViewOverride(c);
+		tileViewOverride = null;
+		return;
+	}
+	
 	/// gather possible actions for the action bar
 	List<ConsoleLink> actions = new List<ConsoleLink>();
 	
