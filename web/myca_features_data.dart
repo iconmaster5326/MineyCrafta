@@ -80,7 +80,7 @@ class FeatureTrees extends Feature {
 					dialogText += " You manage to gather:\n\n" + wood.name;
 					
 					if (numTrees <= 0) {
-						dialogText += "\n\nTHere are no more " + breed.name + " trees to cut down.";
+						dialogText += "\n\nTHere are no more " + breed.name.toLowerCase() + " trees to cut down.";
 						tile.features.remove(this);
 					}
 					
@@ -152,9 +152,9 @@ class FeatureHut extends Feature {
 		innerTile = new TileHut(this);
 	}
 	
-	String get name => material.item.name(material) + " Hut";
+	String get name => capitalize(material.materialName) + " Hut";
 	ConsoleColor get color => material.color;
-	String get desc => "A tiny hovel, perfect for cowering in. This is made of " + material.item.name(material).toLowerCase() + ".";
+	String get desc => "A tiny hovel, perfect for cowering in. This is made of " + material.materialName + ".";
 	
 	DeconstructionRecipe get toDeconstruct => (innerTile.features.isEmpty ? new DeconstructHut(this) : null);
 	

@@ -39,4 +39,19 @@ String fitToWidth(String s, int n) {
 	return sb.toString().trimRight();
 }
 
+String capitalize(String s) {
+	StringBuffer buf = new StringBuffer();
+	int space = " ".codeUnitAt(0);
+	int lastChar = space;
+	for (int c in s.codeUnits) {
+		if (lastChar == space) {
+			buf.write(new String.fromCharCode(c).toUpperCase());
+		} else {
+			buf.writeCharCode(c);
+		}
+		lastChar = c;
+	}
+	return buf.toString();
+}
+
 Random rng = new Random();

@@ -30,9 +30,10 @@ class ItemWood extends Item {
 	@override double size(ItemStack stack) => 1.0;
 	@override bool stackable(ItemStack stack) => true;
 	@override ConsoleColor color(ItemStack stack) => breed.trunkColor;
-	@override String desc(ItemStack stack) => "This is some chopped-up wood from a " + breed.name + " tree.";
+	@override String desc(ItemStack stack) => "This is some chopped-up wood from a " + breed.name.toLowerCase() + " tree.";
 	@override int hardness(ItemStack stack) => 1;
 	@override int value(ItemStack stack) => 1;
+	@override String materialName(ItemStack stack) => breed.name.toLowerCase() + " wood";
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
@@ -70,6 +71,7 @@ class ItemCobble extends Item {
 	@override String desc(ItemStack stack) => "This is a pile of rocks. Just boring old rocks. Nothing special, really.";
 	@override int hardness(ItemStack stack) => 5;
 	@override int value(ItemStack stack) => 1;
+	@override String materialName(ItemStack stack) => "stone";
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
@@ -121,15 +123,15 @@ class ItemAxe extends ItemDurable {
 	
 	@override String name(ItemStack stack) {
 		if ((stack.data as int) <= 0) {
-			return head.item.name(head) + " Axe (broken)";
+			return capitalize(head.materialName) + " Axe (broken)";
 		} else {
-			return head.item.name(head) + " Axe (" + ((stack.data as int)/maxDurability*100).toStringAsFixed(0)+"%)";
+			return capitalize(head.materialName) + " Axe (" + ((stack.data as int)/maxDurability*100).toStringAsFixed(0)+"%)";
 		}
 	}
 	@override double size(ItemStack stack) => head.size * 4 + handle.size * 2;
 	@override bool stackable(ItemStack stack) => false;
 	@override ConsoleColor color(ItemStack stack) => head.color;
-	@override String desc(ItemStack stack) => "This is an axe, useful for cutting down trees and demolishing carpentry.\nThe head is made of " + head.item.name(head).toLowerCase() + ". The handle is made of " + handle.item.name(handle).toLowerCase() + ".";
+	@override String desc(ItemStack stack) => "This is an axe, useful for cutting down trees and demolishing carpentry.\nThe head is made of " + head.materialName + ". The handle is made of " + handle.materialName + ".";
 	@override int value(ItemStack stack) => (head.value * 4 + handle.value * 2)*5~/4;
 	
 	int get maxDurability => head.hardness * 75 + handle.hardness * 25;
@@ -182,15 +184,15 @@ class ItemPick extends ItemDurable {
 	
 	@override String name(ItemStack stack) {
 		if ((stack.data as int) <= 0) {
-			return head.item.name(head) + " Pick (broken)";
+			return capitalize(head.materialName) + " Pick (broken)";
 		} else {
-			return head.item.name(head) + " Pick (" + ((stack.data as int)/maxDurability*100).toStringAsFixed(0)+"%)";
+			return capitalize(head.materialName) + " Pick (" + ((stack.data as int)/maxDurability*100).toStringAsFixed(0)+"%)";
 		}
 	}
 	@override double size(ItemStack stack) => head.size * 4 + handle.size * 2;
 	@override bool stackable(ItemStack stack) => false;
 	@override ConsoleColor color(ItemStack stack) => head.color;
-	@override String desc(ItemStack stack) => "This is a pick. It's the tool you use for getting between the earth and its valuable minerals! Not like the earth needs them anyways.\nThe head is made of " + head.item.name(head).toLowerCase() + ". The handle is made of " + handle.item.name(handle).toLowerCase() + ".";
+	@override String desc(ItemStack stack) => "This is a pick. It's the tool you use for getting between the earth and its valuable minerals! Not like the earth needs them anyways.\nThe head is made of " + head.materialName + ". The handle is made of " + handle.materialName + ".";
 	@override int value(ItemStack stack) => (head.value * 4 + handle.value * 2)*5~/4;
 	
 	int get maxDurability => head.hardness * 75 + handle.hardness * 25;
@@ -243,15 +245,15 @@ class ItemShovel extends ItemDurable {
 	
 	@override String name(ItemStack stack) {
 		if ((stack.data as int) <= 0) {
-			return head.item.name(head) + " Shovel (broken)";
+			return capitalize(head.materialName) + " Shovel (broken)";
 		} else {
-			return head.item.name(head) + " Shovel (" + ((stack.data as int)/maxDurability*100).toStringAsFixed(0)+"%)";
+			return capitalize(head.materialName) + " Shovel (" + ((stack.data as int)/maxDurability*100).toStringAsFixed(0)+"%)";
 		}
 	}
 	@override double size(ItemStack stack) => head.size * 4 + handle.size * 2;
 	@override bool stackable(ItemStack stack) => false;
 	@override ConsoleColor color(ItemStack stack) => head.color;
-	@override String desc(ItemStack stack) => "This is a shovel. If you like digging holes, you'll love this tool.\nThe head is made of " + head.item.name(head).toLowerCase() + ". The handle is made of " + handle.item.name(handle).toLowerCase() + ".";
+	@override String desc(ItemStack stack) => "This is a shovel. If you like digging holes, you'll love this tool.\nThe head is made of " + head.materialName + ". The handle is made of " + handle.materialName + ".";
 	@override int value(ItemStack stack) => (head.value * 4 + handle.value * 2)*5~/4;
 	
 	int get maxDurability => head.hardness * 75 + handle.hardness * 25;
