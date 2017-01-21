@@ -13,6 +13,7 @@ class Entity {
 	Inventory inventory = new Inventory(100.0);
 	int hp; int hpMax;
 	Tile tile;
+	String char; ConsoleColor color;
 	
 	void move(Tile newTile) {
 		if (tile != null) {
@@ -55,6 +56,9 @@ class Player extends Entity {
 	int hungerRate = 1;
 	Console c;
 	
+	String get char => "@";
+	ConsoleColor get color => ConsoleColor.WHITE;
+	
 	Player(String nname) {
 		this.name = nname;
 		
@@ -94,11 +98,14 @@ class Player extends Entity {
 			encounterChance = 0.05;
 		}
 		encounterChance *= delta;
+		encounterChance = 1.0; // XXX
 		
 		if (rng.nextDouble() < encounterChance) {
 			// trigger encounter
 			Battle battle = new Battle();
 			battle.allies.add([this]);
+			battle.enemies.add([new EntityZombie(), new EntityZombie(), new EntityZombie()]);
+			battle.enemies.add([new EntityZombie(), new EntityZombie()]);
 			battle.enemies.add([new EntityZombie()]);
 			battle.init();
 			
@@ -348,6 +355,9 @@ class EntityZombie extends Entity {
 		name = "Zombie";
 		hpMax = 50; hp = hpMax;
 	}
+	
+	String get char => "Z";
+	ConsoleColor get color => ConsoleColor.GREEN;
 	
 	@override
 	void save(Map<String, Object> json) {
