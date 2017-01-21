@@ -415,12 +415,14 @@ void handleCraftFeature(Console c) {
 	int menuI = 0;
 	int recipeXMax = 0;
 	int selI;
+	String selIkey;
 	for (FeatureRecipe recipe in featureRecipes) {
 		if (recipe.canMakeOn(world.player.tile)) {
 			ConsoleColor color = (recipe.canMake(world.player.inventory) && world.player.tile.featureSpace + recipe.space <= world.player.tile.maxFeatureSpace) ? ConsoleColor.GREEN : ConsoleColor.RED;
 			if (recipe == selFeatureRecipe) {
 				recipeLabels.add(new ConsoleLabel(0, menuI+2, getKeyForInt(menuI+1) + ") " + recipe.name, color));
 				selI = i;
+				selIkey = getKeyForInt(menuI+1);
 			} else {
 				recipeLabels.add(new ConsoleLink(0, menuI+2, getKeyForInt(menuI+1) + ") " + recipe.name, getKeyForInt(menuI+1), (c, l) {
 					selFeatureRecipe = recipe;
@@ -451,7 +453,7 @@ void handleCraftFeature(Console c) {
 		}
 		
 		if (selFeatureRecipe.canMake(world.player.inventory) && world.player.tile.featureSpace + selFeatureRecipe.space <= world.player.tile.maxFeatureSpace) {
-			c.labels.add(new ConsoleLink(recipeXMax, y+1, getKeyForInt(selI+1)+") Craft", getKeyForInt(selI+1), (c, l) {
+			c.labels.add(new ConsoleLink(recipeXMax, y+1, selIkey+") Craft", selIkey, (c, l) {
 				List<ItemStack> items = [];
 				
 				if (autocraft) {
@@ -518,7 +520,7 @@ void handleCraftFeature(Console c) {
 				}
 			}));
 		} else {
-			c.labels.add(new ConsoleLabel(recipeXMax, y+1, getKeyForInt(selI+1)+") Craft", ConsoleColor.SILVER));
+			c.labels.add(new ConsoleLabel(recipeXMax, y+1, selIkey+") Craft", ConsoleColor.SILVER));
 		}
 	}
 	
