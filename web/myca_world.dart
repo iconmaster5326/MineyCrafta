@@ -61,6 +61,15 @@ class Tile {
 	void load(World world, Map<String, Object> json) {
 		throw new UnimplementedError("This subclass of Tile did not implement a load handler.");
 	}
+	
+	/// This is called when an encounter happens on this tile.
+	List<List<Entity>> randomEncounter() {
+		List<List<Entity>> enemies = [];
+		enemies.add(new List.generate(rng.nextInt(3)+1, (i) => new EntityZombie()));
+		enemies.add(new List.generate(rng.nextInt(3), (i) => new EntityZombie()));
+		enemies.add(new List.generate(rng.nextInt(2), (i) => new EntityZombie()));
+		return enemies;
+	}
 }
 
 /// A WorldTile is a Tile on the world map. It has a coordinate, biome, etc.

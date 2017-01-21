@@ -103,18 +103,21 @@ class Player extends Entity {
 			encounterChance = 0.05;
 		}
 		encounterChance *= delta;
-		encounterChance = 1.0; // XXX
 		
 		if (rng.nextDouble() < encounterChance) {
 			// trigger encounter
 			Battle battle = new Battle();
 			battle.allies.add([this]);
-			battle.enemies.add([new EntityZombie(), new EntityZombie(), new EntityZombie()]);
-			battle.enemies.add([new EntityZombie(), new EntityZombie()]);
-			battle.enemies.add([new EntityZombie()]);
+			battle.enemies = tile.randomEncounter();
 			battle.init();
 			
-			String dialogText = "Suddenly, you're assaulted by a roving pack of enemies! They include:\n\n* Zombie";
+			String dialogText = "Suddenly, you're assaulted by a roving pack of enemies! They include:\n\n";
+			for (List<Entity> row in battle.enemies) {
+				for (Entity e in row) {
+					dialogText += "* " + e.name + "\n";
+				}
+			}
+			
 			tileViewOverride = handleNotifyDialog(dialogText, (c) {
 				c.onRefresh = handleBattle(c, battle);
 			}, "To Battle!");
@@ -184,6 +187,17 @@ class Battle {
 		}
 		for (Entity e in _flatten(enemies)) {
 			e.turnCooldown = max(0, rng.nextInt(10) - e.cooldownReduction);
+		}
+		
+		for (List<Entity> li in new List.from(allies)) {
+			if (li.isEmpty) {
+				allies.remove(li);
+			}
+		}
+		for (List<Entity> li in new List.from(enemies)) {
+			if (li.isEmpty) {
+				enemies.remove(li);
+			}
 		}
 	}
 	
