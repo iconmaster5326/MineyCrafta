@@ -8,6 +8,8 @@ import 'myca_console.dart';
 import 'myca_gamesave.dart';
 import 'myca_ui.dart';
 
+import 'myca_item_data.dart';
+
 class Entity {
 	String name;
 	Inventory inventory = new Inventory(100.0);
@@ -49,6 +51,9 @@ class Entity {
 	BattleAction battleAi(Battle battle) {
 		return battleActionDoNothing(this, 4);
 	}
+	
+	/// The items you drop on death. By default, this is the contents of the inventory.
+	List<ItemStack> get deathDrops => inventory.items;
 }
 
 class Player extends Entity {
@@ -169,6 +174,7 @@ class Battle {
 	List<List<Entity>> allies = [];
 	List<List<Entity>> enemies = [];
 	StringBuffer log = new StringBuffer();
+	Inventory loot = new Inventory();
 	
 	static List<Entity> _flatten(List<List<Entity>> li) => li.reduce((a, b) => new List.from(a)..addAll(b));
 	
@@ -287,6 +293,18 @@ class Battle {
 		}
 		return false;
 	}
+	
+	void kill(Entity entity) {
+		if (entity is Player) {
+			log.write("You die...\n");
+		} else {
+			log.write(entity.name);
+			log.write(" dies!\n");
+		}
+		
+		remove(entity);
+		loot.addAll(entity.deathDrops);
+	}
 }
 
 /*
@@ -330,14 +348,7 @@ BattleAction battleActionAttack(Entity user, Entity target, String withDesc, int
 		
 		target.hp -= dmg;
 		if (target.hp <= 0) {
-			if (target is Player) {
-				b.log.write("You die...\n");
-			} else {
-				b.log.write(target.name);
-				b.log.write(" dies!\n");
-			}
-			
-			b.remove(target);
+			b.kill(target);
 		}
 		
 		return time;
@@ -372,6 +383,8 @@ class EntityZombie extends Entity {
 	static Entity loadClass(World world, Tile tile, Map<String, Object> json) {
 		return new EntityZombie.raw();
 	}
+	
+	List<ItemStack> get deathDrops => [new ItemStack(new ItemRottenFlesh(), rng.nextInt(3)+1)];
 }
 
 /*

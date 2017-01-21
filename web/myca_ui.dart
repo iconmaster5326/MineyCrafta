@@ -811,7 +811,19 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		int actionsMaxLen = 0;
 		if (isDoneBattling) {
 			c.labels.add(new ConsoleLink(0, 0, "ENTER) Continue", ConsoleLink.ANY_KEY, (c, l) {
-				c.onRefresh = handleTileView;
+				if (world.player.hp > 0) {
+					String dialogText = "You emerge victorious! Gathering the spoils of battle, you find:\n\n";
+					for (ItemStack item in battle.loot.items) {
+						dialogText += "* " + item.name + "\n";
+					}
+					c.onRefresh = handleNotifyDialog(dialogText, (c) {
+						world.player.inventory.addAll(battle.loot.items);
+						
+						c.onRefresh = handleTileView;
+					});
+				} else {
+					c.onRefresh = handleTitleScreen;
+				}
 			}));
 			actionsMaxLen = 15;
 		} else {

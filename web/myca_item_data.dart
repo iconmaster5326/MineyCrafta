@@ -90,6 +90,41 @@ class ItemCobble extends Item {
 }
 
 /*
+rotten flesh
+*/
+
+class ItemRottenFlesh extends Item {
+	static ItemRottenFlesh _cached;
+	ItemRottenFlesh.raw();
+	factory ItemRottenFlesh() {
+		if (_cached == null) {
+			_cached = new ItemRottenFlesh.raw();
+		}
+		return _cached;
+	}
+	
+	@override String name(ItemStack stack) => "Rotten Flesh";
+	@override double size(ItemStack stack) => 0.5;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => ConsoleColor.MAROON;
+	@override String desc(ItemStack stack) => "This slab of meat looks very long-gone. Maybe it would be an unwise idea to try and eat it.";
+	@override int value(ItemStack stack) => 1;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemRottenFlesh";
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemRottenFlesh());
+	}
+}
+
+/*
 tools
 */
 
@@ -316,6 +351,7 @@ typedef ItemStack ItemLoadHandler(World world, Inventory inventory, Map<String, 
 Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemWood": ItemWood.loadClass,
 	"ItemCobble": ItemCobble.loadClass,
+	"ItemRottenFlesh": ItemRottenFlesh.loadClass,
 	"ItemAxe": ItemAxe.loadClass,
 	"ItemPick": ItemPick.loadClass,
 	"ItemShovel": ItemShovel.loadClass,
