@@ -845,6 +845,18 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 				stack.addBattleActions(battle, actions);
 			}
 			
+			actions.add(new ConsoleLink(0, 0, "Move Forwards", null, (c, l) {
+				battle.log.clear();
+				battle.doAction(world.player, battleActionMoveForwards(world.player));
+				battle.doTurn();
+			}));
+			
+			actions.add(new ConsoleLink(0, 0, "Move Backwards", null, (c, l) {
+				battle.log.clear();
+				battle.doAction(world.player, battleActionMoveBackwards(world.player));
+				battle.doTurn();
+			}));
+			
 			actions.add(new ConsoleLink(0, 0, "Flee", null, (c, l) {
 				battle.log.clear();
 				battle.doAction(world.player, battleActionDoNothing(world.player, 4));

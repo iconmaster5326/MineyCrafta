@@ -273,11 +273,39 @@ class Battle {
 	}
 	
 	void moveForwards(Entity entity) {
+		int row = getRow(entity);
+		List<List<Entity>> side = isEmeny(entity) ? enemies : allies;
+		side[row].remove(entity);
 		
+		if (row == 0) {
+			side.insert(0, [entity]);
+		} else {
+			side[row-1].add(entity);
+		}
+		
+		for (List<Entity> li in new List.from(side)) {
+			if (li.isEmpty) {
+				side.remove(li);
+			}
+		}
 	}
 	
 	void moveBackwards(Entity entity) {
+		int row = getRow(entity);
+		List<List<Entity>> side = isEmeny(entity) ? enemies : allies;
+		side[row].remove(entity);
 		
+		if (row == side.length-1) {
+			side.add([entity]);
+		} else {
+			side[row+1].add(entity);
+		}
+		
+		for (List<Entity> li in new List.from(side)) {
+			if (li.isEmpty) {
+				side.remove(li);
+			}
+		}
 	}
 	
 	bool isInBattle(Entity entity) {
@@ -325,6 +353,20 @@ class Battle {
 			i++;
 		}
 		
+		return null;
+	}
+	
+	bool isEmeny(Entity entity) {
+		for (List<Entity> a in allies) {
+			if (a.contains(entity)) {
+				return false;
+			}
+		}
+		for (List<Entity> a in enemies) {
+			if (a.contains(entity)) {
+				return true;
+			}
+		}
 		return null;
 	}
 }
@@ -408,6 +450,36 @@ BattleAction battleActionHitOrMiss(Entity user, Entity target, String withDesc, 
 		} else {
 			return battleActionMiss(user, target, withDesc, time)(b);
 		}
+	};
+}
+
+BattleAction battleActionMoveForwards(Entity user) {
+	return (b) {
+		if (user is Player) {
+			b.log.write("You move forwards.\n");
+		} else {
+			b.log.write(user.name);
+			b.log.write(" moves forwards.\n");
+		}
+		
+		b.moveForwards(user);
+		
+		return 4;
+	};
+}
+
+BattleAction battleActionMoveBackwards(Entity user) {
+	return (b) {
+		if (user is Player) {
+			b.log.write("You move backwards.\n");
+		} else {
+			b.log.write(user.name);
+			b.log.write(" moves backwards.\n");
+		}
+		
+		b.moveBackwards(user);
+		
+		return 4;
 	};
 }
 
