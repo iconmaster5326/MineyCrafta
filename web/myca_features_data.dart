@@ -633,10 +633,11 @@ class FeatureTunnel extends Feature {
 	FeatureTunnel(Tile tile) : super(tile) {
 		space =  4;
 	}
+	int amtLeft = rng.nextInt(100)+100;
 	
 	String get name => "Tunnel";
 	ConsoleColor get color => ConsoleColor.GREY;
-	String get desc => "This is an underground tunnel, made for mining purposes. Who knows where it could lead?";
+	String get desc => "This is an underground tunnel, made for mining purposes. Who knows where it could lead?" + (amtLeft <= 0 ? "\nThis tunnel has been mined dry of resources, it seems." : "");
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
@@ -696,11 +697,13 @@ class FeatureTunnel extends Feature {
 				
 				Inventory results = new Inventory();
 				results.add(new ItemStack(new ItemCobble(), rng.nextInt(4)+6));
-				if (rng.nextDouble() < .6) {
-					results.add(new ItemStack(majorResource, rng.nextInt(4)+1));
-				}
-				if (rng.nextDouble() < .2) {
-					results.add(new ItemStack(minorResource, rng.nextInt(4)+1));
+				if (amtLeft > 0) {
+					if (rng.nextDouble() < .6) {
+						results.add(new ItemStack(majorResource, rng.nextInt(4)+1));
+					}
+					if (rng.nextDouble() < .2) {
+						results.add(new ItemStack(minorResource, rng.nextInt(4)+1));
+					}
 				}
 				
 				world.player.inventory.addInventory(results);
@@ -709,6 +712,11 @@ class FeatureTunnel extends Feature {
 				
 				for (ItemStack item in results.items) {
 					dialogText += "* " + item.name + "\n";
+				}
+				
+				amtLeft--;
+				if (amtLeft <= 0) {
+					dialogText += "\nThe tunnel has run dry of resources, it seems.\n";
 				}
 				
 				if (stack.item is ItemDurable && (stack.data as int) <= 0) {
@@ -736,10 +744,11 @@ class FeatureTunnel extends Feature {
 	@override
 	void save(Map<String, Object> json) {
 		json["class"] = "FeatureTunnel";
+		json["amtLeft"] = amtLeft;
 	}
 	@override
 	void load(World world, Tile tile, Map<String, Object> json) {
-		
+		amtLeft = json["amtLeft"];
 	}
 	
 	FeatureTunnel.raw() : super.raw();
