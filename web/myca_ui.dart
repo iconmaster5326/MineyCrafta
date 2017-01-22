@@ -928,7 +928,7 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		int ex = 0;
 		for (List<Entity> col in battle.allies) {
 			int ey = 0;
-			for (List<Entity> e in col) {
+			for (Entity e in col) {
 				ConsoleColor fore = (e == selBattleTarget ? Console.invertColor(e.color) : e.color);
 				ConsoleColor back = (e == selBattleTarget ? ConsoleColor.WHITE : ConsoleColor.BLACK);
 				
@@ -960,7 +960,7 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		ex = 0;
 		for (List<Entity> col in battle.enemies) {
 			int ey = 0;
-			for (List<Entity> e in col) {
+			for (Entity e in col) {
 				ConsoleColor fore = (e == selBattleTarget ? Console.invertColor(e.color) : e.color);
 				ConsoleColor back = (e == selBattleTarget ? ConsoleColor.WHITE : ConsoleColor.BLACK);
 				

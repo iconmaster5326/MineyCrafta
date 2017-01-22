@@ -15,7 +15,7 @@ class World {
 	int seed;
 	int time = 0;
 	
-	static const int TICKS_PER_DAY = 100;
+	static const int TICKS_PER_DAY = 500;
 	
 	World(this.player, [this.size = 16, this.seed]) {
 		Biome b = new BiomeForest();
@@ -41,11 +41,11 @@ class World {
 	int get day => time ~/ TICKS_PER_DAY;
 	double get naturalLight {
 		double timeInDay = time % TICKS_PER_DAY / TICKS_PER_DAY;
-		if (timeInDay < .25) {
+		if (timeInDay < .5) {
 			return 1.0;
-		} else if (timeInDay < .5) {
+		} else if (timeInDay < .6) {
 			return 0.4;
-		} else if (timeInDay < .75) {
+		} else if (timeInDay < .9) {
 			return 0.2;
 		} else {
 			return 0.4;
@@ -61,7 +61,18 @@ class World {
 			return "Bright";
 		}
 	}
-	String timeDescriptor() => (isDaytime ? "Day" : "Night");
+	String timeDescriptor() {
+		double timeInDay = time % TICKS_PER_DAY / TICKS_PER_DAY;
+		if (timeInDay < .5) {
+			return "Day";
+		} else if (timeInDay < .6) {
+			return "Dusk";
+		} else if (timeInDay < .9) {
+			return "Night";
+		} else {
+			return "Dawn";
+		}
+	}
 	
 	void passTime(Console c, [int amt = 1]) {
 		time += amt;
