@@ -225,10 +225,16 @@ void handleInventoryView(Console c) {
 	c.labels.add(new ConsoleLabel(c.rightJustified(sizeText), 0,  sizeText));
 	
 	int i = 0;
+	String key;
 	for (ItemStack stack in world.player.inventory.items) {
-		c.labels.add(new ConsoleLink(0, i+2,  getKeyForInt(i+1) + ") " + stack.name, getKeyForInt(i+1), (c, l) {
-			selected = stack;
-		}, stack.color));
+		if (stack == selected) {
+			key = getKeyForInt(i+1);
+			c.labels.add(new ConsoleLabel(0, i+2,  getKeyForInt(i+1) + ") " + stack.name, stack.color));
+		} else {
+			c.labels.add(new ConsoleLink(0, i+2,  getKeyForInt(i+1) + ") " + stack.name, getKeyForInt(i+1), (c, l) {
+				selected = stack;
+			}, stack.color));
+		}
 		i++;
 	}
 	
@@ -247,13 +253,14 @@ void handleInventoryView(Console c) {
 		c.labels.addAll(new ConsoleLabel(selX, 5, fitToWidth(selected.desc, actX-selX-2)).as2DLabel());
 		
 		c.labels.add(new ConsoleLabel(actX, 2, "Actions:"));
-		c.labels.add(new ConsoleLink(actX, 3, ",) Discard", 188, (c, l) {
+		c.labels.add(new ConsoleLabel(actX, 3, key + ") Use", ConsoleColor.SILVER));
+		c.labels.add(new ConsoleLink(actX, 4, ",) Discard", 188, (c, l) {
 			world.player.inventory.items.remove(selected);
 			selected = null;
 		}));
 		
 		if (selected.amt > 1) {
-			c.labels.add(new ConsoleLink(actX, 4, ".) Discard Some...", 190, (c, l) {
+			c.labels.add(new ConsoleLink(actX, 5, ".) Discard Some...", 190, (c, l) {
 				c.onRefresh = handlePickAmount(c, selected.amt, selected.amt, (c, toDrop) {
 					selected.take(toDrop);
 					if (!world.player.inventory.items.contains(selected)) {
@@ -263,7 +270,7 @@ void handleInventoryView(Console c) {
 				});
 			}));
 		} else {
-			c.labels.add(new ConsoleLabel(actX, 4, ".) Discard Some...", ConsoleColor.SILVER));
+			c.labels.add(new ConsoleLabel(actX, 5, ".) Discard Some...", ConsoleColor.SILVER));
 		}
 	}
 }
