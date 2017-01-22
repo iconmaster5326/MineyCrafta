@@ -213,6 +213,21 @@ class ItemIngot extends Item {
 	}
 }
 
+class RecipeIngot extends SmeltingRecipe {
+	RecipeIngot() {
+		name = "Metal Ingot";
+		desc = "You need to smelt ores into ingots before crafting with them. Because trust me, you don't want metallic impurities in your tools.";
+		inputs = [
+			new RecipeInput("of any ore", (stack) => (stack.item is ItemOre), 1),
+		];
+		timePassed = 2;
+		fuel = 1;
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => [new ItemStack(new ItemIngot((items[0].item as ItemOre).type), factor)];
+}
+
 /*
 tools
 */
@@ -528,4 +543,8 @@ List<ItemRecipe> craftingTableRecipes = [
 	new RecipePick(),
 	new RecipeShovel(),
 	new RecipeSword(),
+];
+
+List<SmeltingRecipe> smeltingRecipes = [
+	new RecipeIngot(),
 ];

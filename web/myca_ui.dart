@@ -1058,3 +1058,157 @@ ConsoleRefreshHandler handlePickAmount(Console c, int before, int selAmt, PickAm
 		}));
 	};
 }
+
+SmeltingRecipe selSmeltingRecipe;
+ConsoleRefreshHandler handleSmelting(Console c, FeatureFurnace furnace) {
+	return (c) {
+		c.labels.add(new ConsoleLabel(0, 0,  "Smelt Item"));
+		
+		List<ConsoleLabel> recipeLabels = [];
+		int i = 0;
+		int menuI = 0;
+		int recipeXMax = 0;
+		int selI;
+		for (SmeltingRecipe recipe in smeltingRecipes) {
+			ConsoleColor color = (recipe.canMake(world.player.inventory, selFactor) && furnace.fuel >= recipe.fuel * selFactor) ? ConsoleColor.GREEN : ConsoleColor.RED;
+			if (recipe == selSmeltingRecipe) {
+				recipeLabels.add(new ConsoleLabel(0, menuI+2, getKeyForInt(menuI+1) + ") " + recipe.name, color));
+				selI = i;
+			} else {
+				recipeLabels.add(new ConsoleLink(0, menuI+2, getKeyForInt(menuI+1) + ") " + recipe.name, getKeyForInt(menuI+1), (c, l) {
+					selSmeltingRecipe = recipe;
+				}, color));
+			}
+			recipeXMax = max(recipeXMax, recipe.name.length+5);
+			menuI++;
+			i++;
+		}
+		c.labels.addAll(recipeLabels);
+		
+		if (selSmeltingRecipe != null) {
+			c.labels.add(new ConsoleLabel(recipeXMax, 2, selSmeltingRecipe.name));
+			
+			List<ConsoleLabel> desc = new ConsoleLabel(recipeXMax, 4, fitToWidth(selSmeltingRecipe.desc, c.width - recipeXMax - 2)).as2DLabel();
+			c.labels.addAll(desc);
+			
+			c.labels.add(new ConsoleLabel(recipeXMax, desc.length+5, "Requires:"));
+			c.labels.add(new ConsoleLabel(recipeXMax, desc.length+6, "* " + (selSmeltingRecipe.fuel*selFactor).toString() + " fuel", furnace.fuel >= selSmeltingRecipe.fuel * selFactor ? ConsoleColor.GREEN : ConsoleColor.RED));
+			int y = desc.length+7;
+			for (RecipeInput input in selSmeltingRecipe.inputs) {
+				String inputString = fitToWidth("* " + (input.amt*selFactor).toString() + " " + input.name, c.width - recipeXMax - 2);
+				ConsoleColor color = input.matchesAny(world.player.inventory, selFactor) ? ConsoleColor.GREEN : ConsoleColor.RED;
+				List<ConsoleLabel> inputLabels = new ConsoleLabel(recipeXMax, y, inputString, color).as2DLabel();
+				c.labels.addAll(inputLabels);
+				y += inputLabels.length;
+			}
+			
+			if (selSmeltingRecipe.canMake(world.player.inventory, selFactor) && furnace.fuel >= selSmeltingRecipe.fuel * selFactor) {
+				c.labels.add(new ConsoleLink(recipeXMax, y+1, getKeyForInt(selI+1)+") Smelt", getKeyForInt(selI+1), (c, l) {
+					List<ItemStack> items = [];
+					
+					if (autocraft) {
+						// just craft it
+						
+						for (RecipeInput input in selSmeltingRecipe.inputs) {
+							int i = 0;
+							for (ItemStack stack in new List<ItemStack>.from(world.player.inventory.items)) {
+								if (input.matches(stack)) {
+									if (input.usedUp) {
+										stack.take(input.amt*selFactor);
+									}
+									items.add(stack);
+								}
+								i++;
+							}
+						}
+						
+						world.player.inventory.addAll(selSmeltingRecipe.craft(items, selFactor));
+						furnace.fuel -= selSmeltingRecipe.fuel * selFactor;
+						world.passTime(c, selSmeltingRecipe.timePassed);
+						
+						selSmeltingRecipe = null;
+						c.onRefresh = handleSmelting(c, furnace);
+					} else {
+						int i = 0;
+						SelectMaterialCallback onMatSel;
+						onMatSel = (c, succ, stack) {
+							if (!succ) {
+								i--;
+								if (i < 0) {
+									c.onRefresh = handleSmelting(c, furnace);
+								} else {
+									ItemStack cancelled = items.removeLast();
+									if (selSmeltingRecipe.inputs[i].usedUp) {
+										cancelled.give(selSmeltingRecipe.inputs[i].amt*selFactor);
+									}
+									if (!world.player.inventory.items.contains(cancelled)) {
+										world.player.inventory.add(cancelled);
+									}
+									
+									c.onRefresh = handleSelectMaterial(c, selSmeltingRecipe.inputs[i], onMatSel, selFactor);
+								}
+							} else {
+								items.add(stack);
+								if (selSmeltingRecipe.inputs[i].usedUp && stack != null) {
+									stack.take(selSmeltingRecipe.inputs[i].amt*selFactor);
+								}
+								i++;
+								
+								if (i >= selSmeltingRecipe.inputs.length) {
+									// craft
+									world.player.inventory.addAll(selSmeltingRecipe.craft(items, selFactor));
+									furnace.fuel -= selSmeltingRecipe.fuel * selFactor;
+									world.passTime(c, selSmeltingRecipe.timePassed);
+									
+									selSmeltingRecipe = null;
+									c.onRefresh = handleSmelting(c, furnace);
+								} else {
+									c.onRefresh = handleSelectMaterial(c, selSmeltingRecipe.inputs[i], onMatSel, selFactor);
+								}
+							}
+						};
+						c.onRefresh = handleSelectMaterial(c, selSmeltingRecipe.inputs[i], onMatSel, selFactor);
+					}
+				}));
+			} else {
+				c.labels.add(new ConsoleLabel(recipeXMax, y+1, getKeyForInt(selI+1)+") Smelt", ConsoleColor.SILVER));
+			}
+		}
+		
+		c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+			selSmeltingRecipe = null;
+			c.onRefresh = handleTileView;
+		}));
+		
+		String autocraftString = ".) Autosmelt: " + (autocraft ? "ON" : "OFF");
+		ConsoleColor autocraftColor = autocraft ? ConsoleColor.GREEN : ConsoleColor.RED;
+		c.labels.add(new ConsoleLink(c.rightJustified(autocraftString), c.height - 1,  autocraftString, 190, (c, l) {
+			autocraft = !autocraft;
+		}, autocraftColor));
+		
+		String factorString = selFactor.toString();
+		c.labels.add(new ConsoleLabel(c.centerJustified(factorString), c.height - 1,  factorString));
+		c.labels.add(new ConsoleLink(c.width~/2-2, c.height - 1,  "-", 189, (c, l) {
+			if (selFactor > 1) {selFactor--;}
+		}));
+		c.labels.add(new ConsoleLink(c.width~/2+2, c.height - 1,  "+", 187, (c, l) {
+			selFactor++;
+		}));
+		
+		String fuelString = ",) Fuel: " + furnace.fuel.toString();
+		c.labels.add(new ConsoleLink(c.rightJustified(fuelString), 0,  fuelString, 188, (c, l) {
+			c.onRefresh = handleSelectMaterial(c, new RecipeInput(" or more fuel", filterAnyFuel, 1), (c, succ, stack) {
+				if (succ) {
+					c.onRefresh = handlePickAmount(c, stack.amt, stack.amt, (c, toAdd) {
+						stack.take(toAdd);
+						furnace.fuel += stack.fuelValue * toAdd;
+						
+						c.onRefresh = handleSmelting(c, furnace);
+					});
+				} else {
+					c.onRefresh = handleSmelting(c, furnace);
+				}
+			});
+		}));
+	};
+}

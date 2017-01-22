@@ -408,6 +408,111 @@ class DeconstructCraftingTable extends DeconstructionRecipe {
 }
 
 /*
+Furnace
+*/
+
+class FeatureFurnace extends Feature {
+	int fuel = 0;
+	
+	FeatureFurnace(Tile tile) : super(tile) {
+		space =  1;
+	}
+	
+	String get name => "Furnace";
+	ConsoleColor get color => ConsoleColor.GREY;
+	String get desc => "This is a box of stone that you can throw fuel into.";
+	
+	DeconstructionRecipe get toDeconstruct => new DeconstructFurnace();
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random rng = new Random(hashCode);
+		int drawX = rng.nextInt(w-6) - (w-6)~/2;
+		int drawY = rng.nextInt(h~/2);
+		
+		for (int i = 0; i < 4; i++) {
+			int realX = x + w~/2 + drawX;
+			int realY = y + h~/2 + drawY + i - 4;
+			
+			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+				switch (i) {
+					case 0:
+						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
+						break;
+					case 1:
+						c.labels.add(new ConsoleLabel(realX, realY, "|   |", ConsoleColor.GREY));
+						break;
+					case 2:
+						c.labels.add(new ConsoleLabel(realX, realY, "| # |", ConsoleColor.GREY));
+						break;
+					case 3:
+						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
+						break;
+				}
+			}
+		}
+	}
+	
+	@override
+	void addActions(List<ConsoleLink> actions) {
+		actions.add(new ConsoleLink(0, 0, "Use Furnace", null, (c, l) {
+			c.onRefresh = handleSmelting(c, this);
+		}));
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureFurnace";
+		json["fuel"] = fuel;
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		fuel = json["fuel"];
+	}
+	
+	FeatureFurnace.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureFurnace.raw();
+	}
+}
+
+class RecipeFurnace extends FeatureRecipe {
+	RecipeFurnace() {
+		name = "Furnace";
+		desc = "A box of stone that you can throw fuel into. Once made hot, you can even cook and melt things in here!";
+		space =  1;
+		inputs = [
+			new RecipeInput("of any stone", filterAnyStone, 8),
+		];
+	}
+	
+	@override
+	Feature craft(Tile tile, List<ItemStack> items) => new FeatureFurnace(tile);
+	
+	@override
+	bool canMakeOn(Tile tile) => !tile.outdoors;
+}
+
+class DeconstructFurnace extends DeconstructionRecipe {
+	DeconstructFurnace() {
+		inputs = [
+			new RecipeInput("mining tool", filterAnyMiningTool, 1, usedUp: false, optional: false),
+		];
+		timePassed = 2;
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items) {
+		if (items[0].item is ItemDurable) {
+			(items[0].item as ItemDurable).takeDamage(items[0], 4);
+		}
+		return [];
+	}
+}
+
+/*
 Mineshaft
 */
 
@@ -891,6 +996,7 @@ Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureTrees": FeatureTrees.loadClass,
 	"FeatureHut": FeatureHut.loadClass,
 	"FeatureCraftingTable": FeatureCraftingTable.loadClass,
+	"FeatureFurnace": FeatureFurnace.loadClass,
 	"FeatureMineshaft": FeatureMineshaft.loadClass,
 	"FeatureTunnel": FeatureTunnel.loadClass,
 	"FeatureTorches": FeatureTorches.loadClass,
@@ -905,6 +1011,7 @@ Crafting recipes registry
 List<FeatureRecipe> featureRecipes = [
 	new RecipeHut(),
 	new RecipeCraftingTable(),
+	new RecipeFurnace(),
 	new RecipeMineshaft(),
 	new RecipeMineshaft2(),
 	new RecipeTunnel(),

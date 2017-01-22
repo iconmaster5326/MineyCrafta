@@ -195,6 +195,11 @@ abstract class DeconstructionRecipe extends Recipe {
 	List<ItemStack> craft(List<ItemStack> items);
 }
 
+abstract class SmeltingRecipe extends Recipe {
+	int fuel;
+	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]);
+}
+
 typedef bool RecipeInputFilter(ItemStack stack);
 class RecipeInput {
 	String name;
@@ -234,6 +239,10 @@ bool filterAnyWoodMetal(ItemStack stack) {
 
 bool filterAnyWood(ItemStack stack) {
 	return stack.item is ItemWood;
+}
+
+bool filterAnyStone(ItemStack stack) {
+	return stack.item is ItemCobble;
 }
 
 bool filterAnyWoodCuttingTool(ItemStack stack) {
