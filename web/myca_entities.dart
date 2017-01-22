@@ -545,7 +545,7 @@ class EntityZombie extends Entity {
 		Entity target = battle.allies[0][rng.nextInt(battle.allies[0].length)];
 		double hitChance = 0.8 - (0.4*battle.getRow(target));
 		
-		return battleActionHitOrMiss(this, target, "rotten fists", 5, hitChance, 8);
+		return battleActionHitOrMiss(this, target, "rotten fists", rng.nextInt(4)+1, hitChance, 8);
 	}
 	
 	List<ItemStack> get deathDrops => [new ItemStack(new ItemRottenFlesh(), rng.nextInt(3)+1)];

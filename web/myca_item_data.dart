@@ -434,7 +434,8 @@ class ItemSword extends ItemDurable {
 			battle.log.clear();
 			
 			double hitChance = 0.9 - (0.3*battle.getRow(selBattleTarget));
-			battle.doAction(world.player, battleActionHitOrMiss(world.player, selBattleTarget, name(stack), 10, hitChance, 5));
+			battle.doAction(world.player, battleActionHitOrMiss(world.player, selBattleTarget, name(stack), rng.nextInt(head.hardness * 4) + head.hardness * 4, hitChance, size(stack)~/2));
+			stack.data = (stack.data as int) - 2;
 			
 			battle.doTurn();
 		}));

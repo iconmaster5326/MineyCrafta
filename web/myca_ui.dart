@@ -842,7 +842,7 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 				battle.log.clear();
 				
 				double hitChance = 0.9 - (0.4*battle.getRow(selBattleTarget));
-				battle.doAction(world.player, battleActionHitOrMiss(world.player, selBattleTarget, "fists", 5, hitChance, 5));
+				battle.doAction(world.player, battleActionHitOrMiss(world.player, selBattleTarget, "fists", rng.nextInt(4) + 2, hitChance, 5));
 				
 				battle.doTurn();
 			}));
