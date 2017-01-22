@@ -251,6 +251,20 @@ void handleInventoryView(Console c) {
 			world.player.inventory.items.remove(selected);
 			selected = null;
 		}));
+		
+		if (selected.amt > 1) {
+			c.labels.add(new ConsoleLink(actX, 4, ".) Discard Some...", 190, (c, l) {
+				c.onRefresh = handlePickAmount(c, selected.amt, selected.amt, (c, toDrop) {
+					selected.take(toDrop);
+					if (!world.player.inventory.items.contains(selected)) {
+						selected = null;
+					}
+					c.onRefresh = handleInventoryView;
+				});
+			}));
+		} else {
+			c.labels.add(new ConsoleLabel(actX, 4, ".) Discard Some...", ConsoleColor.SILVER));
+		}
 	}
 }
 
@@ -991,5 +1005,49 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		
 		// Add the log
 		c.labels.addAll(new ConsoleLabel(boxX, boxY + boxH + 2, fitToWidth(battle.log.toString(), boxW)).as2DLabel());
+	};
+}
+
+typedef void PickAmountCallback(Console c, int amt);
+ConsoleRefreshHandler handlePickAmount(Console c, int before, int selAmt, PickAmountCallback onDone) {
+	return (c) {
+		const String howMany = "How Many?";
+		c.labels.add(new ConsoleLabel(c.centerJustified(howMany), 0, howMany));
+		
+		String amtString = selAmt.toString();
+		c.labels.add(new ConsoleLabel(c.centerJustified(amtString), 3, amtString));
+		
+		c.labels.add(new ConsoleLink(c.width~/2-3, 3, "-", null, (c, l) {
+			if (selAmt > 0) {
+				selAmt--;
+			}
+		}));
+		c.labels.add(new ConsoleLink(c.width~/2-5, 3, "<", null, (c, l) {
+			selAmt = 0;
+		}));
+		c.labels.add(new ConsoleLink(c.width~/2+3, 3, "+", null, (c, l) {
+			if (selAmt < before) {
+				selAmt++;
+			}
+		}));
+		c.labels.add(new ConsoleLink(c.width~/2+5, 3, ">", null, (c, l) {
+			selAmt = before;
+		}));
+		
+		const String takeString = "Take:";
+		c.labels.add(new ConsoleLabel(c.centerJustified(takeString), 2, takeString));
+		
+		c.labels.add(new ConsoleLabel(c.width~/2-13, 2, "Before:"));
+		String beforeString = before.toString();
+		c.labels.add(new ConsoleLabel(c.width~/2-6-beforeString.length, 3, beforeString));
+		
+		c.labels.add(new ConsoleLabel(c.width~/2+7, 2, "After:"));
+		String afterString = (before-selAmt).toString();
+		c.labels.add(new ConsoleLabel(c.width~/2+7, 3, afterString));
+		
+		const String confirm = "ENTER) Confirm";
+		c.labels.add(new ConsoleLink(c.centerJustified(confirm), 5, confirm, 13, (c, l) {
+			onDone(c, selAmt);
+		}));
 	};
 }
