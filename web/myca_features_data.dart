@@ -629,6 +629,32 @@ class TileMineshaft extends FeatureTile {
 Tunnel
 */
 
+class MiningLoot {
+	Item item;
+	double chance;
+	int min; int max;
+	
+	MiningLoot(this.item, this.chance, this.min, this.max);
+	
+	ItemStack get stack => new ItemStack(item, rng.nextInt(max-min+1)+min);
+}
+
+List<List<MiningLoot>> miningLoot = [
+	// depth 0
+	[
+		new MiningLoot(new ItemOre(metalTypes["Iron"]), 0.6, 1, 4),
+	],
+	// depth 1
+	[
+		new MiningLoot(new ItemOre(metalTypes["Iron"]), 0.5, 1, 4),
+		new MiningLoot(new ItemOre(metalTypes["Gold"]), 0.2, 1, 4),
+	],
+	// depth 2
+	[
+		new MiningLoot(new ItemOre(metalTypes["Gold"]), 0.4, 1, 4),
+	],
+];
+
 class FeatureTunnel extends Feature {
 	FeatureTunnel(Tile tile) : super(tile) {
 		space =  4;
@@ -674,35 +700,18 @@ class FeatureTunnel extends Feature {
 					(stack.item as ItemDurable).takeDamage(stack, 10);
 				}
 				
-				Item majorResource;
-				Item minorResource;
-				switch ((tile as TileMineshaft).depth) {
-					case 0:
-						majorResource = new ItemOre(metalTypes["Iron"]);
-						minorResource = new ItemOre(metalTypes["Iron"]);
-						break;
-					case 1:
-						majorResource = new ItemOre(metalTypes["Iron"]);
-						minorResource = new ItemOre(metalTypes["Gold"]);
-						break;
-					case 2:
-						majorResource = new ItemOre(metalTypes["Gold"]);
-						minorResource = new ItemOre(metalTypes["Iron"]);
-						break;
-					default:
-						majorResource = new ItemOre(metalTypes["Gold"]);
-						minorResource = new ItemOre(metalTypes["Gold"]);
-						break;
-				}
-				
 				Inventory results = new Inventory();
 				results.add(new ItemStack(new ItemCobble(), rng.nextInt(4)+6));
 				if (amtLeft > 0) {
-					if (rng.nextDouble() < .6) {
-						results.add(new ItemStack(majorResource, rng.nextInt(4)+1));
+					int depth = (tile as TileMineshaft).depth;
+					if (depth >= miningLoot.length) {
+						depth = miningLoot.length - 1;
 					}
-					if (rng.nextDouble() < .2) {
-						results.add(new ItemStack(minorResource, rng.nextInt(4)+1));
+					
+					for (MiningLoot loot in miningLoot[depth]) {
+						if (rng.nextDouble() < loot.chance) {
+							results.add(loot.stack);
+						}
 					}
 				}
 				
