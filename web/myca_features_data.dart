@@ -415,42 +415,51 @@ class FeatureMineshaft extends Feature {
 	TileMineshaft innerTile;
 	
 	FeatureMineshaft(Tile tile) : super(tile) {
-		space =  10;
+		space = tile is TileMineshaft ? 5 : 10;
 		
 		innerTile = new TileMineshaft(this);
 	}
 	
 	String get name => "Mineshaft";
 	ConsoleColor get color => ConsoleColor.GREY;
-	String get desc => "This is a hole, leading to somewhere underground.";
+	String get desc => (tile is TileMineshaft ? "This is a shaft leading deeper underground." : "This is a hole, leading to somewhere underground.");
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random rng = new Random(hashCode);
-		int drawX = rng.nextInt(w-6) - (w-6)~/2;
-		int drawY = rng.nextInt(h~/2);
 		
-		for (int i = 0; i < 4; i++) {
-			int realX = x + w~/2 + drawX;
-			int realY = y + h~/2 + drawY + i;
+		if (tile is TileMineshaft) {
+			int ladderX = x + rng.nextInt(w-5)+2;
 			
-			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-				switch (i) {
-					case 0:
-						c.labels.add(new ConsoleLabel(realX, realY, "+", ConsoleColor.GREY));
-						c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
-						c.labels.add(new ConsoleLabel(realX+4, realY, "+", ConsoleColor.GREY));
-						break;
-					case 1:
-						c.labels.add(new ConsoleLabel(realX, realY, "|", ConsoleColor.GREY));
-						c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
-						c.labels.add(new ConsoleLabel(realX+4, realY, "|", ConsoleColor.GREY));
-						break;
-					case 2:
-						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
-						break;
+			for (int i = y + h - 2; i < y + h; i++) {
+				c.labels.add(new ConsoleLabel(ladderX, i, "|-|", ConsoleColor.MAROON));
+			}
+		} else {
+			int drawX = rng.nextInt(w-6) - (w-6)~/2;
+			int drawY = rng.nextInt(h~/2);
+			
+			for (int i = 0; i < 4; i++) {
+				int realX = x + w~/2 + drawX;
+				int realY = y + h~/2 + drawY + i;
+				
+				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+					switch (i) {
+						case 0:
+							c.labels.add(new ConsoleLabel(realX, realY, "+", ConsoleColor.GREY));
+							c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
+							c.labels.add(new ConsoleLabel(realX+4, realY, "+", ConsoleColor.GREY));
+							break;
+						case 1:
+							c.labels.add(new ConsoleLabel(realX, realY, "|", ConsoleColor.GREY));
+							c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
+							c.labels.add(new ConsoleLabel(realX+4, realY, "|", ConsoleColor.GREY));
+							break;
+						case 2:
+							c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
+							break;
+					}
 				}
 			}
 		}
@@ -458,9 +467,11 @@ class FeatureMineshaft extends Feature {
 	
 	@override
 	void addActions(List<ConsoleLink> actions) {
-		actions.add(new ConsoleLink(0, 0, "Enter Mineshaft", null, (c, l) {
-			world.player.move(innerTile);
-		}));
+		if (tile is! TileMineshaft) {
+			actions.add(new ConsoleLink(0, 0, "Enter Mineshaft", null, (c, l) {
+				world.player.move(innerTile);
+			}));
+		}
 	}
 	
 	@override
@@ -511,6 +522,27 @@ class RecipeMineshaft extends FeatureRecipe {
 	bool canMakeOn(Tile tile) => tile.outdoors;
 }
 
+class RecipeMineshaft2 extends RecipeMineshaft {
+	RecipeMineshaft2() : super() {
+		desc = "Dig deeper, greedier, ever downwards... More valuable materials lie below. Like MORE cobblestone!";
+		space = 5;
+	}
+	
+	@override
+	bool canMakeOn(Tile tile) {
+		// can only make in a mineshaft that has no mineshaft yet.
+		if (tile is! TileMineshaft) {
+			return false;
+		}
+		for (Feature f in tile.features) {
+			if (f is FeatureMineshaft) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
 class TileMineshaft extends FeatureTile {
 	TileMineshaft(FeatureMineshaft feature) : super(feature) {
 		maxFeatureSpace = 10;
@@ -518,6 +550,14 @@ class TileMineshaft extends FeatureTile {
 	
 	double get baseLight => 0.0;
 	Tile get customUp => feature.tile;
+	Tile get customDown {
+		for (Feature f in features) {
+			if (f is FeatureMineshaft) {
+				return (f as FeatureMineshaft).innerTile;
+			}
+		}
+		return null;
+	}
 	
 	bool get outdoors => false;
 	bool get underground => true;
@@ -570,6 +610,18 @@ class TileMineshaft extends FeatureTile {
 	TileMineshaft.raw() : super.raw();
 	static Tile loadClass(World world, Map<String, Object> json) {
 		return new TileMineshaft.raw();
+	}
+	
+	int get depth {
+		int i = 0;
+		Tile t = feature.tile;
+		
+		while (t is TileMineshaft) {
+			t = (t as TileMineshaft).feature.tile;
+			i++;
+		}
+		
+		return i;
 	}
 }
 
@@ -687,7 +739,7 @@ class RecipeTunnel extends FeatureRecipe {
 	}
 	
 	@override
-	bool canMakeOn(Tile tile) => tile.underground;
+	bool canMakeOn(Tile tile) => tile is TileMineshaft;
 }
 
 /*
@@ -807,6 +859,7 @@ List<FeatureRecipe> featureRecipes = [
 	new RecipeHut(),
 	new RecipeCraftingTable(),
 	new RecipeMineshaft(),
+	new RecipeMineshaft2(),
 	new RecipeTunnel(),
 	new RecipeTorches(),
 ];
