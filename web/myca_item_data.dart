@@ -125,6 +125,61 @@ class ItemRottenFlesh extends Item {
 }
 
 /*
+ores
+*/
+
+class MetalType {
+	String name;
+	double size;
+	int hardness;
+	int value;
+	ConsoleColor color;
+	
+	MetalType(this.name, this.size, this.hardness, this.value, this.color);
+}
+
+Map<String, MetalType> metalTypes = [
+	new MetalType("Iron", 4.0, 10, 20, ConsoleColor.SILVER),
+	new MetalType("Gold", 8.0, 2, 50, ConsoleColor.YELLOW),
+];
+
+class ItemOre extends Item {
+	MetalType type;
+	
+	static Map<MetalType, ItemOre> _cache = {};
+	ItemOre._fresh(this.type);
+	factory ItemOre(MetalType type) {
+		if (_cache[type] == null) {
+			_cache[type] = new ItemOre._fresh(type);
+		}
+		return _cache[type];
+	}
+	
+	@override String name(ItemStack stack) => type.name + " Ore";
+	@override double size(ItemStack stack) => type.size;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => type.color;
+	@override String desc(ItemStack stack) => "This is a hunk of stone bearing some " + type.name.toLowerCase() + ". Smelt it to extract the lovely metal inside!";
+	@override int hardness(ItemStack stack) => type.hardness;
+	@override int value(ItemStack stack) => type.value;
+	@override String materialName(ItemStack stack) => type.name.toLowerCase() + " ore";
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemOre";
+		json["type"] = type.name;
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemOre(metalTypes[json["type"]]));
+	}
+}
+
+/*
 tools
 */
 
@@ -415,6 +470,7 @@ Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemWood": ItemWood.loadClass,
 	"ItemCobble": ItemCobble.loadClass,
 	"ItemRottenFlesh": ItemRottenFlesh.loadClass,
+	"ItemOre": ItemOre.loadClass,
 	"ItemAxe": ItemAxe.loadClass,
 	"ItemPick": ItemPick.loadClass,
 	"ItemShovel": ItemShovel.loadClass,
