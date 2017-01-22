@@ -673,12 +673,41 @@ class FeatureTunnel extends Feature {
 					(stack.item as ItemDurable).takeDamage(stack, 10);
 				}
 				
-				List<ItemStack> results = [new ItemStack(new ItemCobble(), rng.nextInt(4)+6)];
-				world.player.inventory.addAll(results);
+				Item majorResource;
+				Item minorResource;
+				switch ((tile as TileMineshaft).depth) {
+					case 0:
+						majorResource = new ItemOre(metalTypes["Iron"]);
+						minorResource = new ItemOre(metalTypes["Iron"]);
+						break;
+					case 1:
+						majorResource = new ItemOre(metalTypes["Iron"]);
+						minorResource = new ItemOre(metalTypes["Gold"]);
+						break;
+					case 2:
+						majorResource = new ItemOre(metalTypes["Gold"]);
+						minorResource = new ItemOre(metalTypes["Iron"]);
+						break;
+					default:
+						majorResource = new ItemOre(metalTypes["Gold"]);
+						minorResource = new ItemOre(metalTypes["Gold"]);
+						break;
+				}
+				
+				Inventory results = new Inventory();
+				results.add(new ItemStack(new ItemCobble(), rng.nextInt(4)+6));
+				if (rng.nextDouble() < .6) {
+					results.add(new ItemStack(majorResource, rng.nextInt(4)+1));
+				}
+				if (rng.nextDouble() < .2) {
+					results.add(new ItemStack(minorResource, rng.nextInt(4)+1));
+				}
+				
+				world.player.inventory.addInventory(results);
 				
 				String dialogText = "You extend the tunnel, collecting resources along the way. You mined out:\n\n";
 				
-				for (ItemStack item in results) {
+				for (ItemStack item in results.items) {
 					dialogText += "* " + item.name + "\n";
 				}
 				

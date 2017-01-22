@@ -138,10 +138,10 @@ class MetalType {
 	MetalType(this.name, this.size, this.hardness, this.value, this.color);
 }
 
-Map<String, MetalType> metalTypes = [
-	new MetalType("Iron", 4.0, 10, 20, ConsoleColor.SILVER),
-	new MetalType("Gold", 8.0, 2, 50, ConsoleColor.YELLOW),
-];
+Map<String, MetalType> metalTypes = {
+	"Iron": new MetalType("Iron", 4.0, 10, 20, ConsoleColor.SILVER),
+	"Gold": new MetalType("Gold", 8.0, 2, 50, ConsoleColor.YELLOW),
+};
 
 class ItemOre extends Item {
 	MetalType type;
