@@ -125,7 +125,7 @@ class ItemRottenFlesh extends Item {
 }
 
 /*
-ores
+ores/ingots
 */
 
 class MetalType {
@@ -160,9 +160,7 @@ class ItemOre extends Item {
 	@override bool stackable(ItemStack stack) => true;
 	@override ConsoleColor color(ItemStack stack) => type.color;
 	@override String desc(ItemStack stack) => "This is a hunk of stone bearing some " + type.name.toLowerCase() + ". Smelt it to extract the lovely metal inside!";
-	@override int hardness(ItemStack stack) => type.hardness;
-	@override int value(ItemStack stack) => type.value;
-	@override String materialName(ItemStack stack) => type.name.toLowerCase() + " ore";
+	@override int value(ItemStack stack) => type.value ~/ 2;
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
@@ -176,6 +174,42 @@ class ItemOre extends Item {
 	
 	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
 		return new ItemStack(new ItemOre(metalTypes[json["type"]]));
+	}
+}
+
+class ItemIngot extends Item {
+	MetalType type;
+	
+	static Map<MetalType, ItemIngot> _cache = {};
+	ItemIngot._fresh(this.type);
+	factory ItemIngot(MetalType type) {
+		if (_cache[type] == null) {
+			_cache[type] = new ItemIngot._fresh(type);
+		}
+		return _cache[type];
+	}
+	
+	@override String name(ItemStack stack) => type.name + " Ingot";
+	@override double size(ItemStack stack) => type.size;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => type.color;
+	@override String desc(ItemStack stack) => "This is a solid ingot of " + type.name.toLowerCase() + ". This form makes it shiny, stackable, and suitable for crafting into powerful tools.";
+	@override int hardness(ItemStack stack) => type.hardness;
+	@override int value(ItemStack stack) => type.value;
+	@override String materialName(ItemStack stack) => type.name.toLowerCase();
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemIngot";
+		json["type"] = type.name;
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemIngot(metalTypes[json["type"]]));
 	}
 }
 
@@ -472,6 +506,7 @@ Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemCobble": ItemCobble.loadClass,
 	"ItemRottenFlesh": ItemRottenFlesh.loadClass,
 	"ItemOre": ItemOre.loadClass,
+	"ItemIngot": ItemIngot.loadClass,
 	"ItemAxe": ItemAxe.loadClass,
 	"ItemPick": ItemPick.loadClass,
 	"ItemShovel": ItemShovel.loadClass,
