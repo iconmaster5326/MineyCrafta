@@ -21,6 +21,19 @@ class BiomeForest extends Biome {
 	}
 }
 
+class BiomeDesert extends Biome {
+	BiomeDesert() {
+		name = "Desert";
+		groundColor = ConsoleColor.OLIVE;
+	}
+	
+	@override
+	void generate(WorldTile tile) {
+		
+	}
+}
+
 Map<String, Biome> biomes = {
 	"Forest":new BiomeForest(),
+	"Desert":new BiomeDesert(),
 };
