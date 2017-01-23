@@ -16,6 +16,7 @@ class Entity {
 	int hp; int hpMax;
 	Tile tile;
 	String char; ConsoleColor color;
+	List<StatusCondition> status = [];
 	
 	void move(Tile newTile) {
 		if (tile != null) {
@@ -511,6 +512,55 @@ BattleAction battleActionMoveBackwards(Entity user) {
 		return 4;
 	};
 }
+
+/*
+==================
+status conditions
+==================
+*/
+
+abstract class StatusCondition {
+	String name;
+	ConsoleColor color;
+	
+	/// Called when `delta` ticks pass.
+	void onTick(Entity entity, [int delta = 1]) {}
+	/// Called when the afflicted entity's turn comes up in battle. Return true to cancel the entity's battle action.
+	bool onBattleTick(Battle battle, Entity entity) => false;
+	
+	void save(Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of StatusCondition did not implement a save handler.");
+	}
+	void load(World world, Entity entity, Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of StatusCondition did not implement a load handler.");
+	}
+}
+
+class StatusStarvation extends StatusCondition {
+	String get name => "Starving";
+	ConsoleColor get color => ConsoleColor.RED;
+	
+	StatusStarvation();
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "StatusStarvation";
+	}
+	@override
+	void load(World world, Entity entity, Map<String, Object> json) {
+		
+	}
+	
+	StatusStarvation.raw();
+	static StatusCondition loadClass(World world, Entity entity, Map<String, Object> json) {
+		return new StatusStarvation.raw();
+	}
+}
+
+typedef StatusCondition StatusConditionLoadHandler(World world, Entity entity, Map<String, Object> json);
+Map<String, StatusConditionLoadHandler> statusConditionLoadHandlers = {
+	"StatusStarvation": StatusStarvation.loadClass,
+};
 
 /*
 ==================

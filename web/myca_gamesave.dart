@@ -167,6 +167,11 @@ Object saveEntity(Entity entity) {
 		itemsJson.add(saveItem(stack));
 	}
 	
+	List<Object> statusJson = []; json["status"] = statusJson;
+	for (StatusCondition status in entity.status) {
+		itemsJson.add(saveStatusCondition(status));
+	}
+	
 	entity.save(json);
 	
 	return json;
@@ -183,6 +188,10 @@ Entity loadEntity(World world, Tile tile, Object json) {
 	
 	for (Object itemJson in json["items"]) {
 		entity.inventory.add(loadItem(world, entity.inventory, itemJson));
+	}
+	
+	for (Object statusJson in (json["status"] ?? [])) {
+		entity.status.add(loadStatusCondition(world, entity, statusJson));
 	}
 	
 	entity.load(world, tile, json);
@@ -208,4 +217,20 @@ ItemStack loadItem(World world, Inventory inventory, Object json) {
 	stack.load(world, inventory, json);
 	
 	return stack;
+}
+
+Object saveStatusCondition(StatusCondition status) {
+	Map<String, Object> json = {};
+	
+	status.save(json);
+	
+	return json;
+}
+
+StatusCondition loadStatusCondition(World world, Entity entity, Object json) {
+	StatusCondition status = statusConditionLoadHandlers[json["class"]](world, entity, json);
+	
+	status.load(world, entity, json);
+	
+	return status;
 }
