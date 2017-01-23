@@ -185,6 +185,11 @@ void handleTileView(Console c) {
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 0,  world.player.name));
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 1,  "Health: "+(world.player.hp/world.player.hpMax*100.0).toStringAsFixed(0)+"%"));
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 2,  "Hunger: "+(world.player.hunger/world.player.maxHunger*100.0).toStringAsFixed(0)+"%"));
+	int condY = 3;
+	for (StatusCondition cond in world.player.status) {
+		c.labels.add(new ConsoleLabel(actionsMaxLen+4, condY,  cond.name, cond.color));
+		condY++;
+	}
 	
 	c.labels.add(new ConsoleLabel(actionsMaxLen+22, 0,  world.player.tile.biome.name));
 	c.labels.add(new ConsoleLabel(actionsMaxLen+22, 1,  "Light: " + world.lightDescriptor(world.player.tile.light)));
@@ -192,7 +197,7 @@ void handleTileView(Console c) {
 	
 	/// display the picture box
 	int boxX = actionsMaxLen+4;
-	int boxY = 6;
+	int boxY = condY+1;
 	int boxW = c.width - actionsMaxLen - 12;
 	int boxH = c.height - 8;
 	
@@ -921,17 +926,27 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 0,  "You:"));
 		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 1,  world.player.name));
 		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 2,  "Health: "+(world.player.hp/world.player.hpMax*100.0).toStringAsFixed(0)+"%"));
+		int condY = 3;
+		for (StatusCondition cond in world.player.status) {
+			c.labels.add(new ConsoleLabel(actionsMaxLen+4, condY,  cond.name, cond.color));
+			condY++;
+		}
 		
 		// Add the target's info
+		int targetCondY = 3;
 		if (!isDoneBattling) {
 			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 0,  "Target:"));
 			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 1,  selBattleTarget.name));
 			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 2,  "Health: "+(selBattleTarget.hp/selBattleTarget.hpMax*100.0).toStringAsFixed(0)+"%"));
+			for (StatusCondition cond in selBattleTarget.status) {
+				c.labels.add(new ConsoleLabel(actionsMaxLen+4, targetCondY,  cond.name, cond.color));
+				targetCondY++;
+			}
 		}
 		
 		// Add the battle graphic
 		int boxX = actionsMaxLen+2;
-		int boxY = 5;
+		int boxY = max(condY, targetCondY)+1;
 		int boxW = c.width - boxX - 2;
 		int boxH = (c.height-5) ~/ 2;
 		

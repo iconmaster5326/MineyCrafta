@@ -32,6 +32,10 @@ class Entity {
 		for (ItemStack item in inventory.items) {
 			item.onTick(c, delta);
 		}
+		
+		for (StatusCondition cond in status) {
+			cond.onTick(this, delta);
+		}
 	}
 	
 	// ALWAYS override this. Set "class" to your class name, sop it can be loaded later.
@@ -83,17 +87,24 @@ class Player extends Entity {
 		c = c2;
 		
 		// handle hunger
+		hunger += hungerRate * delta * 1000;
+		
 		if (hunger >= maxHunger) {
 			// starvation
 			hunger = maxHunger;
-			hp -= delta;
-		} else {
-			hunger += hungerRate * delta;
+			
+			if (!status.any((s) => s is StatusStarvation)) {
+				status.add(new StatusStarvation());
+			}
 		}
+		
+		// TODO: natural regeneration
 		
 		// check if we're dead
 		if (hp <= 0) {
-		
+			tileViewOverride = handleNotifyDialog("You die...", (c) {
+				c.onRefresh = handleTitleScreen;
+			});
 		}
 		
 		// check if we got into an encounter
@@ -203,6 +214,14 @@ class Battle {
 	}
 	
 	void doAction(Entity user, BattleAction action) {
+		for (StatusCondition cond in user.status) {
+			int passed = cond.onBattleTick(this, user);
+			if (passed != null) {
+				user.turnCooldown = max(0, passed - user.cooldownReduction);
+				return;
+			}
+		}
+		
 		int passed = action(this);
 		user.turnCooldown = max(0, passed - user.cooldownReduction);
 	}
@@ -525,8 +544,8 @@ abstract class StatusCondition {
 	
 	/// Called when `delta` ticks pass.
 	void onTick(Entity entity, [int delta = 1]) {}
-	/// Called when the afflicted entity's turn comes up in battle. Return true to cancel the entity's battle action.
-	bool onBattleTick(Battle battle, Entity entity) => false;
+	/// Called when the afflicted entity's turn comes up in battle. Return an int to cancel the entity's battle action and wait that many ticks.
+	int onBattleTick(Battle battle, Entity entity) => null;
 	
 	void save(Map<String, Object> json) {
 		throw new UnimplementedError("This subclass of StatusCondition did not implement a save handler.");
@@ -541,6 +560,31 @@ class StatusStarvation extends StatusCondition {
 	ConsoleColor get color => ConsoleColor.RED;
 	
 	StatusStarvation();
+	
+	@override
+	void onTick(Entity entity, [int delta = 1]) {
+		// remove if the player is not starving
+		if (entity is Player && (entity as Player).hunger < (entity as Player).maxHunger) {
+			entity.status.remove(this);
+			return;
+		}
+		
+		entity.hp -= delta;
+	}
+	@override
+	int onBattleTick(Battle battle, Entity entity) {
+		int dmg = rng.nextInt(entity.hpMax~/20)+1;
+		battle.log.write("You're hungry! You take ");
+		battle.log.write(dmg.toString());
+		battle.log.write(" damage due to starvation.\n");
+		
+		entity.hp -= dmg;
+		if (entity.hp <= 0) {
+			battle.kill(entity);
+		}
+		
+		return null;
+	}
 	
 	@override
 	void save(Map<String, Object> json) {
