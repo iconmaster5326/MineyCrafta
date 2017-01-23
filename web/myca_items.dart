@@ -228,13 +228,11 @@ class RecipeInput {
 }
 
 bool filterAnyWoodMetalStone(ItemStack stack) {
-	// TODO: add metal
-	return stack.item is ItemWood || stack.item is ItemCobble;
+	return stack.item is ItemWood || stack.item is ItemCobble || stack.item is ItemIngot;
 }
 
 bool filterAnyWoodMetal(ItemStack stack) {
-	// TODO: add metal
-	return stack.item is ItemWood;
+	return stack.item is ItemWood || stack.item is ItemIngot;
 }
 
 bool filterAnyWood(ItemStack stack) {
