@@ -75,8 +75,6 @@ class World {
 	}
 	
 	void passTime(Console c, [int amt = 1]) {
-		time += amt;
-		
 		// call onTick...
 		for (Feature f in player.tile.features) {
 			f.onTick(c, amt);
@@ -84,6 +82,8 @@ class World {
 		for (Entity e in player.tile.entities) {
 			e.onTick(c, amt);
 		}
+		
+		time += amt;
 		player.tile.timeAtLastVisit = time;
 	}
 }

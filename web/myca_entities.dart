@@ -66,6 +66,9 @@ class Player extends Entity {
 	int hungerRate = 1;
 	Console c;
 	
+	int regenPeriod = 4;
+	int regenAmt = 1;
+	
 	String get char => "@";
 	ConsoleColor get color => ConsoleColor.WHITE;
 	
@@ -87,7 +90,7 @@ class Player extends Entity {
 		c = c2;
 		
 		// handle hunger
-		hunger += hungerRate * delta * 1000;
+		hunger += hungerRate * delta;
 		
 		if (hunger >= maxHunger) {
 			// starvation
@@ -98,7 +101,12 @@ class Player extends Entity {
 			}
 		}
 		
-		// TODO: natural regeneration
+		// handle natural regeneration
+		int regenTimes = (delta + world.time % regenPeriod) ~/ regenPeriod;
+		hp += regenTimes * regenAmt;
+		if (hp > hpMax) {
+			hp = hpMax;
+		}
 		
 		// check if we're dead
 		if (hp <= 0) {
