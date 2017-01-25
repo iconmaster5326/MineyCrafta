@@ -219,6 +219,10 @@ void handleTileView(Console c) {
 
 ItemStack selected;
 void handleInventoryView(Console c) {
+	if (selected != null && selected.inventory != world.player.inventory) {
+		selected = null;
+	}
+	
 	c.labels.add(new ConsoleLabel(0, 0,  "Your inventory:"));
 	
 	String sizeText;
@@ -244,7 +248,6 @@ void handleInventoryView(Console c) {
 	}
 	
 	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
-		selected = null;
 		c.onRefresh = handleTileView;
 	}));
 	
@@ -258,19 +261,24 @@ void handleInventoryView(Console c) {
 		c.labels.addAll(new ConsoleLabel(selX, 5, fitToWidth(selected.desc, actX-selX-2)).as2DLabel());
 		
 		c.labels.add(new ConsoleLabel(actX, 2, "Actions:"));
-		c.labels.add(new ConsoleLabel(actX, 3, key + ") Use", ConsoleColor.SILVER));
+		
+		if (selected.usable) {
+			c.labels.add(new ConsoleLink(actX, 3, key + ") Use", key, (c, l) {
+				selected.use(c);
+			}));
+		} else {
+			c.labels.add(new ConsoleLabel(actX, 3, key + ") Use", ConsoleColor.SILVER));
+		}
+		
 		c.labels.add(new ConsoleLink(actX, 4, ",) Discard", 188, (c, l) {
 			world.player.inventory.items.remove(selected);
-			selected = null;
 		}));
 		
 		if (selected.amt > 1) {
 			c.labels.add(new ConsoleLink(actX, 5, ".) Discard Some...", 190, (c, l) {
 				c.onRefresh = handlePickAmount(c, selected.amt, selected.amt, (c, toDrop) {
 					selected.take(toDrop);
-					if (!world.player.inventory.items.contains(selected)) {
-						selected = null;
-					}
+					
 					c.onRefresh = handleInventoryView;
 				});
 			}));

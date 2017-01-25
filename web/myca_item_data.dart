@@ -122,6 +122,17 @@ class ItemRottenFlesh extends Item {
 	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
 		return new ItemStack(new ItemRottenFlesh());
 	}
+	
+	@override bool usable(ItemStack stack) => true;
+	@override
+	void use(ItemStack stack, Console c) {
+		c.onRefresh = handleNotifyDialog("You ate a bit of rotten flesh. Gross!!", (c) {
+			world.player.hunger -= 10;
+			stack.take(1);
+			
+			c.onRefresh = handleInventoryView;
+		});
+	}
 }
 
 /*

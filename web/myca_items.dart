@@ -58,6 +58,9 @@ abstract class Item {
 	
 	/// Use this to add custom battle actions for the player.
 	void addBattleActions(ItemStack stack, Battle battle, List<ConsoleLink> actions) {}
+	
+	bool usable(ItemStack stack) => false;
+	void use(ItemStack stack, Console c) {}
 }
 
 class ItemStack {
@@ -100,6 +103,9 @@ class ItemStack {
 	ItemStack clone() => item.clone(this);
 	
 	void addBattleActions(Battle battle, List<ConsoleLink> actions) => item.addBattleActions(this, battle, actions);
+	
+	bool get usable => item.usable(this);
+	void use(Console c) => item.use(this, c);
 }
 
 class Inventory {
