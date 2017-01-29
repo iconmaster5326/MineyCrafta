@@ -234,7 +234,7 @@ void handleInventoryView(Console c) {
 	c.labels.add(new ConsoleLabel(c.rightJustified(sizeText), 0,  sizeText));
 	
 	int i = 0;
-	String key;
+	String key = "?";
 	for (ItemStack stack in world.player.inventory.items) {
 		if (stack == selected) {
 			key = getKeyForInt(i+1);
@@ -263,15 +263,15 @@ void handleInventoryView(Console c) {
 		c.labels.add(new ConsoleLabel(actX, 2, "Actions:"));
 		
 		if (selected.usable) {
-			c.labels.add(new ConsoleLink(actX, 3, key + ") Use", key, (c, l) {
+			c.labels.add(new ConsoleLink(actX, 3, key + ") " + selected.useText, key, (c, l) {
 				selected.use(c);
 			}));
 		} else {
-			c.labels.add(new ConsoleLabel(actX, 3, key + ") Use", ConsoleColor.SILVER));
+			c.labels.add(new ConsoleLabel(actX, 3, key + ") " + selected.useText, ConsoleColor.SILVER));
 		}
 		
 		c.labels.add(new ConsoleLink(actX, 4, ",) Discard", 188, (c, l) {
-			world.player.inventory.items.remove(selected);
+			selected.take(selected.amt);
 		}));
 		
 		if (selected.amt > 1) {

@@ -124,6 +124,7 @@ class ItemRottenFlesh extends Item {
 	}
 	
 	@override bool usable(ItemStack stack) => true;
+	@override String useText(ItemStack stack) => "Eat";
 	@override
 	void use(ItemStack stack, Console c) {
 		c.onRefresh = handleNotifyDialog("You ate a bit of rotten flesh. Gross!!", (c) {

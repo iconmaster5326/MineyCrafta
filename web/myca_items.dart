@@ -61,6 +61,7 @@ abstract class Item {
 	
 	bool usable(ItemStack stack) => false;
 	void use(ItemStack stack, Console c) {}
+	String useText(ItemStack stack) => "Use";
 }
 
 class ItemStack {
@@ -106,6 +107,7 @@ class ItemStack {
 	
 	bool get usable => item.usable(this);
 	void use(Console c) => item.use(this, c);
+	String get useText => item.useText(this);
 }
 
 class Inventory {
