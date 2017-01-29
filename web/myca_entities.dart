@@ -29,11 +29,11 @@ class Entity {
 	void addActions(List<ConsoleLink> actions) {}
 	
 	void onTick(Console c, int delta) {
-		for (ItemStack item in inventory.items) {
+		for (ItemStack item in new List.from(inventory.items)) {
 			item.onTick(c, delta);
 		}
 		
-		for (StatusCondition cond in status) {
+		for (StatusCondition cond in new List.from(status)) {
 			cond.onTick(this, delta);
 		}
 	}
@@ -563,6 +563,33 @@ abstract class StatusCondition {
 	}
 }
 
+abstract class StatusTimed extends StatusCondition {
+	int time;
+	int severity;
+	
+	StatusTimed.raw();
+	StatusTimed(this.time, this.severity);
+	
+	@override
+	void onTick(Entity entity, [int delta = 1]) {
+		time -= delta;
+		if (time <= 0) {
+			entity.status.remove(this);
+		}
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["time"] = time;
+		json["severity"] = severity;
+	}
+	@override
+	void load(World world, Entity entity, Map<String, Object> json) {
+		time = json["time"];
+		severity = json["severity"];
+	}
+}
+
 class StatusStarvation extends StatusCondition {
 	String get name => "Starving";
 	ConsoleColor get color => ConsoleColor.RED;
@@ -609,9 +636,46 @@ class StatusStarvation extends StatusCondition {
 	}
 }
 
+class StatusDisease extends StatusTimed {
+	String get name => "Diseased";
+	ConsoleColor get color => ConsoleColor.GREEN;
+	
+	StatusDisease(int time, int severity) : super(time, severity);
+	
+	@override
+	void onTick(Entity entity, [int delta = 1]) {
+		super.onTick(entity, delta);
+		delta = time >= 0 ? delta : -time;
+		
+		if (entity is Player) {
+			(entity as Player).hunger += severity * delta;
+		}
+	}
+	@override
+	int onBattleTick(Battle battle, Entity entity) {
+		return null;
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		super.save(json);
+		json["class"] = "StatusDisease";
+	}
+	@override
+	void load(World world, Entity entity, Map<String, Object> json) {
+		super.load(world, entity, json);
+	}
+	
+	StatusDisease.raw() : super.raw();
+	static StatusCondition loadClass(World world, Entity entity, Map<String, Object> json) {
+		return new StatusDisease.raw();
+	}
+}
+
 typedef StatusCondition StatusConditionLoadHandler(World world, Entity entity, Map<String, Object> json);
 Map<String, StatusConditionLoadHandler> statusConditionLoadHandlers = {
 	"StatusStarvation": StatusStarvation.loadClass,
+	"StatusDisease": StatusDisease.loadClass,
 };
 
 /*

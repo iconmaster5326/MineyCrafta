@@ -185,10 +185,19 @@ void handleTileView(Console c) {
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 0,  world.player.name));
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 1,  "Health: "+(world.player.hp/world.player.hpMax*100.0).toStringAsFixed(0)+"%"));
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 2,  "Hunger: "+(world.player.hunger/world.player.maxHunger*100.0).toStringAsFixed(0)+"%"));
+	
 	int condY = 3;
+	Map<String, int> condOccurs = {};
 	for (StatusCondition cond in world.player.status) {
-		c.labels.add(new ConsoleLabel(actionsMaxLen+4, condY,  cond.name, cond.color));
-		condY++;
+		condOccurs[cond.name] = (condOccurs[cond.name] ?? 0) + 1;
+	}
+	Map<String, bool> condDone = {};
+	for (StatusCondition cond in world.player.status) {
+		if (condDone[cond.name] == null) {
+			condDone[cond.name] = true;
+			c.labels.add(new ConsoleLabel(actionsMaxLen+4, condY,  cond.name + (condOccurs[cond.name] != null && condOccurs[cond.name] > 1 ? " x" + condOccurs[cond.name].toString() : ""), cond.color));
+			condY++;
+		}
 	}
 	
 	c.labels.add(new ConsoleLabel(actionsMaxLen+22, 0,  world.player.tile.biome.name));
@@ -934,10 +943,19 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 0,  "You:"));
 		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 1,  world.player.name));
 		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 2,  "Health: "+(world.player.hp/world.player.hpMax*100.0).toStringAsFixed(0)+"%"));
+		
 		int condY = 3;
+		Map<String, int> condOccurs = {};
 		for (StatusCondition cond in world.player.status) {
-			c.labels.add(new ConsoleLabel(actionsMaxLen+4, condY,  cond.name, cond.color));
-			condY++;
+			condOccurs[cond.name] = (condOccurs[cond.name] ?? 0) + 1;
+		}
+		Map<String, bool> condDone = {};
+		for (StatusCondition cond in world.player.status) {
+			if (condDone[cond.name] == null) {
+				condDone[cond.name] = true;
+				c.labels.add(new ConsoleLabel(actionsMaxLen+4, condY,  cond.name + (condOccurs[cond.name] != null && condOccurs[cond.name] > 1 ? " x" + condOccurs[cond.name].toString() : ""), cond.color));
+				condY++;
+			}
 		}
 		
 		// Add the target's info
@@ -946,9 +964,18 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 0,  "Target:"));
 			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 1,  selBattleTarget.name));
 			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 2,  "Health: "+(selBattleTarget.hp/selBattleTarget.hpMax*100.0).toStringAsFixed(0)+"%"));
+			
+			Map<String, int> targetCondOccurs = {};
 			for (StatusCondition cond in selBattleTarget.status) {
-				c.labels.add(new ConsoleLabel(actionsMaxLen+4, targetCondY,  cond.name, cond.color));
-				targetCondY++;
+				targetCondOccurs[cond.name] = (targetCondOccurs[cond.name] ?? 0) + 1;
+			}
+			Map<String, bool> targetCondDone = {};
+			for (StatusCondition cond in selBattleTarget.status) {
+				if (targetCondDone[cond.name] == null) {
+					targetCondDone[cond.name] = true;
+					c.labels.add(new ConsoleLabel(actionsMaxLen+4, targetCondY,  cond.name + (targetCondOccurs[cond.name] != null && targetCondOccurs[cond.name] > 1 ? " x" + targetCondOccurs[cond.name].toString() : ""), cond.color));
+					targetCondY++;
+				}
 			}
 		}
 		

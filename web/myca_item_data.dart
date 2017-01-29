@@ -123,13 +123,14 @@ class ItemRottenFlesh extends Item {
 		return new ItemStack(new ItemRottenFlesh());
 	}
 	
-	@override bool usable(ItemStack stack) => true;
+	@override bool usable(ItemStack stack) => world.player.hunger > 0;
 	@override String useText(ItemStack stack) => "Eat";
 	@override
 	void use(ItemStack stack, Console c) {
-		c.onRefresh = handleNotifyDialog("You ate a bit of rotten flesh. Gross!!", (c) {
-			world.player.hunger -= 10;
+		c.onRefresh = handleNotifyDialog("You ate a bit of rotten flesh. Tastes terrible.\n\nSuddenly, you don't feel so good... You have been diseased!", (c) {
+			world.player.hunger -= 10; if (world.player.hunger < 0) {world.player.hunger = 0;}
 			stack.take(1);
+			world.player.status.add(new StatusDisease(10, 4));
 			
 			c.onRefresh = handleInventoryView;
 		});
