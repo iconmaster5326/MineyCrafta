@@ -90,10 +90,30 @@ class ItemCobble extends Item {
 }
 
 /*
-rotten flesh
+food
 */
 
-class ItemRottenFlesh extends Item {
+abstract class ItemFood extends Item {
+	int foodValue(ItemStack stack) => 0;
+	String onEatString(ItemStack stack) => "You eat the "+name(stack)+". Delicious!";
+	
+	ItemFood();
+	ItemFood.raw();
+	
+	@override bool usable(ItemStack stack) => world.player.hunger > 0;
+	@override String useText(ItemStack stack) => "Eat";
+	@override
+	void use(ItemStack stack, Console c) {
+		c.onRefresh = handleNotifyDialog(onEatString(stack), (c) {
+			world.player.hunger -= foodValue(stack); if (world.player.hunger < 0) {world.player.hunger = 0;}
+			stack.take(1);
+			
+			c.onRefresh = handleInventoryView;
+		});
+	}
+}
+
+class ItemRottenFlesh extends ItemFood {
 	static ItemRottenFlesh _cached;
 	ItemRottenFlesh.raw();
 	factory ItemRottenFlesh() {
@@ -123,17 +143,12 @@ class ItemRottenFlesh extends Item {
 		return new ItemStack(new ItemRottenFlesh());
 	}
 	
-	@override bool usable(ItemStack stack) => world.player.hunger > 0;
-	@override String useText(ItemStack stack) => "Eat";
+	@override int foodValue(ItemStack stack) => 10;
+	@override String onEatString(ItemStack stack) => "You eat a bit of rotten flesh. Tastes terrible...\n\nSuddenly, you don't feel so good... You have been diseased!";
 	@override
 	void use(ItemStack stack, Console c) {
-		c.onRefresh = handleNotifyDialog("You ate a bit of rotten flesh. Tastes terrible.\n\nSuddenly, you don't feel so good... You have been diseased!", (c) {
-			world.player.hunger -= 10; if (world.player.hunger < 0) {world.player.hunger = 0;}
-			stack.take(1);
-			world.player.status.add(new StatusDisease(10, 4));
-			
-			c.onRefresh = handleInventoryView;
-		});
+		super.use(stack, c);
+		world.player.status.add(new StatusDisease(10, 4));
 	}
 }
 
