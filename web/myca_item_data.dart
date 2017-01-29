@@ -257,6 +257,158 @@ class RecipeIngot extends SmeltingRecipe {
 }
 
 /*
+liquids
+*/
+
+class LiquidWater extends Liquid {
+	@override String name(LiquidStack stack) => "Water";
+	@override ConsoleColor color(LiquidStack stack) => ConsoleColor.BLUE;
+	@override double size(LiquidStack stack) => 0.001;
+	
+	@override
+	void onDrink(LiquidStack stack, Console c, int amt) {
+		
+	}
+}
+
+Map<String, Liquid> liquids = {
+	"Water": new LiquidWater(),
+};
+
+/*
+liquid containers
+*/
+
+abstract class ItemLiquidContainer extends Item {
+	int maxLiquid;
+	
+	@override double size(ItemStack stack) => (stack.data as LiquidStack).size * (stack.data as LiquidStack).amt;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		if (stack.data.liquid != null) {
+			json["liquid"] = (stack.data as LiquidStack).name;
+		}
+		json["liquidStored"] = (stack.data as LiquidStack).amt;
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		stack.data = stack.data ?? new LiquidStack.raw();
+		
+		(stack.data as LiquidStack).liquid = liquids[json["liquid"]];
+		(stack.data as LiquidStack).amt = json["liquidStored"];
+	}
+	
+	ItemLiquidContainer();
+	ItemLiquidContainer.raw();
+	
+	LiquidStack takeLiquid(ItemStack stack, int amt) {
+		LiquidStack lstack = (stack.data as LiquidStack);
+		lstack.amt -= amt;
+		
+		Liquid retLiquid = lstack.liquid;
+		int retAmt = amt;
+		
+		if (lstack.amt <= 0) {
+			retAmt += lstack.amt;
+			
+			lstack.amt = 0;
+			lstack.liquid = null;
+		}
+		
+		return new LiquidStack(retLiquid, retAmt);
+	}
+	
+	void giveLiquid(ItemStack stack, LiquidStack toGive) {
+		LiquidStack lstack = (stack.data as LiquidStack);
+		
+		if (lstack.liquid != null && toGive.liquid != lstack.liquid) {
+			return;
+		}
+		
+		lstack.amt += toGive.amt;
+		lstack.liquid = toGive.liquid;
+		
+		toGive.amt = 0;
+		
+		if (lstack.amt > maxLiquid) {
+			toGive.amt += lstack.amt - maxLiquid;
+			lstack.amt = maxLiquid;
+		}
+		
+		if (toGive.amt == 0) {
+			toGive.liquid = null;
+		}
+	}
+}
+
+class ItemBucket extends ItemLiquidContainer {
+	ItemStack material;
+	
+	ItemBucket(this.material);
+	
+	@override int get maxLiquid => 1000;
+	
+	@override String name(ItemStack stack) => capitalize(material.materialName) + " Bucket";
+	@override double size(ItemStack stack) => super.size(stack) + material.size * 3;
+	@override bool stackable(ItemStack stack) => false;
+	@override ConsoleColor color(ItemStack stack) => material.color;
+	@override String desc(ItemStack stack) {
+		StringBuffer buf = new StringBuffer();
+		
+		buf.write("This is a bucket. It might even be a pail, who knows. Regardless, you can use it to transport liquids around.\nIt is made of ");
+		buf.write(material.materialName);
+		buf.write(". ");
+		
+		LiquidStack data = (stack.data as LiquidStack);
+		if (data.liquid == null) {
+			buf.write("It is empty.");
+		} else {
+			buf.write("It is filled with ");
+			buf.write(data.amt.toString());
+			buf.write(" millibuckets of ");
+			buf.write(data.name.toLowerCase());
+			buf.write(".");
+		}
+		
+		return buf.toString();
+	}
+	@override int value(ItemStack stack) => (material.value * 3)*5~/4;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		super.save(stack, json);
+		
+		json["class"] = "ItemBucket";
+		json["material"] = saveItem(material);
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inv, Map<String, Object> json) {
+		super.load(stack, world, inv, json);
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemBucket(loadItem(world, inventory, json["material"])), 1, new LiquidStack.raw());
+	}
+}
+
+class RecipeBucket extends ItemRecipe {
+	RecipeBucket() {
+		name = "Bucket";
+		desc = "Use a bucket to haul around large amounts of liquid. Any liquid! That's right, hold lava in a wooden bucket!";
+		inputs = [
+			new RecipeInput("of any wood, metal", filterAnyWoodMetal, 3),
+		];
+		timePassed = 4;
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => new List.generate(factor, (i) {
+		return new ItemStack(new ItemBucket(items[0]), 1, new LiquidStack.raw());
+	});
+}
+
+/*
 tools
 */
 
@@ -554,6 +706,7 @@ Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemPick": ItemPick.loadClass,
 	"ItemShovel": ItemShovel.loadClass,
 	"ItemSword": ItemSword.loadClass,
+	"ItemBucket": ItemBucket.loadClass,
 };
 
 /*
@@ -571,6 +724,7 @@ List<ItemRecipe> craftingTableRecipes = [
 	new RecipePick(),
 	new RecipeShovel(),
 	new RecipeSword(),
+	new RecipeBucket(),
 ];
 
 List<SmeltingRecipe> smeltingRecipes = [

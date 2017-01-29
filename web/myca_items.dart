@@ -7,6 +7,12 @@ import 'myca_entities.dart';
 
 import 'myca_item_data.dart';
 
+/*
+=============
+Items and Inventories
+=============
+*/
+
 abstract class Item {
 	String name(ItemStack stack);
 	double size(ItemStack stack) => 0.0;
@@ -157,6 +163,12 @@ class Inventory {
 	}
 }
 
+/*
+=============
+Recipes
+=============
+*/
+
 class Recipe {
 	String name;
 	String desc;
@@ -235,6 +247,12 @@ class RecipeInput {
 	}
 }
 
+/*
+=============
+Custom filters
+=============
+*/
+
 bool filterAnyWoodMetalStone(ItemStack stack) {
 	return stack.item is ItemWood || stack.item is ItemCobble || stack.item is ItemIngot;
 }
@@ -265,4 +283,36 @@ bool filterAnyDiggingTool(ItemStack stack) {
 
 bool filterAnyFuel(ItemStack stack) {
 	return stack.fuelValue != null;
+}
+
+bool filterAnyLiquidContainer(ItemStack stack) {
+	return stack.item is ItemLiquidContainer;
+}
+
+/*
+=============
+Liquids
+=============
+*/
+
+abstract class Liquid {
+	String name(LiquidStack stack);
+	ConsoleColor color(LiquidStack stack);
+	double size(LiquidStack stack);
+	
+	void onDrink(LiquidStack stack, Console c, int toDrink);
+}
+
+class LiquidStack {
+	Liquid liquid;
+	int amt = 0;
+	
+	LiquidStack(this.liquid, [this.amt = 0]);
+	LiquidStack.raw();
+	
+	String get name => liquid.name(this);
+	ConsoleColor get color => liquid.color(this);
+	double get size => liquid == null ? 0.0 : liquid.size(this);
+	
+	void onDrink(Console c, int toDrink) => liquid.onDrink(this, c, toDrink);
 }

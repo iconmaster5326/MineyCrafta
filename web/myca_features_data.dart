@@ -979,6 +979,82 @@ class DeconstructTorches extends DeconstructionRecipe {
 }
 
 /*
+Lake
+*/
+
+class FeatureLake extends Feature {
+	FeatureLake(Tile tile) : super(tile) {
+		space =  5;
+	}
+	
+	String get name => "Lake";
+	ConsoleColor get color => ConsoleColor.BLUE;
+	String get desc => "A rippling pool of water. That's a spot of water in the thing, ayup. What a lake.";
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random rng = new Random(hashCode);
+		int drawX = rng.nextInt(w-6) - (w-6)~/2;
+		int drawY = rng.nextInt(h~/2);
+		
+		for (int i = 0; i < 3; i++) {
+			int realX = x + w~/2 + drawX;
+			int realY = y + h~/2 + drawY + i - 3;
+			
+			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+				switch (i) {
+					case 0:
+						c.labels.add(new ConsoleLabel(realX, realY, "-----", ConsoleColor.BLUE));
+						break;
+					case 1:
+						c.labels.add(new ConsoleLabel(realX, realY, "-...-", ConsoleColor.BLUE));
+						break;
+					case 2:
+						c.labels.add(new ConsoleLabel(realX, realY, "-----", ConsoleColor.BLUE));
+						break;
+				}
+			}
+		}
+	}
+	
+	@override
+	void addActions(List<ConsoleLink> actions) {
+		actions.add(new ConsoleLink(0, 0, "Scoop Up Water", null, (c, l) {
+			c.onRefresh = handleSelectMaterial(c, new RecipeInput("liquid container", filterAnyLiquidContainer, 1, usedUp: false, optional: false), (c, succ, stack) {
+				if (succ) {
+					LiquidStack water = new LiquidStack(liquids["Water"], 250);
+					(stack.item as ItemLiquidContainer).giveLiquid(stack, water);
+					
+					String dialogText = "You manage to scoop up "+(250-water.amt).toString()+" millibuckets of water into your "+stack.name.toLowerCase()+".";
+					
+					c.onRefresh = handleNotifyDialog(dialogText, (c) {
+						c.onRefresh = handleTileView;
+					});
+				} else {
+					c.onRefresh = handleTileView;
+				}
+			});
+		}));
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureLake";
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		
+	}
+	
+	FeatureLake.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureLake.raw();
+	}
+}
+
+/*
 =================
 Load handler map
 =================
@@ -1000,6 +1076,7 @@ Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureMineshaft": FeatureMineshaft.loadClass,
 	"FeatureTunnel": FeatureTunnel.loadClass,
 	"FeatureTorches": FeatureTorches.loadClass,
+	"FeatureLake": FeatureLake.loadClass,
 };
 
 /*
