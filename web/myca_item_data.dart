@@ -370,7 +370,7 @@ class ItemBucket extends ItemLiquidContainer {
 	
 	@override int get maxLiquid => 1000;
 	
-	@override String name(ItemStack stack) => capitalize(material.materialName) + " Bucket";
+	@override String name(ItemStack stack) => capitalize(material.materialName) + " Bucket (" + ((stack.data as LiquidStack).liquid == null ? "empty" : (((stack.data as LiquidStack).amt/maxLiquid*100).toStringAsFixed(0)+"% "+(stack.data as LiquidStack).name.toLowerCase())) + ")";
 	@override double size(ItemStack stack) => super.size(stack) + material.size * 3;
 	@override bool stackable(ItemStack stack) => false;
 	@override ConsoleColor color(ItemStack stack) => material.color;
