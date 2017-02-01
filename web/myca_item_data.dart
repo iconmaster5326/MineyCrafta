@@ -95,6 +95,7 @@ food
 
 abstract class ItemFood extends Item {
 	int foodValue(ItemStack stack) => 0;
+	int timeToEat(ItemStack stack) => 0;
 	String onEatString(ItemStack stack) => "You eat the "+name(stack)+". Delicious!";
 	
 	ItemFood();
@@ -107,6 +108,8 @@ abstract class ItemFood extends Item {
 		c.onRefresh = handleNotifyDialog(onEatString(stack), (c) {
 			world.player.hunger -= foodValue(stack); if (world.player.hunger < 0) {world.player.hunger = 0;}
 			stack.take(1);
+			
+			world.passTime(timeToEat(stack));
 			
 			c.onRefresh = handleInventoryView;
 		});
@@ -144,6 +147,7 @@ class ItemRottenFlesh extends ItemFood {
 	}
 	
 	@override int foodValue(ItemStack stack) => 10;
+	@override int timeToEat(ItemStack stack) => 2;
 	@override String onEatString(ItemStack stack) => "You eat a bit of rotten flesh. Tastes terrible...\n\nSuddenly, you don't feel so good... You have been diseased!";
 	@override
 	void use(ItemStack stack, Console c) {
