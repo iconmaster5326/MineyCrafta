@@ -261,6 +261,15 @@ liquids
 */
 
 class LiquidWater extends Liquid {
+	static LiquidWater _cached;
+	LiquidWater.raw();
+	factory LiquidWater() {
+		if (_cached == null) {
+			_cached = new LiquidWater.raw();
+		}
+		return _cached;
+	}
+	
 	@override String name(LiquidStack stack) => "Water";
 	@override ConsoleColor color(LiquidStack stack) => ConsoleColor.BLUE;
 	@override double size(LiquidStack stack) => 0.001;
@@ -269,10 +278,24 @@ class LiquidWater extends Liquid {
 	void onDrink(LiquidStack stack, Console c, int amt) {
 		
 	}
+	
+	@override
+	void save(LiquidStack stack, Map<String, Object> json) {
+		json["class"] = "LiquidWater";
+	}
+	@override
+	void load(LiquidStack stack, World world, Map<String, Object> json) {
+		
+	}
+	
+	static LiquidStack loadClass(World world, Map<String, Object> json) {
+		return new LiquidStack(new LiquidWater(), 0);
+	}
 }
 
-Map<String, Liquid> liquids = {
-	"Water": new LiquidWater(),
+typedef LiquidStack LiquidLoadHandler(World world, Inventory inventory, Map<String, Object> json);
+Map<String, LiquidLoadHandler> liquidLoadHandlers = {
+	"LiquidWater": LiquidWater.loadClass,
 };
 
 /*
@@ -287,16 +310,14 @@ abstract class ItemLiquidContainer extends Item {
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
 		if ((stack.data as LiquidStack).liquid != null) {
-			json["liquid"] = (stack.data as LiquidStack).name;
+			json["liquid"] = saveLiquid(stack.data);
 		}
-		json["liquidStored"] = (stack.data as LiquidStack).amt;
 	}
 	@override
 	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
 		stack.data = stack.data ?? new LiquidStack.raw();
 		
-		(stack.data as LiquidStack).liquid = liquids[json["liquid"]];
-		(stack.data as LiquidStack).amt = json["liquidStored"];
+		stack.data = loadLiquid(world, json["liquid"]);
 	}
 	
 	ItemLiquidContainer();

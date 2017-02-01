@@ -291,6 +291,14 @@ abstract class Liquid {
 	double size(LiquidStack stack);
 	
 	void onDrink(LiquidStack stack, Console c, int toDrink);
+	
+	// ALWAYS override this. Set "class" to your class name, sop it can be loaded later.
+	void save(LiquidStack stack, Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Liquid did not implement a save handler.");
+	}
+	void load(LiquidStack stack, World world, Map<String, Object> json) {
+		throw new UnimplementedError("This subclass of Liquid did not implement a load handler.");
+	}
 }
 
 class LiquidStack {
@@ -305,4 +313,7 @@ class LiquidStack {
 	double get size => liquid == null ? 0.0 : liquid.size(this);
 	
 	void onDrink(Console c, int toDrink) => liquid.onDrink(this, c, toDrink);
+	
+	void save(Map<String, Object> json) => liquid.save(this, json);
+	void load(World world, Map<String, Object> json) => liquid.load(this, world, json);
 }

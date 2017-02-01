@@ -234,3 +234,31 @@ StatusCondition loadStatusCondition(World world, Entity entity, Object json) {
 	
 	return status;
 }
+
+Object saveLiquid(LiquidStack stack) {
+	if (stack.liquid == null) {
+		return null;
+	} else {
+		Map<String, Object> json = {
+			"amt": stack.amt,
+		};
+		
+		stack.save(json);
+		
+		return json;
+	}
+}
+
+ItemStack loadLiquid(World world, Object json) {
+	if (json == null) {
+		return new LiquidStack.raw();
+	} else {
+		LiquidStack stack = liquidLoadHandlers[json["class"]](world, json);
+		
+		stack.amt = json["amt"];
+		
+		stack.load(world, json);
+		
+		return stack;
+	}
+}
