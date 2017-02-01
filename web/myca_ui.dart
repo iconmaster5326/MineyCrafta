@@ -294,6 +294,15 @@ void handleInventoryView(Console c) {
 		} else {
 			c.labels.add(new ConsoleLabel(actX, 5, ".) Discard Some...", ConsoleColor.SILVER));
 		}
+		
+		int actionY = 6;
+		for (ConsoleLabel action in selected.itemActions) {
+			action.x = actX;
+			action.y = actionY;
+			
+			c.labels.add(action);
+			actionY++;
+		}
 	}
 }
 

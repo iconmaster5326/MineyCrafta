@@ -65,9 +65,13 @@ abstract class Item {
 	/// Use this to add custom battle actions for the player.
 	void addBattleActions(ItemStack stack, Battle battle, List<ConsoleLink> actions) {}
 	
+	/// Some items are "usable", that is, have a primary action.
 	bool usable(ItemStack stack) => false;
 	void use(ItemStack stack, Console c) {}
 	String useText(ItemStack stack) => "Use";
+	
+	/// Use this to add custom actions to the item screen. The positions of the labels you return will be set for you.
+	List<ConsoleLabel> itemActions(ItemStack stack) => [];
 }
 
 class ItemStack {
@@ -114,6 +118,8 @@ class ItemStack {
 	bool get usable => item.usable(this);
 	void use(Console c) => item.use(this, c);
 	String get useText => item.useText(this);
+	
+	List<ConsoleLabel> get itemActions => item.itemActions(this);
 }
 
 class Inventory {

@@ -34,7 +34,7 @@ class ItemWood extends Item {
 	@override String desc(ItemStack stack) => "This is some chopped-up wood from a " + breed.name.toLowerCase() + " tree.";
 	@override int hardness(ItemStack stack) => 1;
 	@override int value(ItemStack stack) => 1;
-	@override String materialName(ItemStack stack) => breed.name.toLowerCase() + " wood";
+	@override String materialName(ItemStack stack) => breed.name.toLowerCase();
 	@override int fuelValue(ItemStack stack) => 1;
 	
 	@override
@@ -411,6 +411,31 @@ class ItemBucket extends ItemLiquidContainer {
 	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
 		return new ItemStack(new ItemBucket(loadItem(world, inventory, json["material"])), 1, new LiquidStack.raw());
 	}
+	
+	@override
+	List<ConsoleLabel> itemActions(ItemStack stack) => [
+		(stack.data.amt > 0 ? new ConsoleLink(0, 0, "!) Dump Out...", "!", (c, l) {
+			c.onRefresh = handlePickAmount(c, (stack.data as LiquidStack).amt, (stack.data as LiquidStack).amt, (c, amt) {
+				takeLiquid(stack, amt);
+				c.onRefresh = handleInventoryView;
+			});
+		}) : new ConsoleLabel(0, 0, "!) Dump Out...", ConsoleColor.SILVER)),
+		
+		(stack.data.amt > 0 ? new ConsoleLink(0, 0, "@) Dump Into...", "@", (c, l) {
+			c.onRefresh = handleSelectMaterial(c, new RecipeInput("liquid container", filterAnyFillableLiquidContainer((stack.data as LiquidStack).liquid), 1, usedUp: false, optional: false), (c, succ, toFill) {
+				if (succ) {
+					c.onRefresh = handlePickAmount(c, (stack.data as LiquidStack).amt, (stack.data as LiquidStack).amt, (c, amt) {
+						LiquidStack toGive = takeLiquid(stack, amt);
+						toFill.item.giveLiquid(toFill, toGive);
+						
+						c.onRefresh = handleInventoryView;
+					});
+				} else {
+					c.onRefresh = handleInventoryView;
+				}
+			});
+		}) : new ConsoleLabel(0, 0, "@) Dump Into...", ConsoleColor.SILVER)),
+	];
 }
 
 class RecipeBucket extends ItemRecipe {
