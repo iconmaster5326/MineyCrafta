@@ -999,20 +999,23 @@ class FeatureLake extends Feature {
 		int drawX = rng.nextInt(w-6) - (w-6)~/2;
 		int drawY = rng.nextInt(h~/2);
 		
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 4; i++) {
 			int realX = x + w~/2 + drawX;
-			int realY = y + h~/2 + drawY + i - 3;
+			int realY = y + h~/2 + drawY + i - 1;
 			
 			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
 				switch (i) {
 					case 0:
-						c.labels.add(new ConsoleLabel(realX, realY, "-----", ConsoleColor.BLUE));
+						c.labels.add(new ConsoleLabel(realX, realY, "------", ConsoleColor.BLUE));
 						break;
 					case 1:
-						c.labels.add(new ConsoleLabel(realX, realY, "-...-", ConsoleColor.BLUE));
+						c.labels.add(new ConsoleLabel(realX, realY, "-.....-", ConsoleColor.BLUE));
 						break;
 					case 2:
-						c.labels.add(new ConsoleLabel(realX, realY, "-----", ConsoleColor.BLUE));
+						c.labels.add(new ConsoleLabel(realX, realY, "-......-", ConsoleColor.BLUE));
+						break;
+					case 3:
+						c.labels.add(new ConsoleLabel(realX+1, realY, "------", ConsoleColor.BLUE));
 						break;
 				}
 			}
