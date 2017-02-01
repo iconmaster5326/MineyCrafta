@@ -1022,7 +1022,7 @@ class FeatureLake extends Feature {
 	@override
 	void addActions(List<ConsoleLink> actions) {
 		actions.add(new ConsoleLink(0, 0, "Scoop Up Water", null, (c, l) {
-			c.onRefresh = handleSelectMaterial(c, new RecipeInput("liquid container", filterAnyLiquidContainer, 1, usedUp: false, optional: false), (c, succ, stack) {
+			c.onRefresh = handleSelectMaterial(c, new RecipeInput("liquid container", filterAnyFillableLiquidContainer(liquids["Water"]), 1, usedUp: false, optional: false), (c, succ, stack) {
 				if (succ) {
 					LiquidStack water = new LiquidStack(liquids["Water"], 250);
 					(stack.item as ItemLiquidContainer).giveLiquid(stack, water);

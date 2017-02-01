@@ -253,40 +253,30 @@ Custom filters
 =============
 */
 
-bool filterAnyWoodMetalStone(ItemStack stack) {
-	return stack.item is ItemWood || stack.item is ItemCobble || stack.item is ItemIngot;
+bool filterAnyWoodMetalStone(ItemStack stack) => stack.item is ItemWood || stack.item is ItemCobble || stack.item is ItemIngot;
+bool filterAnyWoodMetal(ItemStack stack) => stack.item is ItemWood || stack.item is ItemIngot;
+bool filterAnyWood(ItemStack stack) => stack.item is ItemWood;
+bool filterAnyStone(ItemStack stack) => stack.item is ItemCobble;
+bool filterAnyWoodCuttingTool(ItemStack stack) => stack.item is ItemAxe && (stack.data as int) > 0;
+bool filterAnyMiningTool(ItemStack stack) => stack.item is ItemPick && (stack.data as int) > 0;
+bool filterAnyDiggingTool(ItemStack stack) => stack.item is ItemShovel && (stack.data as int) > 0;
+bool filterAnyFuel(ItemStack stack) => stack.fuelValue != null;
+bool filterAnyLiquidContainer(ItemStack stack) => stack.item is ItemLiquidContainer;
+
+RecipeInputFilter filterAnyFillableLiquidContainer(Liquid liquid) {
+	return (stack) => (
+		stack.item is ItemLiquidContainer &&
+		((stack.data as LiquidStack).liquid == null || (stack.data as LiquidStack).liquid == liquid) &&
+		(stack.data as LiquidStack).amt < (stack.item as ItemLiquidContainer).maxLiquid
+	);
 }
 
-bool filterAnyWoodMetal(ItemStack stack) {
-	return stack.item is ItemWood || stack.item is ItemIngot;
-}
-
-bool filterAnyWood(ItemStack stack) {
-	return stack.item is ItemWood;
-}
-
-bool filterAnyStone(ItemStack stack) {
-	return stack.item is ItemCobble;
-}
-
-bool filterAnyWoodCuttingTool(ItemStack stack) {
-	return stack.item is ItemAxe && (stack.data as int) > 0;
-}
-
-bool filterAnyMiningTool(ItemStack stack) {
-	return stack.item is ItemPick && (stack.data as int) > 0;
-}
-
-bool filterAnyDiggingTool(ItemStack stack) {
-	return stack.item is ItemShovel && (stack.data as int) > 0;
-}
-
-bool filterAnyFuel(ItemStack stack) {
-	return stack.fuelValue != null;
-}
-
-bool filterAnyLiquidContainer(ItemStack stack) {
-	return stack.item is ItemLiquidContainer;
+RecipeInputFilter filterAnyEmptiableLiquidContainer(Liquid liquid) {
+	return (stack) => (
+		stack.item is ItemLiquidContainer &&
+		(stack.data as LiquidStack).liquid == liquid &&
+		(stack.data as LiquidStack).amt > 0
+	);
 }
 
 /*
