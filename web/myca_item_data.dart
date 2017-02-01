@@ -276,7 +276,9 @@ class LiquidWater extends Liquid {
 	
 	@override
 	void onDrink(LiquidStack stack, Console c, int amt) {
-		
+		c.onRefresh = handleNotifyDialog("You gulp down a measure of water. Refreshing!", (c) {
+			c.onRefresh = handleInventoryView;
+		});
 	}
 	
 	@override
@@ -293,7 +295,7 @@ class LiquidWater extends Liquid {
 	}
 }
 
-typedef LiquidStack LiquidLoadHandler(World world, Inventory inventory, Map<String, Object> json);
+typedef LiquidStack LiquidLoadHandler(World world, Map<String, Object> json);
 Map<String, LiquidLoadHandler> liquidLoadHandlers = {
 	"LiquidWater": LiquidWater.loadClass,
 };
@@ -318,6 +320,16 @@ abstract class ItemLiquidContainer extends Item {
 		stack.data = stack.data ?? new LiquidStack.raw();
 		
 		stack.data = loadLiquid(world, json["liquid"]);
+	}
+	
+	static const int MB_PER_DRINK = 250;
+	
+	@override bool usable(ItemStack stack) => (stack.data as LiquidStack).amt > 0;
+	@override String useText(ItemStack stack) => "Drink";
+	@override
+	void use(ItemStack stack, Console c) {
+		LiquidStack drank = (stack.item as ItemLiquidContainer).takeLiquid(stack, 250);
+		drank.onDrink(c, drank.amt);
 	}
 	
 	ItemLiquidContainer();
@@ -361,6 +373,31 @@ abstract class ItemLiquidContainer extends Item {
 			toGive.liquid = null;
 		}
 	}
+	
+	@override
+	List<ConsoleLabel> itemActions(ItemStack stack) => [
+		((stack.data as LiquidStack).amt > 0 ? new ConsoleLink(0, 0, "!) Dump Out...", "!", (c, l) {
+			c.onRefresh = handlePickAmount(c, (stack.data as LiquidStack).amt, (stack.data as LiquidStack).amt, (c, amt) {
+				takeLiquid(stack, amt);
+				c.onRefresh = handleInventoryView;
+			});
+		}) : new ConsoleLabel(0, 0, "!) Dump Out...", ConsoleColor.SILVER)),
+		
+		((stack.data as LiquidStack).amt > 0 ? new ConsoleLink(0, 0, "@) Dump Into...", "@", (c, l) {
+			c.onRefresh = handleSelectMaterial(c, new RecipeInput("liquid container", filterAnyFillableLiquidContainer((stack.data as LiquidStack).liquid), 1, usedUp: false, optional: false), (c, succ, toFill) {
+				if (succ) {
+					c.onRefresh = handlePickAmount(c, (stack.data as LiquidStack).amt, (stack.data as LiquidStack).amt, (c, amt) {
+						LiquidStack toGive = takeLiquid(stack, amt);
+						toFill.item.giveLiquid(toFill, toGive);
+						
+						c.onRefresh = handleInventoryView;
+					});
+				} else {
+					c.onRefresh = handleInventoryView;
+				}
+			});
+		}) : new ConsoleLabel(0, 0, "@) Dump Into...", ConsoleColor.SILVER)),
+	];
 }
 
 class ItemBucket extends ItemLiquidContainer {
@@ -411,31 +448,6 @@ class ItemBucket extends ItemLiquidContainer {
 	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
 		return new ItemStack(new ItemBucket(loadItem(world, inventory, json["material"])), 1, new LiquidStack.raw());
 	}
-	
-	@override
-	List<ConsoleLabel> itemActions(ItemStack stack) => [
-		(stack.data.amt > 0 ? new ConsoleLink(0, 0, "!) Dump Out...", "!", (c, l) {
-			c.onRefresh = handlePickAmount(c, (stack.data as LiquidStack).amt, (stack.data as LiquidStack).amt, (c, amt) {
-				takeLiquid(stack, amt);
-				c.onRefresh = handleInventoryView;
-			});
-		}) : new ConsoleLabel(0, 0, "!) Dump Out...", ConsoleColor.SILVER)),
-		
-		(stack.data.amt > 0 ? new ConsoleLink(0, 0, "@) Dump Into...", "@", (c, l) {
-			c.onRefresh = handleSelectMaterial(c, new RecipeInput("liquid container", filterAnyFillableLiquidContainer((stack.data as LiquidStack).liquid), 1, usedUp: false, optional: false), (c, succ, toFill) {
-				if (succ) {
-					c.onRefresh = handlePickAmount(c, (stack.data as LiquidStack).amt, (stack.data as LiquidStack).amt, (c, amt) {
-						LiquidStack toGive = takeLiquid(stack, amt);
-						toFill.item.giveLiquid(toFill, toGive);
-						
-						c.onRefresh = handleInventoryView;
-					});
-				} else {
-					c.onRefresh = handleInventoryView;
-				}
-			});
-		}) : new ConsoleLabel(0, 0, "@) Dump Into...", ConsoleColor.SILVER)),
-	];
 }
 
 class RecipeBucket extends ItemRecipe {

@@ -249,7 +249,7 @@ Object saveLiquid(LiquidStack stack) {
 	}
 }
 
-ItemStack loadLiquid(World world, Object json) {
+LiquidStack loadLiquid(World world, Object json) {
 	if (json == null) {
 		return new LiquidStack.raw();
 	} else {
