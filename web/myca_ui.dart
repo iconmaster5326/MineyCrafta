@@ -101,7 +101,7 @@ void handleTileView(Console c) {
 		link.text = getKeyForInt(i+1) + ") " + link.text;
 		link.x = 0;
 		link.y = i;
-		link.key = getKeyForInt(i+1).codeUnitAt(0);
+		link.key = new ConsoleKeyCode(getKeyForInt(i+1));
 		i++;
 		
 		if (link.text.length > actionsMaxLen) {actionsMaxLen = link.text.length;}
@@ -133,28 +133,28 @@ void handleTileView(Console c) {
 	
 	/// display the movement compass
 	if (world.player.tile is WorldTile) {
-		c.labels.add(new ConsoleLink(c.width-3, 9,  "^", 38, (c, l) {
+		c.labels.add(new ConsoleLink(c.width-3, 9,  "^", ConsoleKeyCode.UP, (c, l) {
 			Point<int> pt = new Point<int>(world.player.tile.x, world.player.tile.y-1);
 			if (world.tiles[pt] != null) {
 				world.player.move(world.tiles[pt]);
 				world.passTime(c);
 			}
 		}));
-		c.labels.add(new ConsoleLink(c.width-5, 10, "<", 37, (c, l) {
+		c.labels.add(new ConsoleLink(c.width-5, 10, "<", ConsoleKeyCode.LEFT, (c, l) {
 			Point<int> pt = new Point<int>(world.player.tile.x-1, world.player.tile.y);
 			if (world.tiles[pt] != null) {
 				world.player.move(world.tiles[pt]);
 				world.passTime(c);
 			}
 		}));
-		c.labels.add(new ConsoleLink(c.width-1, 10, ">", 39, (c, l) {
+		c.labels.add(new ConsoleLink(c.width-1, 10, ">", ConsoleKeyCode.RIGHT, (c, l) {
 			Point<int> pt = new Point<int>(world.player.tile.x+1, world.player.tile.y);
 			if (world.tiles[pt] != null) {
 				world.player.move(world.tiles[pt]);
 				world.passTime(c);
 			}
 		}));
-		c.labels.add(new ConsoleLink(c.width-3, 11, "V", 40, (c, l) {
+		c.labels.add(new ConsoleLink(c.width-3, 11, "V", ConsoleKeyCode.DOWN, (c, l) {
 			Point<int> pt = new Point<int>(world.player.tile.x, world.player.tile.y+1);
 			if (world.tiles[pt] != null) {
 				world.player.move(world.tiles[pt]);
@@ -163,21 +163,21 @@ void handleTileView(Console c) {
 		}));
 	} else {
 		if (world.player.tile.customUp != null) {
-			c.labels.add(new ConsoleLink(c.width-3, 9,  "^", 38, (c, l) {
+			c.labels.add(new ConsoleLink(c.width-3, 9,  "^", ConsoleKeyCode.UP, (c, l) {
 				world.player.move(world.player.tile.customUp);
 				world.passTime(c);
 			}));
 		}
 		
 		if (world.player.tile.customDown != null) {
-			c.labels.add(new ConsoleLink(c.width-3, 11, "V", 40, (c, l) {
+			c.labels.add(new ConsoleLink(c.width-3, 11, "V", ConsoleKeyCode.DOWN, (c, l) {
 				world.player.move(world.player.tile.customDown);
 				world.passTime(c);
 			}));
 		}
 	}
 	
-	c.labels.add(new ConsoleLink(c.width-3, 10, ".", 190, (c, l) {
+	c.labels.add(new ConsoleLink(c.width-3, 10, ".", ".", (c, l) {
 		world.passTime(c);
 	}));
 	
@@ -221,7 +221,7 @@ void handleTileView(Console c) {
 	
 	world.player.tile.drawPicture(c, boxX+1, boxY+1, boxW-2, boxH-2);
 	
-	c.labels.add(new ConsoleLink(0, c.height-1, "ENTER) Menu", 13, (c, l) {
+	c.labels.add(new ConsoleLink(0, c.height-1, "ENTER) Menu", ConsoleKeyCode.ENTER, (c, l) {
 		c.onRefresh = handlePauseMenu;
 	}));
 }
@@ -256,7 +256,7 @@ void handleInventoryView(Console c) {
 		i++;
 	}
 	
-	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", ConsoleKeyCode.ENTER, (c, l) {
 		c.onRefresh = handleTileView;
 	}));
 	
@@ -279,12 +279,12 @@ void handleInventoryView(Console c) {
 			c.labels.add(new ConsoleLabel(actX, 3, key + ") " + selected.useText, ConsoleColor.SILVER));
 		}
 		
-		c.labels.add(new ConsoleLink(actX, 4, ",) Discard", 188, (c, l) {
+		c.labels.add(new ConsoleLink(actX, 4, ",) Discard", ",", (c, l) {
 			selected.take(selected.amt);
 		}));
 		
 		if (selected.amt > 1) {
-			c.labels.add(new ConsoleLink(actX, 5, ".) Discard Some...", 190, (c, l) {
+			c.labels.add(new ConsoleLink(actX, 5, ".) Discard Some...", ".", (c, l) {
 				c.onRefresh = handlePickAmount(c, selected.amt, selected.amt, (c, toDrop) {
 					selected.take(toDrop);
 					
@@ -310,7 +310,7 @@ ConsoleRefreshHandler handleNotifyDialog(String message, NotifyDialogCallback on
 		
 		c.labels.addAll(new ConsoleLabel(2, 2, fitToWidth(message, c.width-6)).as2DLabel());
 		
-		c.labels.add(new ConsoleLink(2, c.height - 3,  "ENTER) " + ok, ConsoleLink.ANY_KEY, (c, l) {
+		c.labels.add(new ConsoleLink(2, c.height - 3,  "ENTER) " + ok, ConsoleKeyCode.ANY, (c, l) {
 			onAccept(c);
 		}));
 	};
@@ -377,7 +377,7 @@ void handlePauseMenu(Console c) {
 		world = null;
 		c.onRefresh = handleTitleScreen;
 	}));
-	c.labels.add(new ConsoleLink(c.centerJustified(ret), c.height-1, ret, 13, (c, l) {
+	c.labels.add(new ConsoleLink(c.centerJustified(ret), c.height-1, ret, ConsoleKeyCode.ENTER, (c, l) {
 		c.onRefresh = handleTileView;
 	}));
 }
@@ -412,12 +412,12 @@ ConsoleRefreshHandler handleLoadGame(Console c, ConsoleRefreshHandler onCancel) 
 			i++;
 		}
 		
-		c.labels.add(new ConsoleLink(0, c.height-1, "ENTER) Cancel", 13, (c, l) {
+		c.labels.add(new ConsoleLink(0, c.height-1, "ENTER) Cancel", ConsoleKeyCode.ENTER, (c, l) {
 			c.onRefresh = onCancel;
 		}));
 		
 		const String delFiles = "DEL) Delete Files";
-		c.labels.add(new ConsoleLink(c.rightJustified(delFiles), c.height-1, delFiles, 46, (c, l) {
+		c.labels.add(new ConsoleLink(c.rightJustified(delFiles), c.height-1, delFiles, ConsoleKeyCode.DELETE, (c, l) {
 			c.onRefresh = handleDeleteGames(c, handleLoadGame(c, onCancel));
 		}));
 	};
@@ -438,7 +438,7 @@ ConsoleRefreshHandler handleDeleteGames(Console c, ConsoleRefreshHandler onDone)
 			i++;
 		}
 		
-		c.labels.add(new ConsoleLink(0, c.height-1, "ENTER) Back", 13, (c, l) {
+		c.labels.add(new ConsoleLink(0, c.height-1, "ENTER) Back", ConsoleKeyCode.ENTER, (c, l) {
 			c.onRefresh = onDone;
 		}));
 	};
@@ -567,14 +567,14 @@ void handleCraftFeature(Console c) {
 		}
 	}
 	
-	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", ConsoleKeyCode.ENTER, (c, l) {
 		selFeatureRecipe = null;
 		c.onRefresh = handleTileView;
 	}));
 	
 	String autocraftString = ".) Autocraft: " + (autocraft ? "ON" : "OFF");
 	ConsoleColor autocraftColor = autocraft ? ConsoleColor.GREEN : ConsoleColor.RED;
-	c.labels.add(new ConsoleLink(c.rightJustified(autocraftString), c.height - 1,  autocraftString, 190, (c, l) {
+	c.labels.add(new ConsoleLink(c.rightJustified(autocraftString), c.height - 1,  autocraftString, ".", (c, l) {
 		autocraft = !autocraft;
 	}, autocraftColor));
 }
@@ -601,7 +601,7 @@ ConsoleRefreshHandler handleSelectMaterial(Console c, RecipeInput input, SelectM
 			}
 		}
 		
-		c.labels.add(new ConsoleLink(0, c.height - 1, "ENTER) Back", 13, (c, l) {
+		c.labels.add(new ConsoleLink(0, c.height - 1, "ENTER) Back", ConsoleKeyCode.ENTER, (c, l) {
 			onDone(c, false, null);
 		}));
 	};
@@ -721,23 +721,23 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 			}
 		}
 		
-		c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+		c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", ConsoleKeyCode.ENTER, (c, l) {
 			selItemRecipe = null;
 			c.onRefresh = handleTileView;
 		}));
 		
 		String autocraftString = ".) Autocraft: " + (autocraft ? "ON" : "OFF");
 		ConsoleColor autocraftColor = autocraft ? ConsoleColor.GREEN : ConsoleColor.RED;
-		c.labels.add(new ConsoleLink(c.rightJustified(autocraftString), c.height - 1,  autocraftString, 190, (c, l) {
+		c.labels.add(new ConsoleLink(c.rightJustified(autocraftString), c.height - 1,  autocraftString, ".", (c, l) {
 			autocraft = !autocraft;
 		}, autocraftColor));
 		
 		String factorString = selFactor.toString();
 		c.labels.add(new ConsoleLabel(c.centerJustified(factorString), c.height - 1,  factorString));
-		c.labels.add(new ConsoleLink(c.width~/2-2, c.height - 1,  "-", 189, (c, l) {
+		c.labels.add(new ConsoleLink(c.width~/2-2, c.height - 1,  "-", "-", (c, l) {
 			if (selFactor > 1) {selFactor--;}
 		}));
-		c.labels.add(new ConsoleLink(c.width~/2+2, c.height - 1,  "+", 187, (c, l) {
+		c.labels.add(new ConsoleLink(c.width~/2+2, c.height - 1,  "+", "=", (c, l) {
 			selFactor++;
 		}));
 	};
@@ -758,7 +758,7 @@ void handleInspectView(Console c) {
 		i++;
 	}
 	
-	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+	c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", ConsoleKeyCode.ENTER, (c, l) {
 		selFeature = null;
 		c.onRefresh = handleTileView;
 	}));
@@ -775,7 +775,7 @@ void handleInspectView(Console c) {
 		
 		DeconstructionRecipe decon = selFeature.toDeconstruct;
 		if (decon != null) {
-			c.labels.add(new ConsoleLink(actX, 3, ",) Deconstruct", 188, (c, l) {
+			c.labels.add(new ConsoleLink(actX, 3, ",) Deconstruct", ",", (c, l) {
 				int i = 0;
 				List<ItemStack> items = [];
 				
@@ -855,7 +855,7 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		
 		int actionsMaxLen = 0;
 		if (isDoneBattling) {
-			c.labels.add(new ConsoleLink(0, 0, "ENTER) Continue", ConsoleLink.ANY_KEY, (c, l) {
+			c.labels.add(new ConsoleLink(0, 0, "ENTER) Continue", ConsoleKeyCode.ANY, (c, l) {
 				selBattleTarget = null;
 				
 				if (world.player.hp > 0) {
@@ -931,7 +931,7 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 				link.text = getKeyForInt(i+1) + ") " + link.text;
 				link.x = 0;
 				link.y = i;
-				link.key = getKeyForInt(i+1).codeUnitAt(0);
+				link.key = new ConsoleKeyCode(getKeyForInt(i+1));
 				i++;
 				
 				if (link.text.length > actionsMaxLen) {actionsMaxLen = link.text.length;}
@@ -1003,18 +1003,18 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 				ConsoleColor fore = (e == selBattleTarget ? Console.invertColor(e.color) : e.color);
 				ConsoleColor back = (e == selBattleTarget ? ConsoleColor.WHITE : ConsoleColor.BLACK);
 				
-				int key = null;
+				ConsoleKeyCode key = null;
 				if (!isDoneBattling) {
 					if (ey > 0 && battle.allies[ex][ey-1] == selBattleTarget) {
-						key = 38;
+						key = ConsoleKeyCode.UP;
 					} else if (ey < battle.allies[ex].length-1 && battle.allies[ex][ey+1] == selBattleTarget) {
-						key = 40;
+						key = ConsoleKeyCode.DOWN;
 					} else if (ex > 0 && battle.allies[ex-1][min(ey, battle.allies[ex-1].length-1)] == selBattleTarget) {
-						key = 37;
+						key = ConsoleKeyCode.LEFT;
 					} else if (ex < battle.allies.length-1 && battle.allies[ex+1][min(ey, battle.allies[ex+1].length-1)] == selBattleTarget) {
-						key = 39;
+						key = ConsoleKeyCode.RIGHT;
 					} else if (battle.enemies[0][min(ey, battle.enemies[0].length-1)] == selBattleTarget) {
-						key = 37;
+						key = ConsoleKeyCode.LEFT;
 					}
 				}
 				
@@ -1035,18 +1035,18 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 				ConsoleColor fore = (e == selBattleTarget ? Console.invertColor(e.color) : e.color);
 				ConsoleColor back = (e == selBattleTarget ? ConsoleColor.WHITE : ConsoleColor.BLACK);
 				
-				int key = null;
+				ConsoleKeyCode key = null;
 				if (!isDoneBattling) {
 					if (ey > 0 && battle.enemies[ex][ey-1] == selBattleTarget) {
-						key = 40;
+						key = ConsoleKeyCode.DOWN;
 					} else if (ey < battle.enemies[ex].length-1 && battle.enemies[ex][ey+1] == selBattleTarget) {
-						key = 38;
+						key = ConsoleKeyCode.UP;
 					} else if (ex > 0 && battle.enemies[ex-1][min(ey, battle.enemies[ex-1].length-1)] == selBattleTarget) {
-						key = 39;
+						key = ConsoleKeyCode.RIGHT;
 					} else if (ex < battle.enemies.length-1 && battle.enemies[ex+1][min(ey, battle.enemies[ex+1].length-1)] == selBattleTarget) {
-						key = 37;
+						key = ConsoleKeyCode.LEFT;
 					} else if (battle.allies[0][min(ey, battle.allies[0].length-1)] == selBattleTarget) {
-						key = 39;
+						key = ConsoleKeyCode.RIGHT;
 					}
 				}
 				
@@ -1103,7 +1103,7 @@ ConsoleRefreshHandler handlePickAmount(Console c, int before, int selAmt, PickAm
 		c.labels.add(new ConsoleLabel(c.width~/2+7, 3, afterString));
 		
 		const String confirm = "ENTER) Confirm";
-		c.labels.add(new ConsoleLink(c.centerJustified(confirm), 5, confirm, 13, (c, l) {
+		c.labels.add(new ConsoleLink(c.centerJustified(confirm), 5, confirm, ConsoleKeyCode.ENTER, (c, l) {
 			onDone(c, selAmt);
 		}));
 	};
@@ -1225,28 +1225,28 @@ ConsoleRefreshHandler handleSmelting(Console c, FeatureFurnace furnace) {
 			}
 		}
 		
-		c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", 13, (c, l) {
+		c.labels.add(new ConsoleLink(0, c.height - 1,  "ENTER) Back", ConsoleKeyCode.ENTER, (c, l) {
 			selSmeltingRecipe = null;
 			c.onRefresh = handleTileView;
 		}));
 		
 		String autocraftString = ".) Autosmelt: " + (autocraft ? "ON" : "OFF");
 		ConsoleColor autocraftColor = autocraft ? ConsoleColor.GREEN : ConsoleColor.RED;
-		c.labels.add(new ConsoleLink(c.rightJustified(autocraftString), c.height - 1,  autocraftString, 190, (c, l) {
+		c.labels.add(new ConsoleLink(c.rightJustified(autocraftString), c.height - 1,  autocraftString, ".", (c, l) {
 			autocraft = !autocraft;
 		}, autocraftColor));
 		
 		String factorString = selFactor.toString();
 		c.labels.add(new ConsoleLabel(c.centerJustified(factorString), c.height - 1,  factorString));
-		c.labels.add(new ConsoleLink(c.width~/2-2, c.height - 1,  "-", 189, (c, l) {
+		c.labels.add(new ConsoleLink(c.width~/2-2, c.height - 1,  "-", "-", (c, l) {
 			if (selFactor > 1) {selFactor--;}
 		}));
-		c.labels.add(new ConsoleLink(c.width~/2+2, c.height - 1,  "+", 187, (c, l) {
+		c.labels.add(new ConsoleLink(c.width~/2+2, c.height - 1,  "+", "=", (c, l) {
 			selFactor++;
 		}));
 		
 		String fuelString = ",) Fuel: " + furnace.fuel.toString();
-		c.labels.add(new ConsoleLink(c.rightJustified(fuelString), 0,  fuelString, 188, (c, l) {
+		c.labels.add(new ConsoleLink(c.rightJustified(fuelString), 0,  fuelString, ",", (c, l) {
 			c.onRefresh = handleSelectMaterial(c, new RecipeInput(" or more fuel", filterAnyFuel, 1), (c, succ, stack) {
 				if (succ) {
 					c.onRefresh = handlePickAmount(c, stack.amt, stack.amt, (c, toAdd) {

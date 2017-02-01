@@ -286,7 +286,7 @@ abstract class ItemLiquidContainer extends Item {
 	
 	@override
 	void save(ItemStack stack, Map<String, Object> json) {
-		if (stack.data.liquid != null) {
+		if ((stack.data as LiquidStack).liquid != null) {
 			json["liquid"] = (stack.data as LiquidStack).name;
 		}
 		json["liquidStored"] = (stack.data as LiquidStack).amt;
