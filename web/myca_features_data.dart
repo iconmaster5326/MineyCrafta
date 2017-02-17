@@ -185,6 +185,7 @@ class FeatureHut extends Feature {
 	void addActions(List<ConsoleLink> actions) {
 		actions.add(new ConsoleLink(0, 0, "Enter " + name, null, (c, l) {
 			world.player.move(innerTile);
+			world.passTime(c);
 		}));
 	}
 	
@@ -575,6 +576,7 @@ class FeatureMineshaft extends Feature {
 		if (tile is! TileMineshaft) {
 			actions.add(new ConsoleLink(0, 0, "Enter Mineshaft", null, (c, l) {
 				world.player.move(innerTile);
+				world.passTime(c);
 			}));
 		}
 	}
@@ -612,7 +614,7 @@ class RecipeMineshaft extends FeatureRecipe {
 		if (items[0].item is ItemDurable) {
 			(items[0].item as ItemDurable).takeDamage(items[0], 10);
 		}
-		if (items[1] != null) {
+		if (items.length > 1 && items[1] != null) {
 			if (items[1].item is ItemDurable) {
 				(items[1].item as ItemDurable).takeDamage(items[1], 5);
 			}
@@ -821,6 +823,7 @@ class FeatureTunnel extends Feature {
 				}
 				
 				world.player.inventory.addInventory(results);
+				world.passTime(c, 10);
 				
 				String dialogText = "You extend the tunnel, collecting resources along the way. You mined out:\n\n";
 				
@@ -1029,6 +1032,7 @@ class FeatureLake extends Feature {
 				if (succ) {
 					LiquidStack water = new LiquidStack(new LiquidWater(), 250);
 					(stack.item as ItemLiquidContainer).giveLiquid(stack, water);
+					world.passTime(c, 2);
 					
 					String dialogText = "You manage to scoop up "+(250-water.amt).toString()+" millibuckets of water into your "+stack.name.toLowerCase()+".";
 					
