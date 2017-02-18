@@ -53,6 +53,45 @@ class ItemWood extends Item {
 }
 
 /*
+sapling
+*/
+
+class ItemSapling extends Item {
+	TreeBreed breed;
+	
+	static Map<TreeBreed, ItemSapling> _cache = {};
+	ItemSapling._fresh(this.breed);
+	factory ItemSapling(TreeBreed breed) {
+		if (_cache[breed] == null) {
+			_cache[breed] = new ItemSapling._fresh(breed);
+		}
+		return _cache[breed];
+	}
+	
+	@override String name(ItemStack stack) => breed.name + " Sapling";
+	@override double size(ItemStack stack) => 1.0;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => breed.trunkColor;
+	@override String desc(ItemStack stack) => "Look, it's a baby " + breed.name.toLowerCase() + " tree! Aww, how cute!";
+	@override int value(ItemStack stack) => 1;
+	@override int fuelValue(ItemStack stack) => 1;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemSapling";
+		json["breed"] = breed.name;
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemSapling(treeBreeds[json["breed"]]));
+	}
+}
+
+/*
 cobble
 */
 
@@ -154,6 +193,40 @@ class ItemRottenFlesh extends ItemFood {
 		super.use(stack, c);
 		world.player.status.add(new StatusDisease(10, 4));
 	}
+}
+
+class ItemApple extends ItemFood {
+	static ItemApple _cached;
+	ItemApple.raw();
+	factory ItemApple() {
+		if (_cached == null) {
+			_cached = new ItemApple.raw();
+		}
+		return _cached;
+	}
+	
+	@override String name(ItemStack stack) => "Apple";
+	@override double size(ItemStack stack) => 0.3;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => ConsoleColor.RED;
+	@override String desc(ItemStack stack) => "A juicy-looking, red apple, picked fresh from the... Oak tree? Let's not think too hard about this one.";
+	@override int value(ItemStack stack) => 2;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemApple";
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemApple());
+	}
+	
+	@override int foodValue(ItemStack stack) => 20;
+	@override int timeToEat(ItemStack stack) => 2;
 }
 
 /*
@@ -760,8 +833,10 @@ Load handler map
 typedef ItemStack ItemLoadHandler(World world, Inventory inventory, Map<String, Object> json);
 Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemWood": ItemWood.loadClass,
+	"ItemSapling": ItemSapling.loadClass,
 	"ItemCobble": ItemCobble.loadClass,
 	"ItemRottenFlesh": ItemRottenFlesh.loadClass,
+	"ItemApple": ItemApple.loadClass,
 	"ItemOre": ItemOre.loadClass,
 	"ItemIngot": ItemIngot.loadClass,
 	"ItemAxe": ItemAxe.loadClass,

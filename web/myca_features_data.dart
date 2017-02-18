@@ -20,15 +20,18 @@ class TreeBreed {
 	ConsoleColor trunkColor;
 	ConsoleColor leavesColor;
 	
-	Item wood;
+	ItemWood wood;
+	ItemSapling sapling;
+	Item fruit;
 	
-	TreeBreed(this.name, {this.trunkColor:  ConsoleColor.MAROON, this.leavesColor:  ConsoleColor.LIME}) {
+	TreeBreed(this.name, {this.trunkColor:  ConsoleColor.MAROON, this.leavesColor:  ConsoleColor.LIME, this.fruit: null}) {
 		wood = new ItemWood(this);
+		sapling = new ItemSapling(this);
 	}
 }
 
 Map<String, TreeBreed> treeBreeds = {
-	"Oak": new TreeBreed("Oak"),
+	"Oak": new TreeBreed("Oak", fruit: new ItemApple()),
 	"Birch": new TreeBreed("Birch", trunkColor: ConsoleColor.SILVER),
 };
 
@@ -67,20 +70,27 @@ class FeatureTrees extends Feature {
 						timeSpent = 20;
 					}
 					
-					int woodMade = 0;
+					Inventory results = new Inventory();
+					
 					for (int i = 0; i < treesCut; i++) {
-						woodMade += rng.nextInt(7)+2;
+						results.add(new ItemStack(breed.wood, rng.nextInt(7)+2));
+						results.add(new ItemStack(breed.sapling, rng.nextInt(2)+1));
+						if (breed.fruit != null && rng.nextDouble() < .5) {
+							results.add(new ItemStack(breed.fruit, rng.nextInt(2)+1));
+						}
 					}
 					
-					ItemStack wood = new ItemStack(breed.wood, woodMade);
-					world.player.inventory.add(wood);
+					dialogText += " You manage to gather:\n\n";
+					for (ItemStack stack in results.items) {
+						dialogText += stack.amt.toString() + " " + stack.name + "\n";
+					}
+					
+					world.player.inventory.addInventory(results);
 					numTrees-=treesCut; space-=treesCut;
 					world.passTime(c, timeSpent);
 					
-					dialogText += " You manage to gather:\n\n" + wood.name;
-					
 					if (numTrees <= 0) {
-						dialogText += "\n\nTHere are no more " + breed.name.toLowerCase() + " trees to cut down.";
+						dialogText += "\n\nThere are no more " + breed.name.toLowerCase() + " trees to cut down.";
 						tile.features.remove(this);
 					}
 					
