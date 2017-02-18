@@ -59,6 +59,13 @@ class Entity {
 	
 	/// The items you drop on death. By default, this is the contents of the inventory.
 	List<ItemStack> get deathDrops => inventory.items;
+	
+	/// Called before all status conditions are rendered on the screen.
+	void onRenderStatus(Console c) {
+		for (StatusCondition cond in new List.from(status)) {
+			cond.onRender(this, c);
+		}
+	}
 }
 
 class Player extends Entity {
@@ -561,6 +568,8 @@ abstract class StatusCondition {
 	void onTick(Entity entity, [int delta = 1]) {}
 	/// Called when the afflicted entity's turn comes up in battle. Return an int to cancel the entity's battle action and wait that many ticks.
 	int onBattleTick(Battle battle, Entity entity) => null;
+	/// Called before all status conditions are rendered on the screen.
+	void onRender(Entity entity, Console c) {}
 	
 	void save(Map<String, Object> json) {
 		throw new UnimplementedError("This subclass of StatusCondition did not implement a save handler.");
@@ -627,6 +636,14 @@ class StatusStarvation extends StatusCondition {
 		
 		return null;
 	}
+	@override
+	void onRender(Entity entity, Console c) {
+		// remove if the player is not starving
+		if (entity is Player && (entity as Player).hunger < (entity as Player).maxHunger) {
+			entity.status.remove(this);
+			return;
+		}
+	}
 	
 	@override
 	void save(Map<String, Object> json) {
@@ -651,6 +668,14 @@ class StatusEncumbered extends StatusCondition {
 	
 	@override
 	void onTick(Entity entity, [int delta = 1]) {
+		// remove if the player is not encumbered
+		if (entity.inventory.maxSize == null || entity.inventory.size <= entity.inventory.maxSize) {
+			entity.status.remove(this);
+			return;
+		}
+	}
+	@override
+	void onRender(Entity entity, Console c) {
 		// remove if the player is not encumbered
 		if (entity.inventory.maxSize == null || entity.inventory.size <= entity.inventory.maxSize) {
 			entity.status.remove(this);

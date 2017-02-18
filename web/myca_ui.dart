@@ -70,7 +70,7 @@ void handleTileView(Console c) {
 		return;
 	}
 	
-	/// gather possible actions for the action bar
+	// gather possible actions for the action bar
 	List<ConsoleLink> actions = new List<ConsoleLink>();
 	
 	actions.add(new ConsoleLink(0, 0, "Inventory", null, (c, l) {
@@ -190,6 +190,7 @@ void handleTileView(Console c) {
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 1,  "Health: "+(world.player.hp/world.player.hpMax*100.0).toStringAsFixed(0)+"%"));
 	c.labels.add(new ConsoleLabel(actionsMaxLen+4, 2,  "Hunger: "+(world.player.hunger/world.player.maxHunger*100.0).toStringAsFixed(0)+"%"));
 	
+	world.player.onRenderStatus(c);
 	int condY = 3;
 	Map<String, int> condOccurs = {};
 	for (StatusCondition cond in world.player.status) {
@@ -957,6 +958,7 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 1,  world.player.name));
 		c.labels.add(new ConsoleLabel(actionsMaxLen+4, 2,  "Health: "+(world.player.hp/world.player.hpMax*100.0).toStringAsFixed(0)+"%"));
 		
+		world.player.onRenderStatus(c);
 		int condY = 3;
 		Map<String, int> condOccurs = {};
 		for (StatusCondition cond in world.player.status) {
@@ -972,6 +974,7 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 		}
 		
 		// Add the target's info
+		selBattleTarget.onRenderStatus(c);
 		int targetCondY = 3;
 		if (!isDoneBattling) {
 			c.labels.add(new ConsoleLabel(actionsMaxLen+20, 0,  "Target:"));
