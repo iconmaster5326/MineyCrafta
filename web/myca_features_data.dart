@@ -1292,9 +1292,9 @@ class FeatureFarm extends Feature {
 			
 			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
 				if (crop == null || i%2 == 0) {
-					c.labels.add(new ConsoleLabel(realX, realY, "________", ConsoleColor.MAROON));
-				} else {
 					c.labels.add(new ConsoleLabel(realX, realY, repeatString(crop.icons[growthStage], 8), crop.iconColors[growthStage]));
+				} else {
+					c.labels.add(new ConsoleLabel(realX, realY, "________", ConsoleColor.MAROON));
 				}
 			}
 		}
