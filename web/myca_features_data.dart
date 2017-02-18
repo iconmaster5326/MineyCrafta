@@ -81,7 +81,7 @@ class FeatureTrees extends Feature {
 					
 					dialogText += " You manage to gather:\n\n";
 					for (ItemStack stack in results.items) {
-						dialogText += stack.amt.toString() + " " + stack.name + "\n";
+						dialogText += stack.name + "\n";
 					}
 					
 					world.player.inventory.addInventory(results);
@@ -303,6 +303,39 @@ class FeatureGrass extends Feature {
 	FeatureGrass.raw() : super.raw();
 	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
 		return new FeatureGrass.raw();
+	}
+	
+	@override
+	void addActions(List<ConsoleLink> actions) {
+		actions.add(new ConsoleLink(0, 0, "Dig Up Grass", null, (c, l) {
+			c.onRefresh = handleSelectMaterial(c, new RecipeInput("digging tool", filterAnyDiggingTool, 1, usedUp: false, optional: false), (c, succ, stack) {
+				if (succ) {
+					if (stack.item is ItemDurable) {
+						(stack.item as ItemDurable).takeDamage(stack, 10);
+					}
+					
+					Inventory results = new Inventory();
+					
+					results.add(new ItemStack(new ItemSeeds(crops["Wheat"]), rng.nextInt(6)+1));
+					
+					String dialogText = "You dig up a bunch of grass. Eventually, You manage to forage:\n\n";
+					for (ItemStack stack in results.items) {
+						dialogText += stack.name + "\n";
+					}
+					
+					world.player.inventory.addInventory(results);
+					tile.features.remove(this);
+					
+					world.passTime(c, 10);
+					
+					c.onRefresh = handleNotifyDialog(dialogText, (c) {
+						c.onRefresh = handleTileView;
+					});
+				} else {
+					c.onRefresh = handleTileView;
+				}
+			});
+		}));
 	}
 }
 
