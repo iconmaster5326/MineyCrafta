@@ -89,6 +89,13 @@ class Player extends Entity {
 		// We need to use the console elsewhere, so save it.
 		c = c2;
 		
+		// handle encumberance
+		if (inventory.maxSize != null && inventory.size > inventory.maxSize) {
+			if (!status.any((s) => s is StatusEncumbered)) {
+				status.add(new StatusEncumbered());
+			}
+		}
+		
 		// handle hunger
 		hunger += hungerRate * delta;
 		
@@ -636,6 +643,36 @@ class StatusStarvation extends StatusCondition {
 	}
 }
 
+class StatusEncumbered extends StatusCondition {
+	String get name => "Encumbered";
+	ConsoleColor get color => ConsoleColor.SILVER;
+	
+	StatusEncumbered();
+	
+	@override
+	void onTick(Entity entity, [int delta = 1]) {
+		// remove if the player is not encumbered
+		if (entity.inventory.maxSize == null || entity.inventory.size <= entity.inventory.maxSize) {
+			entity.status.remove(this);
+			return;
+		}
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "StatusEncumbered";
+	}
+	@override
+	void load(World world, Entity entity, Map<String, Object> json) {
+		
+	}
+	
+	StatusEncumbered.raw();
+	static StatusCondition loadClass(World world, Entity entity, Map<String, Object> json) {
+		return new StatusEncumbered.raw();
+	}
+}
+
 class StatusDisease extends StatusTimed {
 	String get name => "Diseased";
 	ConsoleColor get color => ConsoleColor.GREEN;
@@ -676,6 +713,7 @@ typedef StatusCondition StatusConditionLoadHandler(World world, Entity entity, M
 Map<String, StatusConditionLoadHandler> statusConditionLoadHandlers = {
 	"StatusStarvation": StatusStarvation.loadClass,
 	"StatusDisease": StatusDisease.loadClass,
+	"StatusEncumbered": StatusEncumbered.loadClass,
 };
 
 /*

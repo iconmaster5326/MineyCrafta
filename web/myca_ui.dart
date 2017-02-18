@@ -135,28 +135,28 @@ void handleTileView(Console c) {
 	if (world.player.tile is WorldTile) {
 		c.labels.add(new ConsoleLink(c.width-3, 9,  "^", ConsoleKeyCode.UP, (c, l) {
 			Point<int> pt = new Point<int>(world.player.tile.x, world.player.tile.y-1);
-			if (world.tiles[pt] != null) {
+			if (!world.player.status.any((s) => s is StatusEncumbered) && world.tiles[pt] != null) {
 				world.player.move(world.tiles[pt]);
 				world.passTime(c);
 			}
 		}));
 		c.labels.add(new ConsoleLink(c.width-5, 10, "<", ConsoleKeyCode.LEFT, (c, l) {
 			Point<int> pt = new Point<int>(world.player.tile.x-1, world.player.tile.y);
-			if (world.tiles[pt] != null) {
+			if (!world.player.status.any((s) => s is StatusEncumbered) && world.tiles[pt] != null) {
 				world.player.move(world.tiles[pt]);
 				world.passTime(c);
 			}
 		}));
 		c.labels.add(new ConsoleLink(c.width-1, 10, ">", ConsoleKeyCode.RIGHT, (c, l) {
 			Point<int> pt = new Point<int>(world.player.tile.x+1, world.player.tile.y);
-			if (world.tiles[pt] != null) {
+			if (!world.player.status.any((s) => s is StatusEncumbered) && world.tiles[pt] != null) {
 				world.player.move(world.tiles[pt]);
 				world.passTime(c);
 			}
 		}));
 		c.labels.add(new ConsoleLink(c.width-3, 11, "V", ConsoleKeyCode.DOWN, (c, l) {
 			Point<int> pt = new Point<int>(world.player.tile.x, world.player.tile.y+1);
-			if (world.tiles[pt] != null) {
+			if (!world.player.status.any((s) => s is StatusEncumbered) && world.tiles[pt] != null) {
 				world.player.move(world.tiles[pt]);
 				world.passTime(c);
 			}
@@ -164,15 +164,19 @@ void handleTileView(Console c) {
 	} else {
 		if (world.player.tile.customUp != null) {
 			c.labels.add(new ConsoleLink(c.width-3, 9,  "^", ConsoleKeyCode.UP, (c, l) {
-				world.player.move(world.player.tile.customUp);
-				world.passTime(c);
+				if (!world.player.status.any((s) => s is StatusEncumbered)) {
+					world.player.move(world.player.tile.customUp);
+					world.passTime(c);
+				}
 			}));
 		}
 		
 		if (world.player.tile.customDown != null) {
 			c.labels.add(new ConsoleLink(c.width-3, 11, "V", ConsoleKeyCode.DOWN, (c, l) {
-				world.player.move(world.player.tile.customDown);
-				world.passTime(c);
+				if (!world.player.status.any((s) => s is StatusEncumbered)) {
+					world.player.move(world.player.tile.customDown);
+					world.passTime(c);
+				}
 			}));
 		}
 	}
@@ -240,7 +244,7 @@ void handleInventoryView(Console c) {
 	} else {
 		sizeText = "Weight: " + world.player.inventory.size.toStringAsFixed(0) + " / " + world.player.inventory.maxSize.toStringAsFixed(0);
 	}
-	c.labels.add(new ConsoleLabel(c.rightJustified(sizeText), 0,  sizeText));
+	c.labels.add(new ConsoleLabel(c.rightJustified(sizeText), 0,  sizeText, (world.player.inventory.maxSize == null || world.player.inventory.size <= world.player.inventory.maxSize) ? ConsoleColor.WHITE : ConsoleColor.RED));
 	
 	int i = 0;
 	String key = "?";

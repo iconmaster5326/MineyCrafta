@@ -385,8 +385,10 @@ class FeatureHut extends Feature {
 	@override
 	void addActions(List<ConsoleLink> actions) {
 		actions.add(new ConsoleLink(0, 0, "Enter " + name, null, (c, l) {
-			world.player.move(innerTile);
-			world.passTime(c);
+			if (!world.player.status.any((s) => s is StatusEncumbered)) {
+				world.player.move(innerTile);
+				world.passTime(c);
+			}
 		}));
 	}
 	
@@ -773,8 +775,10 @@ class FeatureMineshaft extends Feature {
 	void addActions(List<ConsoleLink> actions) {
 		if (tile is! TileMineshaft) {
 			actions.add(new ConsoleLink(0, 0, "Enter Mineshaft", null, (c, l) {
-				world.player.move(innerTile);
-				world.passTime(c);
+				if (!world.player.status.any((s) => s is StatusEncumbered)) {
+					world.player.move(innerTile);
+					world.passTime(c);
+				}
 			}));
 		}
 	}
