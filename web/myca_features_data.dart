@@ -1257,6 +1257,139 @@ class FeatureLake extends Feature {
 }
 
 /*
+Farm
+*/
+
+class FeatureFarm extends Feature {
+	FeatureFarm(Tile tile) : super(tile);
+	
+	Crop crop;
+	int growthStage;
+	
+	String get name => "Farm";
+	ConsoleColor get color => ConsoleColor.MAROON;
+	String get desc => "TODO";
+	int get space => 6;
+	
+	DeconstructionRecipe get toDeconstruct => new DeconstructFarm();
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random rng = new Random(hashCode);
+		
+		int torchX = rng.nextInt(w-1) - (w-1)~/2;
+		int torchY = rng.nextInt(h~/2);
+		
+		for (int i = 0; i < 6; i++) {
+			int realX = x + w~/2 + torchX;
+			int realY = y + h~/2 + torchY + i - 1;
+			
+			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+				if (crop == null || i%2 == 0) {
+					c.labels.add(new ConsoleLabel(realX, realY, "________", ConsoleColor.MAROON));
+				} else {
+					c.labels.add(new ConsoleLabel(realX, realY, repeatString(crop.icons[growthStage], 8), crop.iconColors[growthStage]));
+				}
+			}
+		}
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureFarm";
+		json["crop"] = crop?.name;
+		json["growthStage"] = growthStage;
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		if (json["crop"] != null) {
+			crop = crops[json["crop"]];
+		}
+		growthStage = json["growthStage"];
+	}
+	
+	FeatureFarm.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureFarm.raw();
+	}
+	
+	@override
+	void onTick(Console c, int delta) {
+		if (tile.light >= .5 && crop != null && growthStage != crop.growthStages-1 && rng.nextDouble() < crop.growChancePerTick) {
+			growthStage++;
+		}
+	}
+	
+	@override
+	void addActions(List<ConsoleLink> actions) {
+		if (crop == null) {
+			actions.add(new ConsoleLink(0, 0, "Sow Seeds", null, (c, l) {
+				c.onRefresh = handleSelectMaterial(c, new RecipeInput("seeds", (ItemStack stack) => stack.item is ItemSeeds, 8, usedUp: true, optional: false), (c, succ, stack) {
+					if (succ) {
+						stack.take(8);
+						crop = (stack.item as ItemSeeds).crop;
+						growthStage = 0;
+					}
+					c.onRefresh = handleTileView;
+				});
+			}));
+		}
+		
+		if (crop != null && growthStage == crop.growthStages-1) {
+			actions.add(new ConsoleLink(0, 0, "Harvest " + crop.name, null, (c, l) {
+				Inventory results = new Inventory();
+				
+				results.add(new ItemStack(crop.product, rng.nextInt(crop.maxPerHarvest-crop.minPerHarvest)+crop.minPerHarvest));
+				results.add(new ItemStack(new ItemSeeds(crop), rng.nextInt(1)+1));
+				
+				String dialogText = "You reap the rewards of your harvest. They include:\n\n";
+				for (ItemStack stack in results.items) {
+					dialogText += stack.name + "\n";
+				}
+				
+				growthStage = 0;
+				world.player.inventory.addInventory(results);
+				world.passTime(c, 20);
+				
+				c.onRefresh = handleNotifyDialog(dialogText, (c) {
+					c.onRefresh = handleTileView;
+				});
+			}));
+		}
+	}
+}
+
+class RecipeFarm extends FeatureRecipe {
+	RecipeFarm() {
+		name = "Farm";
+		desc = "TODO";
+		space =  6;
+		inputs = [
+			new RecipeInput("of any wood", filterAnyWood, 2),
+		];
+	}
+	
+	@override
+	Feature craft(Tile tile, List<ItemStack> items) => new FeatureFarm(tile);
+}
+
+class DeconstructFarm extends DeconstructionRecipe {
+	DeconstructFarm() {
+		inputs = [
+			
+		];
+		timePassed = 2;
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items) {
+		return [];
+	}
+}
+
+/*
 =================
 Load handler map
 =================
@@ -1281,6 +1414,7 @@ Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureTunnel": FeatureTunnel.loadClass,
 	"FeatureTorches": FeatureTorches.loadClass,
 	"FeatureLake": FeatureLake.loadClass,
+	"FeatureFarm": FeatureFarm.loadClass,
 };
 
 /*
@@ -1298,4 +1432,5 @@ List<FeatureRecipe> featureRecipes = [
 	new RecipeTunnel(),
 	new RecipeTorches(),
 	new RecipeTrees(),
+	new RecipeFarm(),
 ];

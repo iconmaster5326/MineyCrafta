@@ -832,13 +832,16 @@ class Crop {
 	String name;
 	Item product;
 	int minPerHarvest; int maxPerHarvest;
-	int growthStages; double growChancePerTick;
+	double growChancePerTick;
+	List<String> icons; List<ConsoleColor> iconColors;
 	
-	Crop(this.name, this.product, {this.minPerHarvest: 1, this.maxPerHarvest: 2, this.growthStages: 4, this.growChancePerTick: .05});
+	int get growthStages => icons.length;
+	
+	Crop(this.name, this.product, this.icons, this.iconColors, {this.minPerHarvest: 6, this.maxPerHarvest: 10, this.growChancePerTick: .05});
 }
 
 Map<String, Crop> crops = {
-	"Wheat": new Crop("Wheat", new ItemWheat()),
+	"Wheat": new Crop("Wheat", new ItemWheat(), [",", ";", ":", "|"], [ConsoleColor.LIME, ConsoleColor.LIME, ConsoleColor.YELLOW, ConsoleColor.OLIVE]),
 };
 
 class ItemSeeds extends Item {
