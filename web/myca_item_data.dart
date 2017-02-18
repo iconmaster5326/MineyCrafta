@@ -825,6 +825,92 @@ class RecipeSword extends ItemRecipe {
 }
 
 /*
+crops
+*/
+
+class Crop {
+	String name;
+	Item product;
+	int minPerHarvest; int maxPerHarvest;
+	int growthStages; double growChancePerTick;
+	
+	Crop(this.name, this.product, {this.minPerHarvest: 1, this.maxPerHarvest: 2, this.growthStages: 4, this.growChancePerTick: .05});
+}
+
+Map<String, Crop> crops = {
+	"Wheat": new Crop("Wheat", new ItemWheat()),
+};
+
+class ItemSeeds extends Item {
+	Crop crop;
+	
+	static Map<Crop, ItemSeeds> _cache = {};
+	ItemSeeds._fresh(this.crop);
+	factory ItemSeeds(Crop crop) {
+		if (_cache[crop] == null) {
+			_cache[crop] = new ItemSeeds._fresh(crop);
+		}
+		return _cache[crop];
+	}
+	
+	@override String name(ItemStack stack) => crop.name + " Seeds";
+	@override double size(ItemStack stack) => 0.2;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => ConsoleColor.LIME;
+	@override String desc(ItemStack stack) => "This is a handful of " + crop.name.toLowerCase() + " seeds. Plant them, and you might just be able to grow a garden.";
+	@override int value(ItemStack stack) => 1;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemSeeds";
+		json["crop"] = crop.name;
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemSeeds(crops[json["crop"]]));
+	}
+}
+
+/*
+crop products
+*/
+
+class ItemWheat extends Item {
+	static ItemWheat _cached;
+	ItemWheat.raw();
+	factory ItemWheat() {
+		if (_cached == null) {
+			_cached = new ItemWheat.raw();
+		}
+		return _cached;
+	}
+	
+	@override String name(ItemStack stack) => "Wheat";
+	@override double size(ItemStack stack) => 2.0;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => ConsoleColor.OLIVE;
+	@override String desc(ItemStack stack) => "This is a bundle of wheat. No, you can't eat it raw. Don't even try. Bake it into bread first!";
+	@override int value(ItemStack stack) => 1;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemWheat";
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemWheat());
+	}
+}
+
+/*
 =================
 Load handler map
 =================
@@ -844,6 +930,8 @@ Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemShovel": ItemShovel.loadClass,
 	"ItemSword": ItemSword.loadClass,
 	"ItemBucket": ItemBucket.loadClass,
+	"ItemSeeds": ItemSeeds.loadClass,
+	"ItemWheat": ItemWheat.loadClass,
 };
 
 /*
