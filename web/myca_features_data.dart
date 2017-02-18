@@ -147,6 +147,64 @@ class FeatureTrees extends Feature {
 	}
 }
 
+/*
+Saplings
+*/
+
+class FeatureSaplings extends Feature {
+	TreeBreed breed;
+	int numTrees;
+	
+	FeatureSaplings(Tile tile, this.breed, this.numTrees) : super(tile) {
+		space = numTrees;
+	}
+	
+	String get name => breed.name + " Saplings";
+	ConsoleColor get color => breed.leavesColor;
+	String get desc => "A cluster of " + breed.name.toLowerCase() + " saplings. One day they shall grow tall and strong... One day.";
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random treeRng = new Random(hashCode);
+		for (int tree = 0; tree < numTrees; tree++) {
+			int treeX = treeRng.nextInt(w-3) - (w-3)~/2;
+			int treeY = treeRng.nextInt(h~/2);
+			
+			for (int i = 0; i < 3; i++) {
+				int realX = x + w~/2 + treeX;
+				int realY = y + h~/2 + treeY + i - 3;
+				
+				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+					switch (i) {
+						case 0: c.labels.add(new ConsoleLabel(realX, realY, "o", breed.leavesColor)); break;
+						case 1: c.labels.add(new ConsoleLabel(realX, realY, "|", breed.trunkColor)); c.labels.add(new ConsoleLabel(realX + 1, realY, "/", breed.leavesColor)); break;
+						case 2: c.labels.add(new ConsoleLabel(realX, realY, "|", breed.trunkColor)); break;
+					}
+				}
+			}
+		}
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureSaplings";
+		json["breed"] = breed.name;
+		json["numTrees"] = numTrees;
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		this.breed = treeBreeds[json["breed"]];
+		this.numTrees = json["numTrees"];
+	}
+	
+	FeatureSaplings.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureSaplings.raw();
+	}
+}
+
 class RecipeTrees extends FeatureRecipe {
 	RecipeTrees() {
 		name = "Plant Trees";
@@ -162,13 +220,14 @@ class RecipeTrees extends FeatureRecipe {
 		TreeBreed breed = (items[0].item as ItemSapling).breed;
 		
 		for (Feature f in tile.features) {
-			if (f is FeatureTrees && (f as FeatureTrees).breed == breed) {
-				(f as FeatureTrees).numTrees += 4;
+			if (f is FeatureSaplings && (f as FeatureSaplings).breed == breed) {
+				(f as FeatureSaplings).numTrees += 4;
+				f.space += 4;
 				return null;
 			}
 		}
 		
-		return new FeatureTrees(tile, breed, 4);
+		return new FeatureSaplings(tile, breed, 4);
 	}
 	
 	@override
@@ -1115,6 +1174,7 @@ Map<String, TileLoadHandler> tileLoadHandlers = {
 typedef Feature FeatureLoadHandler(World world, Tile tile, Map<String, Object> json);
 Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureTrees": FeatureTrees.loadClass,
+	"FeatureSaplings": FeatureSaplings.loadClass,
 	"FeatureHut": FeatureHut.loadClass,
 	"FeatureCraftingTable": FeatureCraftingTable.loadClass,
 	"FeatureFurnace": FeatureFurnace.loadClass,
