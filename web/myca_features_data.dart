@@ -39,13 +39,12 @@ class FeatureTrees extends Feature {
 	TreeBreed breed;
 	int numTrees;
 	
-	FeatureTrees(Tile tile, this.breed, this.numTrees) : super(tile) {
-		space = numTrees;
-	}
+	FeatureTrees(Tile tile, this.breed, this.numTrees) : super(tile);
 	
 	String get name => breed.name + " Trees";
 	ConsoleColor get color => breed.leavesColor;
 	String get desc => "A cluster of " + breed.name.toLowerCase() + " trees. Use an axe to chop them down for wood.";
+	int get space => numTrees;
 	
 	@override
 	void addActions(List<ConsoleLink> actions) {
@@ -86,7 +85,7 @@ class FeatureTrees extends Feature {
 					}
 					
 					world.player.inventory.addInventory(results);
-					numTrees-=treesCut; space-=treesCut;
+					numTrees-=treesCut;
 					world.passTime(c, timeSpent);
 					
 					if (numTrees <= 0) {
@@ -155,13 +154,12 @@ class FeatureSaplings extends Feature {
 	TreeBreed breed;
 	int numTrees;
 	
-	FeatureSaplings(Tile tile, this.breed, this.numTrees) : super(tile) {
-		space = numTrees;
-	}
+	FeatureSaplings(Tile tile, this.breed, this.numTrees) : super(tile);
 	
 	String get name => breed.name + " Saplings";
 	ConsoleColor get color => breed.leavesColor;
 	String get desc => "A cluster of " + breed.name.toLowerCase() + " saplings. One day they shall grow tall and strong... One day.";
+	int get space => numTrees;
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
@@ -208,7 +206,7 @@ class FeatureSaplings extends Feature {
 	void onTick(Console c, int delta) {
 		for (int i = 0; i < delta; i++) {
 			if (rng.nextDouble() < .05) {
-				numTrees--; space--;
+				numTrees--;
 				if (numTrees <= 0) {
 					tile.features.remove(this);
 				}
@@ -216,7 +214,7 @@ class FeatureSaplings extends Feature {
 				bool planted = false;
 				for (Feature f in tile.features) {
 					if (f is FeatureTrees && (f as FeatureTrees).breed == breed) {
-						(f as FeatureTrees).numTrees++; f.space++;
+						(f as FeatureTrees).numTrees++;
 						planted = true;
 						break;
 					}
@@ -260,6 +258,55 @@ class RecipeTrees extends FeatureRecipe {
 }
 
 /*
+Grass
+*/
+
+class FeatureGrass extends Feature {
+	FeatureGrass(Tile tile) : super(tile);
+	
+	String get name => "Grass";
+	ConsoleColor get color => ConsoleColor.LIME;
+	String get desc => "Patches of tall grass line the ground. Clearing it out might net you some seeds!";
+	int get space => 1;
+	
+	@override
+	void drawPicture(Console c, int x, int y, int w, int h) {
+		if (w <= 1 || h <= 1) {return;}
+		
+		Random treeRng = new Random(hashCode);
+		for (int tree = 0; tree < treeRng.nextInt(40)+20; tree++) {
+			int treeX = treeRng.nextInt(w-3) - (w-3)~/2;
+			int treeY = treeRng.nextInt(h~/2);
+			
+			for (int i = 0; i < 1; i++) {
+				int realX = x + w~/2 + treeX;
+				int realY = y + h~/2 + treeY + i;
+				
+				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+					switch (i) {
+						case 0: c.labels.add(new ConsoleLabel(realX, realY, ",", ConsoleColor.LIME)); break;
+					}
+				}
+			}
+		}
+	}
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "FeatureGrass";
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		
+	}
+	
+	FeatureGrass.raw() : super.raw();
+	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new FeatureGrass.raw();
+	}
+}
+
+/*
 Hut
 */
 
@@ -269,14 +316,13 @@ class FeatureHut extends Feature {
 	
 	FeatureHut(Tile tile, this.material) : super(tile) {
 		material = material.clone();
-		space =  5;
-		
 		innerTile = new TileHut(this);
 	}
 	
 	String get name => capitalize(material.materialName) + " Hut";
 	ConsoleColor get color => material.color;
 	String get desc => "A tiny hovel, perfect for cowering in. This is made of " + material.materialName + ".";
+	int get space => 5;
 	
 	DeconstructionRecipe get toDeconstruct => (innerTile.features.isEmpty ? new DeconstructHut(this) : null);
 	
@@ -431,13 +477,12 @@ Crafting Table
 */
 
 class FeatureCraftingTable extends Feature {
-	FeatureCraftingTable(Tile tile) : super(tile) {
-		space =  1;
-	}
+	FeatureCraftingTable(Tile tile) : super(tile);
 	
 	String get name => "Crafting Table";
 	ConsoleColor get color => ConsoleColor.SILVER;
 	String get desc => "A bench full of tools, suitable for crafting larger and more impressive things.";
+	int get space => 1;
 	
 	DeconstructionRecipe get toDeconstruct => new DeconstructCraftingTable();
 	
@@ -537,13 +582,12 @@ Furnace
 class FeatureFurnace extends Feature {
 	int fuel = 0;
 	
-	FeatureFurnace(Tile tile) : super(tile) {
-		space =  1;
-	}
+	FeatureFurnace(Tile tile) : super(tile);
 	
 	String get name => "Furnace";
 	ConsoleColor get color => ConsoleColor.GREY;
 	String get desc => "This is a box of stone that you can throw fuel into.";
+	int get space => 1;
 	
 	DeconstructionRecipe get toDeconstruct => new DeconstructFurnace();
 	
@@ -643,14 +687,13 @@ class FeatureMineshaft extends Feature {
 	TileMineshaft innerTile;
 	
 	FeatureMineshaft(Tile tile) : super(tile) {
-		space = tile is TileMineshaft ? 5 : 10;
-		
 		innerTile = new TileMineshaft(this);
 	}
 	
 	String get name => "Mineshaft";
 	ConsoleColor get color => ConsoleColor.GREY;
 	String get desc => (tile is TileMineshaft ? "This is a shaft leading deeper underground." : "This is a hole, leading to somewhere underground.");
+	int get space => tile is TileMineshaft ? 5 : 10;
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
@@ -885,14 +928,13 @@ List<List<MiningLoot>> miningLoot = [
 ];
 
 class FeatureTunnel extends Feature {
-	FeatureTunnel(Tile tile) : super(tile) {
-		space =  4;
-	}
+	FeatureTunnel(Tile tile) : super(tile);
 	int amtLeft = rng.nextInt(100)+100;
 	
 	String get name => "Tunnel";
 	ConsoleColor get color => ConsoleColor.GREY;
 	String get desc => "This is an underground tunnel, made for mining purposes. Who knows where it could lead?" + (amtLeft <= 0 ? "\nThis tunnel has been mined dry of resources, it seems." : "");
+	int get space => 4;
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
@@ -1024,14 +1066,13 @@ Torches
 */
 
 class FeatureTorches extends Feature {
-	FeatureTorches(Tile tile) : super(tile) {
-		space =  1;
-	}
+	FeatureTorches(Tile tile) : super(tile);
 	
 	String get name => "Torches";
 	ConsoleColor get color => ConsoleColor.RED;
 	String get desc => "A bunch of torches, placed to make sure there is absolutely no darkness for evil to breed in.";
 	double get lightProvided => 0.5;
+	int get space => 1;
 	
 	DeconstructionRecipe get toDeconstruct => new DeconstructTorches();
 	
@@ -1108,13 +1149,12 @@ Lake
 */
 
 class FeatureLake extends Feature {
-	FeatureLake(Tile tile) : super(tile) {
-		space =  5;
-	}
+	FeatureLake(Tile tile) : super(tile);
 	
 	String get name => "Lake";
 	ConsoleColor get color => ConsoleColor.BLUE;
 	String get desc => "A rippling pool of water. That's a spot of water in the thing, ayup. What a lake.";
+	int get space => 5;
 	
 	@override
 	void drawPicture(Console c, int x, int y, int w, int h) {
@@ -1200,6 +1240,7 @@ typedef Feature FeatureLoadHandler(World world, Tile tile, Map<String, Object> j
 Map<String, FeatureLoadHandler> featureLoadHandlers = {
 	"FeatureTrees": FeatureTrees.loadClass,
 	"FeatureSaplings": FeatureSaplings.loadClass,
+	"FeatureGrass": FeatureGrass.loadClass,
 	"FeatureHut": FeatureHut.loadClass,
 	"FeatureCraftingTable": FeatureCraftingTable.loadClass,
 	"FeatureFurnace": FeatureFurnace.loadClass,

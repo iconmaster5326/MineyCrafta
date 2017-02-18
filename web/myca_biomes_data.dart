@@ -18,6 +18,7 @@ class BiomeForest extends Biome {
 	void generate(WorldTile tile) {
 		new FeatureTrees(tile, treeBreeds["Oak"], tile.world.worldRng.nextInt(5)+4);
 		new FeatureTrees(tile, treeBreeds["Birch"], tile.world.worldRng.nextInt(5)+4);
+		new FeatureGrass(tile);
 		
 		if (tile.world.worldRng.nextDouble() < .1) {
 			new FeatureLake(tile);

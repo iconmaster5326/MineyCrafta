@@ -133,10 +133,7 @@ Tile loadTile(World world, Object json) {
 }
 
 Object saveFeature(Feature feature) {
-	Map<String, Object> json = {
-		"name": feature.name,
-		"space": feature.space,
-	};
+	Map<String, Object> json = {};
 	
 	feature.save(json);
 	
@@ -146,9 +143,6 @@ Object saveFeature(Feature feature) {
 Feature loadFeature(World world, Tile tile, Object json) {
 	Feature feature = featureLoadHandlers[json["class"]](world, tile, json);
 	feature.tile = tile;
-	
-	feature.name = json["name"];
-	feature.space = json["space"];
 	
 	feature.load(world, tile, json);
 	return feature;
