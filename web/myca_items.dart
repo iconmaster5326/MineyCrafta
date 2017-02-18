@@ -268,6 +268,7 @@ bool filterAnyMiningTool(ItemStack stack) => stack.item is ItemPick && (stack.da
 bool filterAnyDiggingTool(ItemStack stack) => stack.item is ItemShovel && (stack.data as int) > 0;
 bool filterAnyFuel(ItemStack stack) => stack.fuelValue != null;
 bool filterAnyLiquidContainer(ItemStack stack) => stack.item is ItemLiquidContainer;
+bool filterAnySapling(ItemStack stack) => stack.item is ItemSapling;
 
 RecipeInputFilter filterAnyFillableLiquidContainer(Liquid liquid) {
 	return (stack) => (

@@ -147,6 +147,34 @@ class FeatureTrees extends Feature {
 	}
 }
 
+class RecipeTrees extends FeatureRecipe {
+	RecipeTrees() {
+		name = "Plant Trees";
+		desc = "If you actually feel environmentally friendly for a change, how about replanting some of the countless trees you've chopped down?";
+		space =  4;
+		inputs = [
+			new RecipeInput("of any sapling", filterAnySapling, 4),
+		];
+	}
+	
+	@override
+	Feature craft(Tile tile, List<ItemStack> items) {
+		TreeBreed breed = (items[0].item as ItemSapling).breed;
+		
+		for (Feature f in tile.features) {
+			if (f is FeatureTrees && (f as FeatureTrees).breed == breed) {
+				(f as FeatureTrees).numTrees += 4;
+				return null;
+			}
+		}
+		
+		return new FeatureTrees(tile, breed, 4);
+	}
+	
+	@override
+	bool canMakeOn(Tile tile) => tile.outdoors;
+}
+
 /*
 Hut
 */
@@ -1110,4 +1138,5 @@ List<FeatureRecipe> featureRecipes = [
 	new RecipeMineshaft2(),
 	new RecipeTunnel(),
 	new RecipeTorches(),
+	new RecipeTrees(),
 ];
