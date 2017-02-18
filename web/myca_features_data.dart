@@ -1268,7 +1268,7 @@ class FeatureFarm extends Feature {
 	
 	String get name => "Farm";
 	ConsoleColor get color => ConsoleColor.MAROON;
-	String get desc => "TODO";
+	String get desc => "This is a plot of fertile land, drawn out into rows. " + (crop == null ? "Currently, the fields lay bare." : "A patch of " + crop.name.toLowerCase() + " is currently growing in it.");
 	int get space => 6;
 	
 	DeconstructionRecipe get toDeconstruct => new DeconstructFarm();
@@ -1364,15 +1364,24 @@ class FeatureFarm extends Feature {
 class RecipeFarm extends FeatureRecipe {
 	RecipeFarm() {
 		name = "Farm";
-		desc = "TODO";
+		desc = "Farming is the tried-and-true method of not starving. Just plant seeds, wait, and reap the benefits!";
 		space =  6;
 		inputs = [
-			new RecipeInput("of any wood", filterAnyWood, 2),
+			new RecipeInput("hoe", (ItemStack stack) => stack.item is ItemHoe, 1, usedUp: false),
+			new RecipeInput("bucket of water", filterAnyEmptiableLiquidContainer(new LiquidWater(), 1000), 1, usedUp: false),
 		];
 	}
 	
 	@override
-	Feature craft(Tile tile, List<ItemStack> items) => new FeatureFarm(tile);
+	Feature craft(Tile tile, List<ItemStack> items) {
+		if (items[0].item is ItemDurable) {
+			(items[0].item as ItemDurable).takeDamage(items[0], 10);
+		}
+		if (items[1].item is ItemLiquidContainer) {
+			(items[1].item as ItemLiquidContainer).takeLiquid(items[1], 1000);
+		}
+		return new FeatureFarm(tile);
+	}
 }
 
 class DeconstructFarm extends DeconstructionRecipe {

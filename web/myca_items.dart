@@ -270,19 +270,19 @@ bool filterAnyFuel(ItemStack stack) => stack.fuelValue != null;
 bool filterAnyLiquidContainer(ItemStack stack) => stack.item is ItemLiquidContainer;
 bool filterAnySapling(ItemStack stack) => stack.item is ItemSapling;
 
-RecipeInputFilter filterAnyFillableLiquidContainer(Liquid liquid) {
+RecipeInputFilter filterAnyFillableLiquidContainer(Liquid liquid, [int amt = 1]) {
 	return (stack) => (
 		stack.item is ItemLiquidContainer &&
 		((stack.data as LiquidStack).liquid == null || (stack.data as LiquidStack).liquid == liquid) &&
-		(stack.data as LiquidStack).amt < (stack.item as ItemLiquidContainer).maxLiquid
+		(stack.data as LiquidStack).amt <= (stack.item as ItemLiquidContainer).maxLiquid - amt
 	);
 }
 
-RecipeInputFilter filterAnyEmptiableLiquidContainer(Liquid liquid) {
+RecipeInputFilter filterAnyEmptiableLiquidContainer(Liquid liquid, [int amt = 1]) {
 	return (stack) => (
 		stack.item is ItemLiquidContainer &&
 		(stack.data as LiquidStack).liquid == liquid &&
-		(stack.data as LiquidStack).amt > 0
+		(stack.data as LiquidStack).amt >= amt
 	);
 }
 

@@ -751,6 +751,67 @@ class RecipeShovel extends ItemRecipe {
 }
 
 /*
+hoe
+*/
+
+class ItemHoe extends ItemDurable {
+	ItemStack head;
+	ItemStack handle;
+	
+	ItemHoe(this.head, this.handle);
+	
+	@override String name(ItemStack stack) {
+		if ((stack.data as int) <= 0) {
+			return capitalize(head.materialName) + " Hoe (broken)";
+		} else {
+			return capitalize(head.materialName) + " Hoe (" + ((stack.data as int)/maxDurability*100).toStringAsFixed(0)+"%)";
+		}
+	}
+	@override double size(ItemStack stack) => head.size * 4 + handle.size * 2;
+	@override bool stackable(ItemStack stack) => false;
+	@override ConsoleColor color(ItemStack stack) => head.color;
+	@override String desc(ItemStack stack) => "This is a hoe. A tool, even. But lucky for you, this is a farming implement rather then a nasty person!\nThe head is made of " + head.materialName + ". The handle is made of " + handle.materialName + ".";
+	@override int value(ItemStack stack) => (head.value * 4 + handle.value * 2)*5~/4;
+	
+	int get maxDurability => head.hardness * 75 + handle.hardness * 25;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		super.save(stack, json);
+		
+		json["class"] = "ItemHoe";
+		json["head"] = saveItem(head);
+		json["handle"] = saveItem(handle);
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inv, Map<String, Object> json) {
+		super.load(stack, world, inv, json);
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemHoe(loadItem(world, inventory, json["head"]), loadItem(world, inventory, json["handle"])), 1, (json["durability"] as int));
+	}
+}
+
+class RecipeHoe extends ItemRecipe {
+	RecipeHoe() {
+		name = "Hoe";
+		desc = "Making a farm would be so much harder without a tool to make those neat little rows. This tool does exactly that!";
+		inputs = [
+			new RecipeInput("of any wood, metal, stone (head)", filterAnyWoodMetalStone, 4),
+			new RecipeInput("of any wood, metal (handle)", filterAnyWoodMetal, 2),
+		];
+		timePassed = 4;
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => new List.generate(factor, (i) {
+		ItemHoe item = new ItemHoe(items[0], items[1]);
+		return new ItemStack(item, 1, item.maxDurability);
+	});
+}
+
+/*
 sword
 */
 
@@ -931,6 +992,7 @@ Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemAxe": ItemAxe.loadClass,
 	"ItemPick": ItemPick.loadClass,
 	"ItemShovel": ItemShovel.loadClass,
+	"ItemHoe": ItemHoe.loadClass,
 	"ItemSword": ItemSword.loadClass,
 	"ItemBucket": ItemBucket.loadClass,
 	"ItemSeeds": ItemSeeds.loadClass,
@@ -951,6 +1013,7 @@ List<ItemRecipe> craftingTableRecipes = [
 	new RecipeAxe(),
 	new RecipePick(),
 	new RecipeShovel(),
+	new RecipeHoe(),
 	new RecipeSword(),
 	new RecipeBucket(),
 ];
