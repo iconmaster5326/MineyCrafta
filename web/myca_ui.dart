@@ -265,7 +265,7 @@ void handleInventoryView(Console c) {
 		int actX = 2*c.width ~/ 3;
 		
 		c.labels.add(new ConsoleLabel(selX, 2, selected.name, selected.color));
-		c.labels.add(new ConsoleLabel(selX, 3, "Weight: " + (selected.size*selected.amt).toString()));
+		c.labels.add(new ConsoleLabel(selX, 3, "Weight: " + (selected.size*selected.amt).toStringAsFixed(2)));
 		
 		c.labels.addAll(new ConsoleLabel(selX, 5, fitToWidth(selected.desc, actX-selX-2)).as2DLabel());
 		
