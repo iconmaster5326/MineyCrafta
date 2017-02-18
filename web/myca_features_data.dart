@@ -203,6 +203,31 @@ class FeatureSaplings extends Feature {
 	static Feature loadClass(World world, Tile tile, Map<String, Object> json) {
 		return new FeatureSaplings.raw();
 	}
+	
+	@override
+	void onTick(Console c, int delta) {
+		for (int i = 0; i < delta; i++) {
+			if (rng.nextDouble() < .05) {
+				numTrees--; space--;
+				if (numTrees <= 0) {
+					tile.features.remove(this);
+				}
+				
+				bool planted = false;
+				for (Feature f in tile.features) {
+					if (f is FeatureTrees && (f as FeatureTrees).breed == breed) {
+						(f as FeatureTrees).numTrees++; f.space++;
+						planted = true;
+						break;
+					}
+				}
+				
+				if (!planted) {
+					new FeatureTrees(tile, breed, 1);
+				}
+			}
+		}
+	}
 }
 
 class RecipeTrees extends FeatureRecipe {

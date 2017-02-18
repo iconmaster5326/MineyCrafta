@@ -106,10 +106,10 @@ class World {
 	
 	void passTime(Console c, [int amt = 1]) {
 		// call onTick...
-		for (Feature f in player.tile.features) {
+		for (Feature f in new List.from(player.tile.features)) {
 			f.onTick(c, amt);
 		}
-		for (Entity e in player.tile.entities) {
+		for (Entity e in new List.from(player.tile.entities)) {
 			e.onTick(c, amt);
 		}
 		
