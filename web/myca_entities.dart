@@ -425,6 +425,10 @@ class Battle {
 	}
 	
 	void hit(Entity user, Entity target, int dmg) {
+		if (user != null) {
+			target.causeOfDeath = new CauseAttack(user);
+		}
+		
 		target.hp -= dmg;
 		if (target.hp <= 0) {
 			kill(target);
@@ -639,6 +643,7 @@ class StatusStarvation extends StatusCondition {
 			return;
 		}
 		
+		entity.causeOfDeath = new CauseStarvation();
 		entity.hp -= delta;
 	}
 	@override
@@ -648,10 +653,8 @@ class StatusStarvation extends StatusCondition {
 		battle.log.write(dmg.toString());
 		battle.log.write(" damage due to starvation.\n");
 		
-		entity.hp -= dmg;
-		if (entity.hp <= 0) {
-			battle.kill(entity);
-		}
+		entity.causeOfDeath = new CauseStarvation();
+		battle.hit(null, entity, dmg);
 		
 		return null;
 	}
