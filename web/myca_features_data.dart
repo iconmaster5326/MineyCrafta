@@ -1386,6 +1386,9 @@ class RecipeFarm extends FeatureRecipe {
 		}
 		return new FeatureFarm(tile);
 	}
+	
+	@override
+	bool canMakeOn(Tile tile) => tile.outdoors;
 }
 
 class DeconstructFarm extends DeconstructionRecipe {
