@@ -331,6 +331,9 @@ class RecipeIngot extends SmeltingRecipe {
 	
 	@override
 	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => [new ItemStack(new ItemIngot((items[0].item as ItemOre).type), factor)];
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => items[0].value;
 }
 
 /*
@@ -541,6 +544,9 @@ class RecipeBucket extends ItemRecipe {
 	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => new List.generate(factor, (i) {
 		return new ItemStack(new ItemBucket(items[0]), 1, new LiquidStack.raw());
 	});
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => items[0].value * 3;
 }
 
 /*
@@ -626,6 +632,9 @@ class RecipeAxe extends ItemRecipe {
 		ItemAxe item = new ItemAxe(items[0], items[1]);
 		return new ItemStack(item, 1, item.maxDurability);
 	});
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => items[0].value * 4 + items[1].value * 2;
 }
 
 /*
@@ -687,6 +696,9 @@ class RecipePick extends ItemRecipe {
 		ItemPick item = new ItemPick(items[0], items[1]);
 		return new ItemStack(item, 1, item.maxDurability);
 	});
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => items[0].value * 4 + items[1].value * 2;
 }
 
 /*
@@ -748,6 +760,9 @@ class RecipeShovel extends ItemRecipe {
 		ItemShovel item = new ItemShovel(items[0], items[1]);
 		return new ItemStack(item, 1, item.maxDurability);
 	});
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => items[0].value * 4 + items[1].value * 2;
 }
 
 /*
@@ -809,6 +824,9 @@ class RecipeHoe extends ItemRecipe {
 		ItemHoe item = new ItemHoe(items[0], items[1]);
 		return new ItemStack(item, 1, item.maxDurability);
 	});
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => items[0].value * 4 + items[1].value * 2;
 }
 
 /*
@@ -883,6 +901,9 @@ class RecipeSword extends ItemRecipe {
 		ItemSword item = new ItemSword(items[0], items[1]);
 		return new ItemStack(item, 1, item.maxDurability);
 	});
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => items[0].value * 4 + items[1].value * 2;
 }
 
 /*

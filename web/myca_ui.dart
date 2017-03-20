@@ -532,7 +532,7 @@ void handleCraftFeature(Console c) {
 					
 					selFeatureRecipe.craft(world.player.tile, items);
 					world.passTime(c, selFeatureRecipe.timePassed);
-					world.player.score += selFeatureRecipe.scoreOnCraft;
+					world.player.score += selFeatureRecipe.scoreOnCraft(items);
 					
 					selFeatureRecipe = null;
 					c.onRefresh = handleTileView;
@@ -566,7 +566,7 @@ void handleCraftFeature(Console c) {
 								// craft
 								selFeatureRecipe.craft(world.player.tile, items);
 								world.passTime(c, selFeatureRecipe.timePassed);
-								world.player.score += selFeatureRecipe.scoreOnCraft;
+								world.player.score += selFeatureRecipe.scoreOnCraft(items);
 								
 								selFeatureRecipe = null;
 								c.onRefresh = handleTileView;
@@ -688,7 +688,7 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 						
 						world.player.inventory.addAll(selItemRecipe.craft(items, selFactor));
 						world.passTime(c, selItemRecipe.timePassed);
-						world.player.score += selItemRecipe.scoreOnCraft;
+						world.player.score += selItemRecipe.scoreOnCraft(items) * selFactor;
 						
 						selItemRecipe = null;
 						c.onRefresh = handleCraftItem(c, recipes);
@@ -722,7 +722,7 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 									// craft
 									world.player.inventory.addAll(selItemRecipe.craft(items, selFactor));
 									world.passTime(c, selItemRecipe.timePassed);
-									world.player.score += selItemRecipe.scoreOnCraft;
+									world.player.score += selItemRecipe.scoreOnCraft(items) * selFactor;
 									
 									selItemRecipe = null;
 									c.onRefresh = handleCraftItem(c, recipes);
@@ -1195,6 +1195,7 @@ ConsoleRefreshHandler handleSmelting(Console c, FeatureFurnace furnace) {
 						world.player.inventory.addAll(selSmeltingRecipe.craft(items, selFactor));
 						furnace.fuel -= selSmeltingRecipe.fuel * selFactor;
 						world.passTime(c, selSmeltingRecipe.timePassed);
+						world.player.score += selSmeltingRecipe.scoreOnCraft(items) * selFactor;
 						
 						selSmeltingRecipe = null;
 						c.onRefresh = handleSmelting(c, furnace);
@@ -1229,6 +1230,7 @@ ConsoleRefreshHandler handleSmelting(Console c, FeatureFurnace furnace) {
 									world.player.inventory.addAll(selSmeltingRecipe.craft(items, selFactor));
 									furnace.fuel -= selSmeltingRecipe.fuel * selFactor;
 									world.passTime(c, selSmeltingRecipe.timePassed);
+									world.player.score += selSmeltingRecipe.scoreOnCraft(items) * selFactor;
 									
 									selSmeltingRecipe = null;
 									c.onRefresh = handleSmelting(c, furnace);

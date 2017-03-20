@@ -255,6 +255,9 @@ class RecipeTrees extends FeatureRecipe {
 	
 	@override
 	bool canMakeOn(Tile tile) => tile.outdoors;
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => 5;
 }
 
 /*
@@ -425,6 +428,9 @@ class RecipeHut extends FeatureRecipe {
 	
 	@override
 	bool canMakeOn(Tile tile) => tile.outdoors;
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => items[0].value * 10;
 }
 
 class DeconstructHut extends DeconstructionRecipe {
@@ -591,6 +597,9 @@ class RecipeCraftingTable extends FeatureRecipe {
 	
 	@override
 	bool canMakeOn(Tile tile) => !tile.outdoors;
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => 5;
 }
 
 class DeconstructCraftingTable extends DeconstructionRecipe {
@@ -695,6 +704,9 @@ class RecipeFurnace extends FeatureRecipe {
 	
 	@override
 	bool canMakeOn(Tile tile) => !tile.outdoors;
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => 10;
 }
 
 class DeconstructFurnace extends DeconstructionRecipe {
@@ -829,6 +841,9 @@ class RecipeMineshaft extends FeatureRecipe {
 	
 	@override
 	bool canMakeOn(Tile tile) => tile.outdoors;
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => 10;
 }
 
 class RecipeMineshaft2 extends RecipeMineshaft {
@@ -1096,6 +1111,9 @@ class RecipeTunnel extends FeatureRecipe {
 	
 	@override
 	bool canMakeOn(Tile tile) => tile is TileMineshaft;
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => 5;
 }
 
 /*
@@ -1165,6 +1183,9 @@ class RecipeTorches extends FeatureRecipe {
 	
 	@override
 	Feature craft(Tile tile, List<ItemStack> items) => new FeatureTorches(tile);
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => 2;
 }
 
 class DeconstructTorches extends DeconstructionRecipe {
@@ -1389,6 +1410,9 @@ class RecipeFarm extends FeatureRecipe {
 	
 	@override
 	bool canMakeOn(Tile tile) => tile.outdoors;
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => 10;
 }
 
 class DeconstructFarm extends DeconstructionRecipe {
