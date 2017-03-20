@@ -763,6 +763,7 @@ class EntityZombie extends Entity {
 	EntityZombie() {
 		name = "Zombie";
 		hpMax = 50; hp = hpMax;
+		scoreOnKill = 5;
 	}
 	
 	String get char => "Z";
