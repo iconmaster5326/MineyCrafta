@@ -532,6 +532,7 @@ void handleCraftFeature(Console c) {
 					
 					selFeatureRecipe.craft(world.player.tile, items);
 					world.passTime(c, selFeatureRecipe.timePassed);
+					world.player.score += selFeatureRecipe.scoreOnCraft;
 					
 					selFeatureRecipe = null;
 					c.onRefresh = handleTileView;
@@ -565,6 +566,7 @@ void handleCraftFeature(Console c) {
 								// craft
 								selFeatureRecipe.craft(world.player.tile, items);
 								world.passTime(c, selFeatureRecipe.timePassed);
+								world.player.score += selFeatureRecipe.scoreOnCraft;
 								
 								selFeatureRecipe = null;
 								c.onRefresh = handleTileView;
@@ -686,6 +688,7 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 						
 						world.player.inventory.addAll(selItemRecipe.craft(items, selFactor));
 						world.passTime(c, selItemRecipe.timePassed);
+						world.player.score += selItemRecipe.scoreOnCraft;
 						
 						selItemRecipe = null;
 						c.onRefresh = handleCraftItem(c, recipes);
@@ -719,6 +722,7 @@ ConsoleRefreshHandler handleCraftItem(Console c, List<ItemRecipe> recipes) {
 									// craft
 									world.player.inventory.addAll(selItemRecipe.craft(items, selFactor));
 									world.passTime(c, selItemRecipe.timePassed);
+									world.player.score += selItemRecipe.scoreOnCraft;
 									
 									selItemRecipe = null;
 									c.onRefresh = handleCraftItem(c, recipes);

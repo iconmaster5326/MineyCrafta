@@ -17,6 +17,7 @@ class Entity {
 	Tile tile;
 	String char; ConsoleColor color;
 	List<StatusCondition> status = [];
+	int scoreOnKill = 0;
 	
 	void move(Tile newTile) {
 		if (tile != null) {
@@ -75,6 +76,8 @@ class Player extends Entity {
 	
 	int regenPeriod = 4;
 	int regenAmt = 1;
+	
+	int score = 0;
 	
 	String get char => "@";
 	ConsoleColor get color => ConsoleColor.WHITE;
@@ -185,12 +188,14 @@ class Player extends Entity {
 		json["hunger"] = hunger;
 		json["maxHunger"] = maxHunger;
 		json["hungerRate"] = hungerRate;
+		json["score"] = score;
 	}
 	@override
 	void load(World world, Tile tile, Map<String, Object> json) {
-		hunger = json["hunger"];
-		maxHunger = json["maxHunger"];
-		hungerRate = json["hungerRate"];
+		hunger = json["hunger"] ?? 0;
+		maxHunger = json["maxHunger"] ?? 500;
+		hungerRate = json["hungerRate"] ?? 1;
+		score = json["score"] ?? 0;
 	}
 	
 	Player.raw() : super.raw();
@@ -412,6 +417,16 @@ class Battle {
 		loot.addAll(entity.deathDrops);
 	}
 	
+	void hit(Entity user, Entity target, int dmg) {
+		target.hp -= dmg;
+		if (target.hp <= 0) {
+			kill(target);
+			if (user is Player) {
+				(user as Player).score += target.scoreOnKill;
+			}
+		}
+	}
+	
 	int getRow(Entity entity) {
 		int i;
 		
@@ -481,10 +496,7 @@ BattleAction battleActionAttack(Entity user, Entity target, String withDesc, int
 		b.log.write(dmg.toString());
 		b.log.write(" damage!\n");
 		
-		target.hp -= dmg;
-		if (target.hp <= 0) {
-			b.kill(target);
-		}
+		b.hit(target, user, dmg);
 		
 		return time;
 	};
