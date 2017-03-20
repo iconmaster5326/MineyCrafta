@@ -148,7 +148,7 @@ abstract class ItemFood extends Item {
 			world.player.hunger -= foodValue(stack); if (world.player.hunger < 0) {world.player.hunger = 0;}
 			stack.take(1);
 			
-			world.passTime(timeToEat(stack));
+			world.passTime(c, timeToEat(stack));
 			
 			c.onRefresh = handleInventoryView;
 		});
