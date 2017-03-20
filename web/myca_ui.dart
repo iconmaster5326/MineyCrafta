@@ -891,7 +891,7 @@ ConsoleRefreshHandler handleBattle(Console c, Battle battle) {
 						c.onRefresh = handleTileView;
 					}
 				} else {
-					c.onRefresh = handleTitleScreen;
+					c.onRefresh = handlePlayerDeath;
 				}
 			}));
 			actionsMaxLen = 15;
@@ -1283,4 +1283,55 @@ ConsoleRefreshHandler handleSmelting(Console c, FeatureFurnace furnace) {
 			});
 		}));
 	};
+}
+
+void handlePlayerDeath(Console c) {
+	c.onRefresh = handleYesNoDialog(world.player.causeOfDeath.longDesc, (c, choice) {
+		if (choice) {
+			c.onRefresh = handleGravestone;
+		} else {
+			c.onRefresh = handleLoadGame(c, handlePlayerDeath);
+		}
+	}, "Accept Death", "Turn Back Time");
+	c.refresh();
+}
+
+void handleGravestone(Console c) {
+	int graveWidth = c.width - 4;
+	int graveTopWidth = graveWidth - 8;
+	
+	c.labels.add(new ConsoleLabel((c.width-graveTopWidth)~/2, 2, repeatString("-", graveTopWidth-1), ConsoleColor.GREY));
+	
+	for (int i = 3; i <= 6; i++) {
+		c.labels.add(new ConsoleLabel((c.width-graveTopWidth)~/2 - (i-2), i, "/", ConsoleColor.GREY));
+		c.labels.add(new ConsoleLabel(graveTopWidth + (c.width-graveTopWidth)~/2 + (i-4), i, "\\", ConsoleColor.GREY));
+	}
+	
+	for (int i = 7; i <= c.height - 4; i++) {
+		c.labels.add(new ConsoleLabel(2, i, "|", ConsoleColor.GREY));
+		c.labels.add(new ConsoleLabel(c.width-4, i, "|", ConsoleColor.GREY));
+	}
+	
+	c.labels.add(new ConsoleLabel(0, c.height - 3, repeatString("-", c.width), ConsoleColor.GREEN));
+	
+	Random rng = new Random(world.player.hashCode);
+	
+	String hereLies = "HERE LIES";
+	String playerName = world.player.name;
+	String cause = world.player.causeOfDeath.shortDesc;
+	String lifespan = "Survived ${world.day} days,";
+	String score = "and earned ${world.player.score} points.";
+	String epitaph = "\"${world.player.causeOfDeath.epitaphs[rng.nextInt(world.player.causeOfDeath.epitaphs.length)]}\"";
+	String toMainMenu = "ENTER) Continue";
+	
+	c.labels.add(new ConsoleLabel(c.centerJustified(hereLies), 8, hereLies));
+	c.labels.add(new ConsoleLabel(c.centerJustified(playerName), 9, playerName));
+	c.labels.add(new ConsoleLabel(c.centerJustified(cause), 11, cause));
+	c.labels.add(new ConsoleLabel(c.centerJustified(lifespan), 12, lifespan));
+	c.labels.add(new ConsoleLabel(c.centerJustified(score), 13, score));
+	c.labels.add(new ConsoleLabel(c.centerJustified(epitaph), 15, epitaph));
+	
+	c.labels.add(new ConsoleLink(c.centerJustified(toMainMenu), c.height-1, toMainMenu, ConsoleKeyCode.ANY, (c, l) {
+		c.onRefresh = handleTitleScreen;
+	}));
 }
