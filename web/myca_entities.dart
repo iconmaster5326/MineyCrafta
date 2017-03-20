@@ -18,6 +18,7 @@ class Entity {
 	String char; ConsoleColor color;
 	List<StatusCondition> status = [];
 	int scoreOnKill = 0;
+	CauseOfDeath causeOfDeath = new CauseOfDeath();
 	
 	void move(Tile newTile) {
 		if (tile != null) {
@@ -209,6 +210,12 @@ class Player extends Entity {
 		return null;
 	}
 }
+
+/*
+==================
+battles
+==================
+*/
 
 typedef int BattleAction(Battle battle);
 class Battle {
@@ -752,6 +759,46 @@ Map<String, StatusConditionLoadHandler> statusConditionLoadHandlers = {
 	"StatusDisease": StatusDisease.loadClass,
 	"StatusEncumbered": StatusEncumbered.loadClass,
 };
+
+/*
+==================
+causes of death
+==================
+*/
+
+class CauseOfDeath {
+	String shortDesc = "Died in some mysterious way";
+	String longDesc = "For whatever reason... You have died.";
+	
+	List<String> epitaphs = [
+		"They died as they lived- Quickly.",
+		"Rest In Pieces",
+		"Goodbye, World!",
+	];
+}
+
+class CauseAttack extends CauseOfDeath {
+	Entity attacker;
+	
+	CauseAttack(this.attacker) {
+		epitaphs.add("Cut down at thier prime.");
+		epitaphs.add("They went down fighting, sort of...");
+		epitaphs.add("Punching things until the bitter end.");
+	}
+	
+	String get shortDesc => "Slain by ${attacker.name}";
+	String get longDesc => "As the ${attacker.name.toLowerCase()} hits you, you suddenly feel weak. You fall, and the world fades away around you... The ${attacker.name.toLowerCase()} still looming over you as you pass.\n\nThe ${attacker.name.toLowerCase()} killed you, I'm afriad. You have died.";
+}
+
+class CauseStarvation extends CauseOfDeath {
+	CauseStarvation() {
+		epitaphs.add("Would kill for a bite to eat right now.");
+	}
+	
+	String get shortDesc => "Starved to death";
+	String get longDesc => "You try taking another step forwards, but it's too much. You are too hungry to go on. Collapsing, you feel the last bits of life drain from you as you're left utterly weak, without a drop of blood spilled.\n\n You starved youself for too long, and as such... You have died.";
+}
+
 
 /*
 ==================
