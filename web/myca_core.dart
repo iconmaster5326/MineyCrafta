@@ -1,4 +1,34 @@
 import 'dart:math';
+import 'dart:collection';
+
+/// What's amazing to me is that Dart's standard library doesn't have this.
+class PriorityQueue<T> extends Object with IterableMixin<T> {
+	final Map<int,List<T>> _map = {};
+	
+	List<T> get _items {
+		List<T> result = [];
+		
+		List<int> keys = _map.keys.toList();
+		keys.sort();
+		for (int key in keys) {
+			result.addAll(_map[key]);
+		}
+		
+		return result;
+	}
+	
+	void add(int priority, T value) {
+		_map.putIfAbsent(priority, []);
+		_map[priority].add(value);
+	}
+	
+	void clear() {
+		_map.clear();
+	}
+	
+	@override
+	Iterator<T> get iterator => _items.iterator;
+}
 
 String repeatString(String s, int n) {
 	StringBuffer buf = new StringBuffer();

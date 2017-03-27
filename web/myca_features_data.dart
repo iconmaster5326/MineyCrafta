@@ -104,7 +104,12 @@ class FeatureTrees extends Feature {
 	}
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random treeRng = new Random(hashCode);
@@ -162,7 +167,12 @@ class FeatureSaplings extends Feature {
 	int get space => numTrees;
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random treeRng = new Random(hashCode);
@@ -273,7 +283,12 @@ class FeatureGrass extends Feature {
 	int get space => 1;
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random treeRng = new Random(hashCode);
@@ -363,7 +378,12 @@ class FeatureHut extends Feature {
 	DeconstructionRecipe get toDeconstruct => (innerTile.features.isEmpty ? new DeconstructHut(this) : null);
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random rng = new Random(hashCode);
@@ -486,9 +506,7 @@ class TileHut extends FeatureTile {
 			c.labels.add(new ConsoleLabel(x+7*w~/16+w~/8+1, y+i, "|", feature.material.color));
 		}
 		
-		for (Feature f in features) {
-			f.drawPicture(c, x, y+h~/8, 3*w~/4, 7*h~/8);
-		}
+		drawFeatures(c, new Rectangle<int>(x, y+h~/8, 3*w~/4, 7*h~/8), null);
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
 	}
@@ -528,7 +546,12 @@ class FeatureCraftingTable extends Feature {
 	DeconstructionRecipe get toDeconstruct => new DeconstructCraftingTable();
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random rng = new Random(hashCode);
@@ -636,7 +659,12 @@ class FeatureFurnace extends Feature {
 	DeconstructionRecipe get toDeconstruct => new DeconstructFurnace();
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random rng = new Random(hashCode);
@@ -743,7 +771,12 @@ class FeatureMineshaft extends Feature {
 	int get space => tile is TileMineshaft ? 5 : 10;
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random rng = new Random(hashCode);
@@ -904,9 +937,7 @@ class TileMineshaft extends FeatureTile {
 			c.labels.add(new ConsoleLabel(ladderX, i, "|-|", ConsoleColor.MAROON));
 		}
 		
-		for (Feature f in features) {
-			f.drawPicture(c, x, y, w, h);
-		}
+		drawFeatures(c, new Rectangle<int>(x, y, w, h), null);
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
 	}
@@ -989,7 +1020,12 @@ class FeatureTunnel extends Feature {
 	int get space => 4;
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		// only display 1 tunnel at a time
 		for (Feature f in tile.features) {
 			if (f == this) {
@@ -1132,7 +1168,12 @@ class FeatureTorches extends Feature {
 	DeconstructionRecipe get toDeconstruct => new DeconstructTorches();
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random rng = new Random(hashCode);
@@ -1215,7 +1256,12 @@ class FeatureLake extends Feature {
 	int get space => 5;
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random rng = new Random(hashCode);
@@ -1299,7 +1345,12 @@ class FeatureFarm extends Feature {
 	DeconstructionRecipe get toDeconstruct => new DeconstructFarm();
 	
 	@override
-	void drawPicture(Console c, int x, int y, int w, int h) {
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
+		int x = floor.left;
+		int y = floor.top;
+		int w = floor.width;
+		int h = floor.height;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random rng = new Random(hashCode);

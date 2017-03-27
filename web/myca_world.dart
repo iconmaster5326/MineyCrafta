@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'myca_core.dart';
 import 'myca_items.dart';
 import 'myca_entities.dart';
@@ -70,6 +72,19 @@ class Tile {
 		enemies.add(new List.generate(rng.nextInt(2), (i) => new EntityZombie()));
 		return enemies;
 	}
+	
+	/// A helper function for drawPicture, to draw the features in the tile.
+	void drawFeatures(Console c, Rectangle<int> floor, Rectangle<int> wall) {
+		PriorityQueue<FeatureImage> images = new PriorityQueue<FeatureImage>();
+		
+		for (Feature f in features) {
+			f.drawPicture(c, floor, wall, images);
+		}
+		
+		for (FeatureImage image in images) {
+			image();
+		}
+	}
 }
 
 /// A WorldTile is a Tile on the world map. It has a coordinate, biome, etc.
@@ -87,9 +102,7 @@ class WorldTile extends Tile {
 			c.labels.add(new ConsoleLabel(x, row, repeatString(".", w), biome.groundColor));
 		}
 		
-		for (Feature f in features) {
-			f.drawPicture(c, x, y, w, h);
-		}
+		drawFeatures(c, new Rectangle<int>(x, y, w, h), null);
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
 	}
@@ -157,6 +170,8 @@ class Biome {
 	void generate(WorldTile tile) {}
 }
 
+/// A function to draw an ASCII image to the image box.
+typedef void FeatureImage();
 /// This represents a feature instance in the world.
 class Feature {
 	String name;
@@ -183,7 +198,7 @@ class Feature {
 	void onTick(Console c, int delta) {}
 	void addActions(List<ConsoleLink> actions) {}
 	// draws inside the ASCII art box.
-	void drawPicture(Console c, int x, int y, int w, int h) {}
+	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {}
 	// If not NULL, overrides the icon on the map.
 	get mapIcon => null as ConsoleLabel;
 	
