@@ -115,10 +115,10 @@ class FeatureTrees extends Feature {
 		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random treeRng = new Random(hashCode);
-		for (int tree = 0; tree < numTrees; tree++) {
-			int imageX = (x + 1) + treeRng.nextInt(w - imageW);
-			int imageY = y + treeRng.nextInt(h);
+		Random imageRng = new Random(hashCode);
+		for (int image = 0; image < numTrees; image++) {
+			int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+			int imageY = y + imageRng.nextInt(h);
 			
 			images.add(imageY, () {
 				for (int i = 0; i < imageH; i++) {
@@ -178,25 +178,30 @@ class FeatureSaplings extends Feature {
 		int w = floor.width;
 		int h = floor.height;
 		
+		int imageW = 2;
+		int imageH = 3;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random treeRng = new Random(hashCode);
-		for (int tree = 0; tree < numTrees; tree++) {
-			int treeX = treeRng.nextInt(w-3) - (w-3)~/2;
-			int treeY = treeRng.nextInt(h~/2);
+		Random imageRng = new Random(hashCode);
+		for (int image = 0; image < numTrees; image++) {
+			int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+			int imageY = y + imageRng.nextInt(h);
 			
-			for (int i = 0; i < 3; i++) {
-				int realX = x + w~/2 + treeX;
-				int realY = y + h~/2 + treeY + i - 3;
-				
-				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-					switch (i) {
-						case 0: c.labels.add(new ConsoleLabel(realX, realY, "o", breed.leavesColor)); break;
-						case 1: c.labels.add(new ConsoleLabel(realX, realY, "|", breed.trunkColor)); c.labels.add(new ConsoleLabel(realX + 1, realY, "/", breed.leavesColor)); break;
-						case 2: c.labels.add(new ConsoleLabel(realX, realY, "|", breed.trunkColor)); break;
+			images.add(imageY, () {
+				for (int i = 0; i < imageH; i++) {
+						int realX = imageX;
+						int realY = imageY + i;
+					
+					if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+						switch (i) {
+							case 0: c.labels.add(new ConsoleLabel(realX, realY, "o", breed.leavesColor)); break;
+							case 1: c.labels.add(new ConsoleLabel(realX, realY, "|", breed.trunkColor)); c.labels.add(new ConsoleLabel(realX + 1, realY, "/", breed.leavesColor)); break;
+							case 2: c.labels.add(new ConsoleLabel(realX, realY, "|", breed.trunkColor)); break;
+						}
 					}
 				}
-			}
+			});
 		}
 	}
 	
@@ -294,23 +299,29 @@ class FeatureGrass extends Feature {
 		int w = floor.width;
 		int h = floor.height;
 		
+		int imageW = 1;
+		int imageH = 1;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random treeRng = new Random(hashCode);
-		for (int tree = 0; tree < treeRng.nextInt(40)+20; tree++) {
-			int treeX = treeRng.nextInt(w-3) - (w-3)~/2;
-			int treeY = treeRng.nextInt(h~/2);
+		Random imageRng = new Random(hashCode);
+		int numImages = imageRng.nextInt(40)+20;
+		for (int image = 0; image < numImages; image++) {
+			int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+			int imageY = y + imageRng.nextInt(h);
 			
-			for (int i = 0; i < 1; i++) {
-				int realX = x + w~/2 + treeX;
-				int realY = y + h~/2 + treeY + i;
+			images.add(imageY, () {
+				for (int i = 0; i < imageH; i++) {
+					int realX = imageX;
+					int realY = imageY + i;
 				
-				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-					switch (i) {
-						case 0: c.labels.add(new ConsoleLabel(realX, realY, ",", ConsoleColor.LIME)); break;
+					if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+						switch (i) {
+							case 0: c.labels.add(new ConsoleLabel(realX, realY, ",", ConsoleColor.LIME)); break;
+						}
 					}
 				}
-			}
+			});
 		}
 	}
 	
@@ -389,25 +400,30 @@ class FeatureHut extends Feature {
 		int w = floor.width;
 		int h = floor.height;
 		
+		int imageW = 5;
+		int imageH = 4;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random rng = new Random(hashCode);
-		int drawX = rng.nextInt(w-6) - (w-6)~/2;
-		int drawY = rng.nextInt(h~/2);
+		Random imageRng = new Random(hashCode);
+		int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+		int imageY = y + imageRng.nextInt(h);
 		
-		for (int i = 0; i < 4; i++) {
-			int realX = x + w~/2 + drawX;
-			int realY = y + h~/2 + drawY + i - 4;
-			
-			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-				switch (i) {
-					case 0: c.labels.add(new ConsoleLabel(realX, realY, "+---+", material.color)); break;
-					case 1: c.labels.add(new ConsoleLabel(realX, realY, "|   |", material.color)); break;
-					case 2: c.labels.add(new ConsoleLabel(realX, realY, "|   |", material.color)); break;
-					case 3: c.labels.add(new ConsoleLabel(realX, realY, "| # |", material.color)); break;
+		images.add(imageY, () {
+			for (int i = 0; i < imageH; i++) {
+				int realX = imageX;
+				int realY = imageY + i;
+				
+				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+					switch (i) {
+						case 0: c.labels.add(new ConsoleLabel(realX, realY, "+---+", material.color)); break;
+						case 1: c.labels.add(new ConsoleLabel(realX, realY, "|   |", material.color)); break;
+						case 2: c.labels.add(new ConsoleLabel(realX, realY, "|   |", material.color)); break;
+						case 3: c.labels.add(new ConsoleLabel(realX, realY, "| # |", material.color)); break;
+					}
 				}
 			}
-		}
+		});
 	}
 	
 	@override
@@ -511,7 +527,7 @@ class TileHut extends FeatureTile {
 			c.labels.add(new ConsoleLabel(x+7*w~/16+w~/8+1, y+i, "|", feature.material.color));
 		}
 		
-		drawFeatures(c, new Rectangle<int>(x, y+h~/8, 3*w~/4, 7*h~/8), null);
+		drawFeatures(c, new Rectangle<int>(x, y + h~/2 + h%2, 3*w~/4, h~/2), new Rectangle<int>(x, y, 3*w~/4, h~/2));
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
 	}
@@ -557,35 +573,40 @@ class FeatureCraftingTable extends Feature {
 		int w = floor.width;
 		int h = floor.height;
 		
+		int imageW = 5;
+		int imageH = 4;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random rng = new Random(hashCode);
-		int drawX = rng.nextInt(w-6) - (w-6)~/2;
-		int drawY = rng.nextInt(h~/2);
+		Random imageRng = new Random(hashCode);
+		int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+		int imageY = y + imageRng.nextInt(h);
 		
-		for (int i = 0; i < 4; i++) {
-			int realX = x + w~/2 + drawX;
-			int realY = y + h~/2 + drawY + i - 4;
-			
-			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-				switch (i) {
-					case 0:
-						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.MAROON));
-						break;
-					case 1:
-						c.labels.add(new ConsoleLabel(realX, realY, "| | |", ConsoleColor.MAROON));
-						c.labels.add(new ConsoleLabel(realX+3, realY, "X", ConsoleColor.SILVER));
-						break;
-					case 2:
-						c.labels.add(new ConsoleLabel(realX, realY, "| | |", ConsoleColor.MAROON));
-						c.labels.add(new ConsoleLabel(realX+1, realY, ">", ConsoleColor.SILVER));
-						break;
-					case 3:
-						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.MAROON));
-						break;
+		images.add(imageY, () {
+			for (int i = 0; i < imageH; i++) {
+				int realX = imageX;
+				int realY = imageY + i;
+				
+				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+					switch (i) {
+						case 0:
+							c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.MAROON));
+							break;
+						case 1:
+							c.labels.add(new ConsoleLabel(realX, realY, "| | |", ConsoleColor.MAROON));
+							c.labels.add(new ConsoleLabel(realX+3, realY, "X", ConsoleColor.SILVER));
+							break;
+						case 2:
+							c.labels.add(new ConsoleLabel(realX, realY, "| | |", ConsoleColor.MAROON));
+							c.labels.add(new ConsoleLabel(realX+1, realY, ">", ConsoleColor.SILVER));
+							break;
+						case 3:
+							c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.MAROON));
+							break;
+					}
 				}
 			}
-		}
+		});
 	}
 	
 	@override
@@ -670,33 +691,38 @@ class FeatureFurnace extends Feature {
 		int w = floor.width;
 		int h = floor.height;
 		
+		int imageW = 5;
+		int imageH = 4;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random rng = new Random(hashCode);
-		int drawX = rng.nextInt(w-6) - (w-6)~/2;
-		int drawY = rng.nextInt(h~/2);
+		Random imageRng = new Random(hashCode);
+		int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+		int imageY = y + imageRng.nextInt(h);
 		
-		for (int i = 0; i < 4; i++) {
-			int realX = x + w~/2 + drawX;
-			int realY = y + h~/2 + drawY + i - 4;
-			
-			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-				switch (i) {
-					case 0:
-						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
-						break;
-					case 1:
-						c.labels.add(new ConsoleLabel(realX, realY, "|   |", ConsoleColor.GREY));
-						break;
-					case 2:
-						c.labels.add(new ConsoleLabel(realX, realY, "| # |", ConsoleColor.GREY));
-						break;
-					case 3:
-						c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
-						break;
+		images.add(imageY, () {
+			for (int i = 0; i < imageH; i++) {
+				int realX = imageX;
+				int realY = imageY + i;
+				
+				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+					switch (i) {
+						case 0:
+							c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
+							break;
+						case 1:
+							c.labels.add(new ConsoleLabel(realX, realY, "|   |", ConsoleColor.GREY));
+							break;
+						case 2:
+							c.labels.add(new ConsoleLabel(realX, realY, "| # |", ConsoleColor.GREY));
+							break;
+						case 3:
+							c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
+							break;
+					}
 				}
 			}
-		}
+		});
 	}
 	
 	@override
@@ -784,40 +810,47 @@ class FeatureMineshaft extends Feature {
 		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random rng = new Random(hashCode);
+		Random imageRng = new Random(hashCode);
 		
 		if (tile is TileMineshaft) {
-			int ladderX = x + rng.nextInt(w-5)+2;
+			int ladderX = x + imageRng.nextInt(w-5)+2;
 			
-			for (int i = y + h - 2; i < y + h; i++) {
-				c.labels.add(new ConsoleLabel(ladderX, i, "|-|", ConsoleColor.MAROON));
-			}
+			images.add(0, () {
+				for (int i = y + h - 2; i < y + h; i++) {
+					c.labels.add(new ConsoleLabel(ladderX, i, "|-|", ConsoleColor.MAROON));
+				}
+			});
 		} else {
-			int drawX = rng.nextInt(w-6) - (w-6)~/2;
-			int drawY = rng.nextInt(h~/2);
+			int imageW = 5;
+			int imageH = 3;
 			
-			for (int i = 0; i < 4; i++) {
-				int realX = x + w~/2 + drawX;
-				int realY = y + h~/2 + drawY + i;
-				
-				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-					switch (i) {
-						case 0:
-							c.labels.add(new ConsoleLabel(realX, realY, "+", ConsoleColor.GREY));
-							c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
-							c.labels.add(new ConsoleLabel(realX+4, realY, "+", ConsoleColor.GREY));
-							break;
-						case 1:
-							c.labels.add(new ConsoleLabel(realX, realY, "|", ConsoleColor.GREY));
-							c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
-							c.labels.add(new ConsoleLabel(realX+4, realY, "|", ConsoleColor.GREY));
-							break;
-						case 2:
-							c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
-							break;
+			int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+			int imageY = y + imageRng.nextInt(h);
+			
+			images.add(imageY, () {
+				for (int i = 0; i < imageH; i++) {
+					int realX = imageX;
+					int realY = imageY + i;
+					
+					if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+						switch (i) {
+							case 0:
+								c.labels.add(new ConsoleLabel(realX, realY, "+", ConsoleColor.GREY));
+								c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
+								c.labels.add(new ConsoleLabel(realX+4, realY, "+", ConsoleColor.GREY));
+								break;
+							case 1:
+								c.labels.add(new ConsoleLabel(realX, realY, "|", ConsoleColor.GREY));
+								c.labels.add(new ConsoleLabel(realX+1, realY, "|-|", ConsoleColor.MAROON));
+								c.labels.add(new ConsoleLabel(realX+4, realY, "|", ConsoleColor.GREY));
+								break;
+							case 2:
+								c.labels.add(new ConsoleLabel(realX, realY, "+---+", ConsoleColor.GREY));
+								break;
+						}
 					}
 				}
-			}
+			});
 		}
 	}
 	
@@ -942,7 +975,7 @@ class TileMineshaft extends FeatureTile {
 			c.labels.add(new ConsoleLabel(ladderX, i, "|-|", ConsoleColor.MAROON));
 		}
 		
-		drawFeatures(c, new Rectangle<int>(x, y, w, h), null);
+		drawFeatures(c, new Rectangle<int>(x, y + h~/2 + h%2, w, h~/2), new Rectangle<int>(x, y, w, h~/2));
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
 	}
@@ -1026,10 +1059,10 @@ class FeatureTunnel extends Feature {
 	
 	@override
 	void drawPicture(Console c, Rectangle<int> floor, Rectangle<int> wall, PriorityQueue<FeatureImage> images) {
-		int x = floor.left;
-		int y = floor.top;
-		int w = floor.width;
-		int h = floor.height;
+		int x = wall.left;
+		int y = wall.top;
+		int w = wall.width;
+		int h = wall.height;
 		
 		// only display 1 tunnel at a time
 		for (Feature f in tile.features) {
@@ -1044,10 +1077,12 @@ class FeatureTunnel extends Feature {
 		Random rng = new Random(hashCode);
 		int drawX = rng.nextInt(w-6);
 		
-		c.labels.add(new ConsoleLabel(x+drawX, y+h~/2-4, "+---+", ConsoleColor.GREY));
-		c.labels.add(new ConsoleLabel(x+drawX, y+h~/2-3, "|...|", ConsoleColor.GREY));
-		c.labels.add(new ConsoleLabel(x+drawX, y+h~/2-2, "|...|", ConsoleColor.GREY));
-		c.labels.add(new ConsoleLabel(x+drawX, y+h~/2-1, "|...|", ConsoleColor.GREY));
+		images.add(y+h, () {
+			c.labels.add(new ConsoleLabel(x+drawX, y+h-4, "+---+", ConsoleColor.GREY));
+			c.labels.add(new ConsoleLabel(x+drawX, y+h-3, "|...|", ConsoleColor.GREY));
+			c.labels.add(new ConsoleLabel(x+drawX, y+h-2, "|...|", ConsoleColor.GREY));
+			c.labels.add(new ConsoleLabel(x+drawX, y+h-1, "|...|", ConsoleColor.GREY));
+		});
 	}
 	
 	@override
@@ -1179,25 +1214,30 @@ class FeatureTorches extends Feature {
 		int w = floor.width;
 		int h = floor.height;
 		
+		int imageW = 1;
+		int imageH = 2;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random rng = new Random(hashCode);
-		int numTorches = rng.nextInt(8)+4;
-		for (int torch = 0; torch < numTorches; torch++) {
-			int torchX = rng.nextInt(w-1) - (w-1)~/2;
-			int torchY = rng.nextInt(h~/2);
+		Random imageRng = new Random(hashCode);
+		int numImages = imageRng.nextInt(8)+4;
+		for (int image = 0; image < numImages; image++) {
+			int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+			int imageY = y + imageRng.nextInt(h);
 			
-			for (int i = 0; i < 2; i++) {
-				int realX = x + w~/2 + torchX;
-				int realY = y + h~/2 + torchY + i - 1;
+			images.add(imageY, () {
+				for (int i = 0; i < imageH; i++) {
+					int realX = imageX;
+					int realY = imageY + i;
 				
-				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-					switch (i) {
-						case 0: c.labels.add(new ConsoleLabel(realX, realY, "*", ConsoleColor.YELLOW)); break;
-						case 1: c.labels.add(new ConsoleLabel(realX, realY, "|", ConsoleColor.MAROON)); break;
+					if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+						switch (i) {
+							case 0: c.labels.add(new ConsoleLabel(realX, realY, "*", ConsoleColor.YELLOW)); break;
+							case 1: c.labels.add(new ConsoleLabel(realX, realY, "|", ConsoleColor.MAROON)); break;
+						}
 					}
 				}
-			}
+			});
 		}
 	}
 	
@@ -1267,33 +1307,38 @@ class FeatureLake extends Feature {
 		int w = floor.width;
 		int h = floor.height;
 		
+		int imageW = 7;
+		int imageH = 4;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random rng = new Random(hashCode);
-		int drawX = rng.nextInt(w-6) - (w-6)~/2;
-		int drawY = rng.nextInt(h~/2);
+		Random imageRng = new Random(hashCode);
+		int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+		int imageY = y + imageRng.nextInt(h);
 		
-		for (int i = 0; i < 4; i++) {
-			int realX = x + w~/2 + drawX;
-			int realY = y + h~/2 + drawY + i - 1;
-			
-			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-				switch (i) {
-					case 0:
-						c.labels.add(new ConsoleLabel(realX, realY, "------", ConsoleColor.BLUE));
-						break;
-					case 1:
-						c.labels.add(new ConsoleLabel(realX, realY, "-.....-", ConsoleColor.BLUE));
-						break;
-					case 2:
-						c.labels.add(new ConsoleLabel(realX, realY, "-......-", ConsoleColor.BLUE));
-						break;
-					case 3:
-						c.labels.add(new ConsoleLabel(realX+1, realY, "------", ConsoleColor.BLUE));
-						break;
+		images.add(imageY, () {
+			for (int i = 0; i < imageH; i++) {
+				int realX = imageX;
+				int realY = imageY + i;
+				
+				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+					switch (i) {
+						case 0:
+							c.labels.add(new ConsoleLabel(realX, realY, "------", ConsoleColor.BLUE));
+							break;
+						case 1:
+							c.labels.add(new ConsoleLabel(realX, realY, "-.....-", ConsoleColor.BLUE));
+							break;
+						case 2:
+							c.labels.add(new ConsoleLabel(realX, realY, "-......-", ConsoleColor.BLUE));
+							break;
+						case 3:
+							c.labels.add(new ConsoleLabel(realX+1, realY, "------", ConsoleColor.BLUE));
+							break;
+					}
 				}
 			}
-		}
+		});
 	}
 	
 	@override
@@ -1356,25 +1401,29 @@ class FeatureFarm extends Feature {
 		int w = floor.width;
 		int h = floor.height;
 		
+		int imageW = 8;
+		int imageH = 6;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
-		Random rng = new Random(hashCode);
+		Random imageRng = new Random(hashCode);
+		int imageX = (x + 1) + imageRng.nextInt(w - imageW);
+		int imageY = y + imageRng.nextInt(h);
 		
-		int torchX = rng.nextInt(w-1) - (w-1)~/2;
-		int torchY = rng.nextInt(h~/2);
-		
-		for (int i = 0; i < 6; i++) {
-			int realX = x + w~/2 + torchX;
-			int realY = y + h~/2 + torchY + i - 1;
+		images.add(imageY, () {
+			for (int i = 0; i < imageH; i++) {
+				int realX = imageX;
+				int realY = imageY + i;
 			
-			if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-				if (crop == null || i%2 == 0) {
-					c.labels.add(new ConsoleLabel(realX, realY, repeatString(crop.icons[growthStage], 8), crop.iconColors[growthStage]));
-				} else {
-					c.labels.add(new ConsoleLabel(realX, realY, "________", ConsoleColor.MAROON));
+				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+					if (crop == null || i%2 == 0) {
+						c.labels.add(new ConsoleLabel(realX, realY, repeatString(crop.icons[growthStage], 8), crop.iconColors[growthStage]));
+					} else {
+						c.labels.add(new ConsoleLabel(realX, realY, "________", ConsoleColor.MAROON));
+					}
 				}
 			}
-		}
+		});
 	}
 	
 	@override
