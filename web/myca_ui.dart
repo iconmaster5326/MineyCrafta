@@ -43,6 +43,39 @@ void handleTitleScreen(Console c) {
 	}
 }
 
+/// Random names, created by user submissions. So no, any references in here aren't intentional.
+final List<String> randomNames = [
+	"Bumpus",
+	"Jethro",
+	"Scrungus",
+	"Zoosmell",
+	"Slagathor",
+	"Elbereth",
+	"Mahoney",
+	"Shoyler",
+	"McDungeons",
+	"Balloon",
+	"Rossdelly",
+	"Andropov",
+	"Urazmus",
+	"Purple",
+	"Jordad",
+	"Pinhead",
+	"Dudemeister",
+	"Hugh",
+	"Moist",
+	"Schmoicle",
+	"Eero",
+	"Schmitz",
+	"Mickey",
+	"Guybrush",
+	"Jake",
+	"Dewey",
+	"Maxime",
+	"Benny",
+	"Jaunty",
+];
+
 void handleNewGame(Console c) {
 	List<ConsoleLabel> intro = new ConsoleLabel(0, 1, fitToWidth("You, a simple at sign, have woken up in a mysterious land. This, of course, is the world of MINEYCRAFTA. Will you rise to the challenge and claim the world as yours, or will you die hungry and alone? Let us begin your new journey with haste!\n\nBut first...\nWhat is your name?", c.width-2)).as2DLabel();
 	for (ConsoleLabel label in intro) {

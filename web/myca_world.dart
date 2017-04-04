@@ -102,7 +102,7 @@ class WorldTile extends Tile {
 			c.labels.add(new ConsoleLabel(x, row, repeatString(".", w), biome.groundColor));
 		}
 		
-		drawFeatures(c, new Rectangle<int>(x, y, w, h), null);
+		drawFeatures(c, new Rectangle<int>(x, y + h~/2 + h%2, w, h~/2), new Rectangle<int>(x, y, w, h~/2));
 		
 		c.labels.add(new ConsoleLabel(x + w~/2, y + h*3~/4, "@"));
 	}

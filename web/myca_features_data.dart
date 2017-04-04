@@ -110,26 +110,31 @@ class FeatureTrees extends Feature {
 		int w = floor.width;
 		int h = floor.height;
 		
+		int imageW = 3;
+		int imageH = 4;
+		
 		if (w <= 1 || h <= 1) {return;}
 		
 		Random treeRng = new Random(hashCode);
 		for (int tree = 0; tree < numTrees; tree++) {
-			int treeX = treeRng.nextInt(w-3) - (w-3)~/2;
-			int treeY = treeRng.nextInt(h~/2);
+			int imageX = (x + 1) + treeRng.nextInt(w - imageW);
+			int imageY = y + treeRng.nextInt(h);
 			
-			for (int i = 0; i < 4; i++) {
-				int realX = x + w~/2 + treeX;
-				int realY = y + h~/2 + treeY + i - 3;
-				
-				if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
-					switch (i) {
-						case 0: c.labels.add(new ConsoleLabel(realX, realY, "+-+", breed.leavesColor)); break;
-						case 1: c.labels.add(new ConsoleLabel(realX, realY, "+-+", breed.leavesColor)); break;
-						case 2: c.labels.add(new ConsoleLabel(realX + 1, realY, "|", breed.trunkColor)); break;
-						case 3: c.labels.add(new ConsoleLabel(realX + 1, realY, "|", breed.trunkColor)); break;
+			images.add(imageY, () {
+				for (int i = 0; i < imageH; i++) {
+					int realX = imageX;
+					int realY = imageY + i;
+					
+					if (realX >= x && realX < x + w && realY >= y && realY < y + h) {
+						switch (i) {
+							case 0: c.labels.add(new ConsoleLabel(realX, realY, "+-+", breed.leavesColor)); break;
+							case 1: c.labels.add(new ConsoleLabel(realX, realY, "+-+", breed.leavesColor)); break;
+							case 2: c.labels.add(new ConsoleLabel(realX + 1, realY, "|", breed.trunkColor)); break;
+							case 3: c.labels.add(new ConsoleLabel(realX + 1, realY, "|", breed.trunkColor)); break;
+						}
 					}
 				}
-			}
+			});
 		}
 	}
 	

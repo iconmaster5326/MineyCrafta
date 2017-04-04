@@ -18,7 +18,9 @@ class PriorityQueue<T> extends Object with IterableMixin<T> {
 	}
 	
 	void add(int priority, T value) {
-		_map.putIfAbsent(priority, []);
+		if (!_map.containsKey(priority)) {
+			_map[priority] = [];
+		}
 		_map[priority].add(value);
 	}
 	
