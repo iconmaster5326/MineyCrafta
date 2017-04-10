@@ -229,6 +229,58 @@ class ItemApple extends ItemFood {
 	@override int timeToEat(ItemStack stack) => 2;
 }
 
+class ItemBread extends ItemFood {
+	static ItemBread _cached;
+	ItemBread.raw();
+	factory ItemBread() {
+		if (_cached == null) {
+			_cached = new ItemBread.raw();
+		}
+		return _cached;
+	}
+	
+	@override String name(ItemStack stack) => "Bread";
+	@override double size(ItemStack stack) => 0.4;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => ConsoleColor.OLIVE;
+	@override String desc(ItemStack stack) => "This is a loaf of delicious, baked bread. It's the bread and butter of any farmer's diet, minus the butter.";
+	@override int value(ItemStack stack) => 4;
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemBread";
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemBread());
+	}
+	
+	@override int foodValue(ItemStack stack) => 50;
+	@override int timeToEat(ItemStack stack) => 3;
+}
+
+class RecipeBread extends SmeltingRecipe {
+	RecipeBread() {
+		name = "Bread";
+		desc = "Just cook some wheat up into bread. Just cook it. Just ignore the concept of flour. Please.";
+		inputs = [
+			new RecipeInput("wheat", (stack) => (stack.item is ItemWheat), 3),
+		];
+		timePassed = 2;
+		fuel = 1;
+	}
+	
+	@override
+	List<ItemStack> craft(List<ItemStack> items, [int factor = 1]) => [new ItemStack(new ItemBread(), factor)];
+	
+	@override
+	int scoreOnCraft(List<ItemStack> items) => 4;
+}
+
 /*
 ores/ingots
 */
@@ -1053,6 +1105,7 @@ Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemSeeds": ItemSeeds.loadClass,
 	"ItemWheat": ItemWheat.loadClass,
 	"ItemBone": ItemBone.loadClass,
+	"ItemBread": ItemBread.loadClass,
 };
 
 /*
@@ -1076,4 +1129,5 @@ List<ItemRecipe> craftingTableRecipes = [
 
 List<SmeltingRecipe> smeltingRecipes = [
 	new RecipeIngot(),
+	new RecipeBread(),
 ];
