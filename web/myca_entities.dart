@@ -505,7 +505,7 @@ BattleAction battleActionAttack(Entity user, Entity target, String withDesc, int
 		b.log.write(dmg.toString());
 		b.log.write(" damage!\n");
 		
-		b.hit(target, user, dmg);
+		b.hit(user, target, dmg);
 		
 		return time;
 	};
