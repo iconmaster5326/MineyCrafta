@@ -66,10 +66,13 @@ class Tile {
 	
 	/// This is called when an encounter happens on this tile.
 	List<List<Entity>> randomEncounter() {
+		var possibleMobs = [() => new EntityZombie(), () => new EntitySkeleton()];
 		List<List<Entity>> enemies = [];
-		enemies.add(new List.generate(rng.nextInt(3)+1, (i) => new EntityZombie()));
-		enemies.add(new List.generate(rng.nextInt(3), (i) => new EntityZombie()));
-		enemies.add(new List.generate(rng.nextInt(2), (i) => new EntityZombie()));
+		
+		enemies.add(new List.generate(rng.nextInt(3)+1, (i) => possibleMobs[rng.nextInt(possibleMobs.length)]()));
+		enemies.add(new List.generate(rng.nextInt(3), (i) => possibleMobs[rng.nextInt(possibleMobs.length)]()));
+		enemies.add(new List.generate(rng.nextInt(2), (i) => possibleMobs[rng.nextInt(possibleMobs.length)]()));
+		
 		return enemies;
 	}
 	

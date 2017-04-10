@@ -841,6 +841,40 @@ class EntityZombie extends Entity {
 	List<ItemStack> get deathDrops => [new ItemStack(new ItemRottenFlesh(), rng.nextInt(3)+1)];
 }
 
+class EntitySkeleton extends Entity {
+	EntitySkeleton() {
+		name = "Skeleton";
+		hpMax = 30; hp = hpMax;
+		scoreOnKill = 5;
+	}
+	
+	String get char => "S";
+	ConsoleColor get color => ConsoleColor.WHITE;
+	
+	@override
+	void save(Map<String, Object> json) {
+		json["class"] = "EntitySkeleton";
+	}
+	@override
+	void load(World world, Tile tile, Map<String, Object> json) {
+		
+	}
+	
+	EntitySkeleton.raw() : super.raw();
+	static Entity loadClass(World world, Tile tile, Map<String, Object> json) {
+		return new EntitySkeleton.raw();
+	}
+	
+	BattleAction battleAi(Battle battle) {
+		Entity target = battle.allies[0][rng.nextInt(battle.allies[0].length)];
+		double hitChance = 0.4 + (0.4*battle.getRow(target));
+		
+		return battleActionHitOrMiss(this, target, "bow", rng.nextInt(6)+2, hitChance, 8);
+	}
+	
+	List<ItemStack> get deathDrops => [new ItemStack(new ItemBone(), rng.nextInt(3)+1)];
+}
+
 /*
 ==================
 Load handler map
@@ -851,4 +885,5 @@ typedef Entity EntityLoadHandler(World world, Tile tile, Map<String, Object> jso
 Map<String, EntityLoadHandler> entityLoadHandlers = {
 	"Player": Player.loadClass,
 	"EntityZombie": EntityZombie.loadClass,
+	"EntitySkeleton": EntitySkeleton.loadClass,
 };

@@ -996,6 +996,40 @@ class ItemWheat extends Item {
 }
 
 /*
+mob drops
+*/
+
+class ItemBone extends Item {
+	static ItemBone _cached;
+	ItemBone.raw();
+	factory ItemBone() {
+		if (_cached == null) {
+			_cached = new ItemBone.raw();
+		}
+		return _cached;
+	}
+	
+	@override String name(ItemStack stack) => "Bone";
+	@override double size(ItemStack stack) => 0.6;
+	@override bool stackable(ItemStack stack) => true;
+	@override ConsoleColor color(ItemStack stack) => ConsoleColor.WHITE;
+	@override String desc(ItemStack stack) => "Old and bleached, this object represents the unsettling truth that lies in all of us... A skeleton.";
+	
+	@override
+	void save(ItemStack stack, Map<String, Object> json) {
+		json["class"] = "ItemBone";
+	}
+	@override
+	void load(ItemStack stack, World world, Inventory inventory, Map<String, Object> json) {
+		
+	}
+	
+	static ItemStack loadClass(World world, Inventory inventory, Map<String, Object> json) {
+		return new ItemStack(new ItemBone());
+	}
+}
+
+/*
 =================
 Load handler map
 =================
@@ -1018,6 +1052,7 @@ Map<String, ItemLoadHandler> itemLoadHandlers = {
 	"ItemBucket": ItemBucket.loadClass,
 	"ItemSeeds": ItemSeeds.loadClass,
 	"ItemWheat": ItemWheat.loadClass,
+	"ItemBone": ItemBone.loadClass,
 };
 
 /*
