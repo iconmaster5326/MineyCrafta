@@ -112,9 +112,9 @@ void handleTileView(Console c) {
 	actions.add(new ConsoleLink(0, 0, "Look Around", null, (c, l) {
 		c.onRefresh = handleInspectView;
 	}));
-	actions.add(new ConsoleLink(0, 0, "Craft Item", null, (c, l) {
-		c.onRefresh = handleCraftItem(c, handRecipes);
-	}));
+	//actions.add(new ConsoleLink(0, 0, "Craft Item", null, (c, l) {
+	//	c.onRefresh = handleCraftItem(c, handRecipes);
+	//}));
 	actions.add(new ConsoleLink(0, 0, "Craft Structure", null, (c, l) {
 		c.onRefresh = handleCraftFeature;
 	}));
